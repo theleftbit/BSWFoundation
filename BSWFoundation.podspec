@@ -18,11 +18,12 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/BlurredSoftware/BSWFoundation.git", :tag => "#{s.version}" }
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  s.source_files  = "Source"
+  s.source_files  = "Source/**/*.{swift}"
 
   # ――― Dependencies ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   s.dependency "Alamofire", "~> 3.3.1"
   s.dependency "Result", "~> 2.0.0"
   s.dependency "BNRDeferred"
+  s.dependency "Decodable", "~> 0.4.2"
 
 end

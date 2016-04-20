@@ -4,7 +4,9 @@ PODS:
   - BSWFoundation (0.0.1):
     - Alamofire (~> 3.3.1)
     - BNRDeferred
+    - Decodable (~> 0.4.2)
     - Result (~> 2.0.0)
+  - Decodable (0.4.2)
   - Result (2.0.0)
 
 DEPENDENCIES:
@@ -18,7 +20,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Alamofire: 369bc67b6f5ac33ded3648d7bd21c5bfb91c2ecc
   BNRDeferred: efc7e733b39ea132ab4d1232687058b5f794a1e9
-  BSWFoundation: 64c4c4e1147d4a2f65b1ebc86f318a401aeddaa7
+  BSWFoundation: 83c3213427176f522f3bac57abc4bd33255b5226
+  Decodable: b1cd96ad9f722721bc98b0310952214a47f71d6a
   Result: 9e75e1111c774c6ac594e14907b15057053a7959
 
 PODFILE CHECKSUM: 63b4f127d43a50a04237833e43c9b27e5fb8f54e
