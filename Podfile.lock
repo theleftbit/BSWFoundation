@@ -9,11 +9,11 @@ PODS:
 
 DEPENDENCIES:
   - BNRDeferred (~> 2.0.0-rc.1)
-  - BSWFoundation (from `../`)
+  - BSWFoundation (from `./`)
 
 EXTERNAL SOURCES:
   BSWFoundation:
-    :path: ../
+    :path: ./
 
 SPEC CHECKSUMS:
   Alamofire: 369bc67b6f5ac33ded3648d7bd21c5bfb91c2ecc
@@ -21,6 +21,6 @@ SPEC CHECKSUMS:
   BSWFoundation: 64c4c4e1147d4a2f65b1ebc86f318a401aeddaa7
   Result: 9e75e1111c774c6ac594e14907b15057053a7959
 
-PODFILE CHECKSUM: 56050853d9e20996590b2e86d7e80eceff8bc632
+PODFILE CHECKSUM: 63b4f127d43a50a04237833e43c9b27e5fb8f54e
 
 COCOAPODS: 1.0.0.beta.8
