@@ -22,7 +22,6 @@ Pod::Spec.new do |s|
 
   # ――― Dependencies ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   s.dependency "Alamofire", "~> 3.3.1"
-  s.dependency "Result", "~> 2.0.0"
   s.dependency "BNRDeferred"
   s.dependency "Decodable", "~> 0.4.2"
 
