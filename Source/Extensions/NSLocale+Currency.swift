@@ -6,7 +6,7 @@
 import Foundation
 
 extension NSLocale {
-    class func localeFromCurrencyCode(currencyCode: String) -> NSLocale {
+    public class func localeFromCurrencyCode(currencyCode: String) -> NSLocale {
         
         if let cachedLocale = PriceFormatter.localeCache.objectForKey(currencyCode) as? NSLocale {
             return cachedLocale
@@ -24,11 +24,11 @@ extension NSLocale {
         return NSLocale.currentLocale()
     }
     
-    func currencyCode() -> String {
+    public func currencyCode() -> String {
         return self.objectForKey(NSLocaleCurrencyCode) as? String ?? "USD"
     }
     
-    func formattedPrice(price: NSNumber) -> String {
+    public func formattedPrice(price: NSNumber) -> String {
         
         PriceFormatter.priceFormatter.locale = self
         PriceFormatter.priceFormatter.maximumFractionDigits = price.isFraction ? 2 : 0
@@ -49,13 +49,13 @@ extension NSLocale {
 }
 
 extension NSNumber {
-    var isInteger: Bool {
+    public var isInteger: Bool {
         var rounded = decimalValue
         NSDecimalRound(&rounded, &rounded, 0, NSRoundingMode.RoundDown)
         return NSDecimalNumber(decimal: rounded) == self
     }
     
-    var isFraction: Bool { return !isInteger }
+    public var isFraction: Bool { return !isInteger }
 }
 
 private struct PriceFormatter {

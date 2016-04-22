@@ -10,11 +10,11 @@ extension NSDate {
         self.init(timeIntervalSince1970: ts * (includesMiliseconds ? 1/1000 : 1))
     }
     
-    func formattedStringTimestamp(includeMiliseconds: Bool = true) -> String {
+    public func formattedStringTimestamp(includeMiliseconds: Bool = true) -> String {
         return "\(timestamp(includeMiliseconds:includeMiliseconds))"
     }
 
-    func timestamp(includeMiliseconds includeMiliseconds: Bool = true) -> UInt64 {
+    public func timestamp(includeMiliseconds includeMiliseconds: Bool = true) -> UInt64 {
         return UInt64(floor(self.timeIntervalSince1970 * (includeMiliseconds ? 1000 : 1)))
     }
 }

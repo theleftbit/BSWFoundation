@@ -9,17 +9,17 @@
 import Foundation
 
 extension String {
-    var length: Int {
+    public var length: Int {
         return characters.count
     }
-    var capitalizeFirst: String {
+    public var capitalizeFirst: String {
         if isEmpty { return "" }
         var result = self
         result.replaceRange(startIndex...startIndex, with: String(self[startIndex]).uppercaseString)
         return result
     }
     
-    func trimmedStringAndWithoutNewlineCharacters() -> String {
+    public func trimmedStringAndWithoutNewlineCharacters() -> String {
         return self.stringByReplacingOccurrencesOfString("\n", withString: " ").stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
     }
 }

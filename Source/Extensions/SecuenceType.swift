@@ -6,7 +6,7 @@
 import Foundation
 
 extension SequenceType {
-    func find(@noescape predicate: (Self.Generator.Element) throws -> Bool) rethrows -> Self.Generator.Element? {
+    public func find(@noescape predicate: (Self.Generator.Element) throws -> Bool) rethrows -> Self.Generator.Element? {
         for element in self {
             if try predicate(element) {
                 return element
@@ -18,7 +18,7 @@ extension SequenceType {
 
 extension CollectionType {
     /// Return a copy of `self` with its elements shuffled
-    func shuffle() -> [Generator.Element] {
+    public func shuffle() -> [Generator.Element] {
         var list = Array(self)
         list.shuffleInPlace()
         return list
@@ -27,7 +27,7 @@ extension CollectionType {
 
 extension MutableCollectionType where Index == Int {
     /// Shuffle the elements of `self` in-place.
-    mutating func shuffleInPlace() {
+    mutating public func shuffleInPlace() {
         // empty and single-element collections don't shuffle
         if count < 2 { return }
         
