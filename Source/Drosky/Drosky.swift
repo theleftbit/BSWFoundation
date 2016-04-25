@@ -45,9 +45,9 @@ extension HTTPParameterEncoding {
 // MARK: DroskyResponse
 
 public struct DroskyResponse {
-    let statusCode: Int
-    let httpHeaderFields: [String: String]
-    let data: NSData
+    public let statusCode: Int
+    public let httpHeaderFields: [String: String]
+    public let data: NSData
 }
 
 extension DroskyResponse {
@@ -83,14 +83,23 @@ public final class Drosky {
     
     public func performRequest(forEndpoint endpoint: Endpoint) -> Future<Result<DroskyResponse>> {
         return generateRequest(endpoint)
-                ≈> performNSURLRequest
+                ≈> performRequest
     }
-    
-    public func performNSURLRequest(request: NSURLRequest) -> Future<Result<DroskyResponse>> {
+
+    public func performRequest(forURLRequest request: NSURLRequest) -> Future<Result<DroskyResponse>> {
         return sendRequest(request)
-                ≈> validateDroskyResponse
     }
-    
+
+    public func performAndValidateRequest(forEndpoint endpoint: Endpoint) -> Future<Result<DroskyResponse>> {
+        return generateRequest(endpoint)
+            ≈> performAndValidateNSURLRequest
+    }
+
+    public func performAndValidateNSURLRequest(request: NSURLRequest) -> Future<Result<DroskyResponse>> {
+        return sendRequest(request)
+            ≈> validateDroskyResponse
+    }
+
     // Internal
     private func generateRequest(endpoint: Endpoint) -> Future<Result<NSURLRequest>> {
         let deferred = Deferred<Result<NSURLRequest>>()

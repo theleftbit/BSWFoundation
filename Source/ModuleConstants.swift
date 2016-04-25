@@ -11,7 +11,7 @@ func submoduleName(submodule : String) -> String {
     return ModuleName + "." + submodule
 }
 
-func queueForSubmodule(submodule : String) -> dispatch_queue_t {
+public func queueForSubmodule(submodule : String) -> dispatch_queue_t {
     return dispatch_queue_create(submoduleName(submodule), nil)
 }
 
