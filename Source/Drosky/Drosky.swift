@@ -75,10 +75,11 @@ extension DroskyResponse: CustomStringConvertible {
 public final class Drosky {
     
     private let networkManager: Alamofire.Manager
-    private let queue = queueForSubmodule("drosky")
-    
+    private let queue = queueForSubmodule("drosky", qualityOfService: .UserInitiated)
+    private let dataSerializer = Alamofire.Request.dataResponseSerializer()
+
     public init (configuration: NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()) {
-            networkManager = Alamofire.Manager(configuration: configuration)
+        networkManager = Alamofire.Manager(configuration: configuration)
     }
     
     public func performRequest(forEndpoint endpoint: Endpoint) -> Future<Result<DroskyResponse>> {
@@ -103,7 +104,7 @@ public final class Drosky {
     // Internal
     private func generateRequest(endpoint: Endpoint) -> Future<Result<NSURLRequest>> {
         let deferred = Deferred<Result<NSURLRequest>>()
-        dispatch_async(queue) { [weak self] in
+        queue.addOperationWithBlock { [weak self] in
             guard let welf = self else { return }
             
             let requestResult = welf.generateHTTPRequest(endpoint)
@@ -132,34 +133,41 @@ public final class Drosky {
 
     private func sendRequest(request: NSURLRequest) -> Future<Result<DroskyResponse>> {
         let deferred = Deferred<Result<DroskyResponse>>()
-        let dataSerializer = Alamofire.Request.dataResponseSerializer()
         
         networkManager.request(request)
-            .response(queue: queue,
-                responseSerializer: dataSerializer) { (response) in
-                    switch response.result {
-                    case .Failure(let error):
-                        // TODO: Maybe parse the error data here?
-                        deferred.fill(Result<DroskyResponse>(error: error))
-                    case .Success(let data):
-                        if let urlResponse = response.response, let responseHeaders = urlResponse.allHeaderFields as? [String: String] {
-                            let response = DroskyResponse(statusCode: urlResponse.statusCode, httpHeaderFields: responseHeaders, data: data)
-                            deferred.fill(Result<DroskyResponse>(response))
-                        }
-                        else {
-                            deferred.fill(Result<DroskyResponse>(error: DroskyErrorKind.UnknownResponse))
-                        }
-                    }
+            .response(responseSerializer: dataSerializer) { (response) in
+                self.processResponse(response, deferred: deferred)
         }
         
         return Future(deferred)
+    }
+    
+    private func processResponse(response: Response<NSData, NSError>, deferred: Deferred<Result<DroskyResponse>>) {
+        
+        //TODO: use the Timeline data in Response to calculate an average of the responses from the server
+        
+        queue.addOperationWithBlock {
+            switch response.result {
+            case .Failure(let error):
+                // TODO: Maybe parse the error data here?
+                deferred.fill(Result<DroskyResponse>(error: error))
+            case .Success(let data):
+                if let urlResponse = response.response, let responseHeaders = urlResponse.allHeaderFields as? [String: String] {
+                    let response = DroskyResponse(statusCode: urlResponse.statusCode, httpHeaderFields: responseHeaders, data: data)
+                    deferred.fill(Result<DroskyResponse>(response))
+                }
+                else {
+                    deferred.fill(Result<DroskyResponse>(error: DroskyErrorKind.UnknownResponse))
+                }
+            }
+        }
     }
     
     private func validateDroskyResponse(response: DroskyResponse) -> Future<Result<DroskyResponse>> {
         
         let deferred = Deferred<Result<DroskyResponse>>()
         
-        dispatch_async(queue) {
+        queue.addOperationWithBlock {
             switch response.statusCode {
             case 400:
                 let error = DroskyErrorKind.BadRequest

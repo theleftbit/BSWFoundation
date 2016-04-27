@@ -13,7 +13,7 @@ public func parseDataAsync<T : Decodable>(data:NSData) -> Future<Result<T>> {
     
     let deferred = Deferred<Result<T>>()
     
-    dispatch_async(ParseQueue) {
+    ParseQueue.addOperationWithBlock {
         deferred.fill(parseData(data))
     }
     
@@ -25,7 +25,7 @@ public func parseDataAsync<T : Decodable>(data:NSData) -> Future<Result<[T]>> {
     
     let deferred = Deferred<Result<[T]>>()
 
-    dispatch_async(ParseQueue) {
+    ParseQueue.addOperationWithBlock {
         deferred.fill(parseData(data))
     }
     

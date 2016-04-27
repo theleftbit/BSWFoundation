@@ -11,8 +11,11 @@ func submoduleName(submodule : String) -> String {
     return ModuleName + "." + submodule
 }
 
-public func queueForSubmodule(submodule : String) -> dispatch_queue_t {
-    return dispatch_queue_create(submoduleName(submodule), nil)
+public func queueForSubmodule(submodule : String, qualityOfService: NSQualityOfService = .Background) -> NSOperationQueue {
+    let queue = NSOperationQueue()
+    queue.name = submoduleName(submodule)
+    queue.qualityOfService = qualityOfService
+    return queue
 }
 
 public func undefined<T>(hint: String = "", file: StaticString = #file, line: UInt = #line) -> T {
