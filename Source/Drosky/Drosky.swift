@@ -14,6 +14,15 @@ Inspired by Moya (https://github.com/AshFurrow/Moya)
 
 */
 
+/*
+ Things to improve:
+ 1.- Wrap the network calls in a NSOperation in order to:
+    * Control how many are being sent at the same time
+    * Allow to add priorities in order to differentiate user facing calls to analytics crap
+ 2.- Use the Timeline data in Response to calculate an average of the responses from the server
+ */
+
+
 // Mark: HTTP method and parameter encoding
 
 public enum HTTPMethod: String {
@@ -77,7 +86,8 @@ public final class Drosky {
     private let networkManager: Alamofire.Manager
     private let queue = queueForSubmodule("drosky", qualityOfService: .UserInitiated)
     private let dataSerializer = Alamofire.Request.dataResponseSerializer()
-
+    public var authToken: String?
+    
     public init (configuration: NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()) {
         networkManager = Alamofire.Manager(configuration: configuration)
     }
@@ -121,7 +131,10 @@ public final class Drosky {
         let request = NSMutableURLRequest(URL: URL)
         request.HTTPMethod = endpoint.method.rawValue
         request.allHTTPHeaderFields = endpoint.httpHeaderFields
-        
+        if let authToken = authToken {
+            request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        }
+
         let requestTuple = endpoint.parameterEncoding.alamofireParameterEncoding().encode(request, parameters: endpoint.parameters)
         
         if let error = requestTuple.1 {
@@ -143,8 +156,6 @@ public final class Drosky {
     }
     
     private func processResponse(response: Response<NSData, NSError>, deferred: Deferred<Result<DroskyResponse>>) {
-        
-        //TODO: use the Timeline data in Response to calculate an average of the responses from the server
         
         queue.addOperationWithBlock {
             switch response.result {
