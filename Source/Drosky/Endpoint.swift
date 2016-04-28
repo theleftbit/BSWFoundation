@@ -47,31 +47,3 @@ extension Endpoint {
         return nil
     }
 }
-
-// MARK: Endpoint collections (aka API)
-
-public protocol EndpointCollection: Endpoint {
-    var currentEndpoint: Endpoint { get }
-}
-
-extension EndpointCollection {
-    public var path: String {
-        return currentEndpoint.path
-    }
-    
-    public var method: HTTPMethod {
-        return currentEndpoint.method
-    }
-    
-    public var parameters: [String : AnyObject]? {
-        return currentEndpoint.parameters
-    }
-    
-    public var parameterEncoding: HTTPParameterEncoding {
-        return currentEndpoint.parameterEncoding
-    }
-    
-    public var httpHeaderFields: [String : String]? {
-        return currentEndpoint.httpHeaderFields
-    }
-}
