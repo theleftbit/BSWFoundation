@@ -7,4 +7,11 @@ import Foundation
 
 public protocol Environment {
     func basePath() -> String
+    func routeURL(pathURL: String) -> String
+}
+
+public extension Environment {
+    func routeURL(pathURL: String) -> String {
+        return basePath() + pathURL
+    }
 }

@@ -126,7 +126,7 @@ public final class Drosky {
     }
     
     private func generateHTTPRequest(endpoint: Endpoint) -> Result<NSURLRequest> {
-        guard let URL = NSURL(string: self.environment.basePath() + endpoint.path) else {
+        guard let URL = NSURL(string: environment.routeURL(endpoint.path)) else {
             return Result<NSURLRequest>(error: DroskyErrorKind.MalformedURLError)
         }
 
