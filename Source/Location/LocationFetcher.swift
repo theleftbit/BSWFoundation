@@ -21,7 +21,6 @@ public class LocationFetcher: NSObject, CLLocationManagerDelegate {
         
         guard let _ = NSBundle.mainBundle().objectForInfoDictionaryKey("NSLocationWhenInUseUsageDescription") as? String else {
             fatalError("Please add a NSLocationWhenInUseUsageDescription entry to your Info.plist")
-            return
         }
         
         locationManager.delegate = self

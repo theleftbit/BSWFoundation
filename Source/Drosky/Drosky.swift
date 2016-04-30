@@ -87,9 +87,11 @@ public final class Drosky {
     private let queue = queueForSubmodule("drosky", qualityOfService: .UserInitiated)
     private let dataSerializer = Alamofire.Request.dataResponseSerializer()
     public var authToken: String?
+    public var environment: Environment
     
-    public init (configuration: NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()) {
-        networkManager = Alamofire.Manager(configuration: configuration)
+    public init (environment: Environment, configuration: NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()) {
+        self.environment = environment
+        self.networkManager = Alamofire.Manager(configuration: configuration)
     }
     
     public func performRequest(forEndpoint endpoint: Endpoint) -> Future<Result<DroskyResponse>> {
@@ -124,7 +126,7 @@ public final class Drosky {
     }
     
     private func generateHTTPRequest(endpoint: Endpoint) -> Result<NSURLRequest> {
-        guard let URL = NSURL(string: endpoint.path) else {
+        guard let URL = NSURL(string: self.environment.basePath() + endpoint.path) else {
             return Result<NSURLRequest>(error: DroskyErrorKind.MalformedURLError)
         }
 
