@@ -58,7 +58,7 @@ public func parseJSON<T : Decodable>(j:AnyObject) -> Result<T> {
     } catch let error {
         
         if let typeMismatchError = error as? TypeMismatchError {
-            print("*ERROR* decoding, type \(typeMismatchError.receivedType) mismatched, expected \(typeMismatchError.expectedType) type")
+            print("*ERROR* decoding, type \(typeMismatchError.receivedType) mismatched, expected \(typeMismatchError.expectedType) type, path: \(typeMismatchError.path)")
             result = Result(error: DataParseErrorKind.MalformedSchema)
         } else if let missingKeyError = error as? MissingKeyError {
             print("*ERROR* decoding, key \(missingKeyError.key) is missing")
@@ -79,7 +79,7 @@ public func parseJSON<T : Decodable>(j:AnyObject) -> Result<[T]> {
     } catch let error {
     
         if let typeMismatchError = error as? TypeMismatchError {
-            print("*ERROR* decoding, type \(typeMismatchError.receivedType) mismatched, expected \(typeMismatchError.expectedType) type")
+            print("*ERROR* decoding, type \(typeMismatchError.receivedType) mismatched, expected \(typeMismatchError.expectedType) type, path: \(typeMismatchError.path)")
             result = Result(error: DataParseErrorKind.MalformedSchema)
         } else if let missingKeyError = error as? MissingKeyError {
             print("*ERROR* decoding, key \(missingKeyError.key) is missing")
@@ -103,12 +103,25 @@ public enum DataParseErrorKind: ResultErrorType {
 //MARK: Foundation Types
 
 extension NSDate : Decodable {
+    
+    private struct Date {
+        static let Formatter: NSDateFormatter = {
+            let dateFormatter = NSDateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+            return dateFormatter
+        }()
+    }
+    
     public class func decode(j: AnyObject) throws -> Self {
         
-        guard let epochTime = j as? Double else {
+        guard let dateString = j as? String else {
             throw TypeMismatchError(expectedType: String.self, receivedType: j.dynamicType, object: j)
         }
-        
-        return self.init(timeIntervalSince1970: epochTime)
+
+        guard let date = Date.Formatter.dateFromString(dateString) else {
+            throw RawRepresentableInitializationError(type: NSDate.self, rawValue: dateString, object: j)
+        }
+
+        return self.init(timeIntervalSinceReferenceDate: date.timeIntervalSinceReferenceDate)
     }
 }
