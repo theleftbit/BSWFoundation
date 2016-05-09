@@ -74,7 +74,7 @@ public func parseJSON<T : Decodable>(j:AnyObject) -> Result<T> {
 public func parseJSON<T : Decodable>(j:AnyObject) -> Result<[T]> {
     let result : Result<[T]>
     do {
-        let output : [T] = try [T].decode(j)
+        let output : [T] = try [T].decode(j, ignoreInvalidObjects: true)
         result = Result(output)
     } catch let error {
     

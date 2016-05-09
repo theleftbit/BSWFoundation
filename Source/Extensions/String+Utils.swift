@@ -1,8 +1,5 @@
 //
-//  String+Lenght.swift
-//  Wallapop
-//
-//  Created by Sergi Gracia on 09/12/15.
+//  Created by Pierluigi Cifani on 09/12/15.
 //  Copyright © 2015 Wallapop SL. All rights reserved.
 //
 
