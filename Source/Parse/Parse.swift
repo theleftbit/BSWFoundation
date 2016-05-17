@@ -58,10 +58,10 @@ public func parseJSON<T : Decodable>(j:AnyObject) -> Result<T> {
     } catch let error {
         
         if let typeMismatchError = error as? TypeMismatchError {
-            print("*ERROR* decoding, type \(typeMismatchError.receivedType) mismatched, expected \(typeMismatchError.expectedType) type, path: \(typeMismatchError.path)")
+            print("*ERROR* decoding, type \"\(typeMismatchError.receivedType)\" mismatched, expected \"\(typeMismatchError.expectedType)\" type, path: \(typeMismatchError.path)")
             result = Result(error: DataParseErrorKind.MalformedSchema)
         } else if let missingKeyError = error as? MissingKeyError {
-            print("*ERROR* decoding, key \(missingKeyError.key) is missing")
+            print("*ERROR* decoding, key \"\(missingKeyError.key)\" is missing")
             result = Result(error: DataParseErrorKind.MalformedSchema)
         } else {
             result = Result(error: DataParseErrorKind.UnknownError)
@@ -79,10 +79,10 @@ public func parseJSON<T : Decodable>(j:AnyObject) -> Result<[T]> {
     } catch let error {
     
         if let typeMismatchError = error as? TypeMismatchError {
-            print("*ERROR* decoding, type \(typeMismatchError.receivedType) mismatched, expected \(typeMismatchError.expectedType) type, path: \(typeMismatchError.path)")
+            print("*ERROR* decoding, type \"\(typeMismatchError.receivedType)\" mismatched, expected \"\(typeMismatchError.expectedType)\" type, path: \(typeMismatchError.path)")
             result = Result(error: DataParseErrorKind.MalformedSchema)
         } else if let missingKeyError = error as? MissingKeyError {
-            print("*ERROR* decoding, key \(missingKeyError.key) is missing")
+            print("*ERROR* decoding, key \"\(missingKeyError.key)\" is missing")
             result = Result(error: DataParseErrorKind.MalformedSchema)
         } else {
             result = Result(error: DataParseErrorKind.UnknownError)
