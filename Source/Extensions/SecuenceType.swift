@@ -23,6 +23,11 @@ extension CollectionType {
         list.shuffleInPlace()
         return list
     }
+    
+    /// Returns the element at the specified index iff it is within bounds, otherwise nil.
+    public subscript (safe index: Index) -> Generator.Element? {
+        return indices.contains(index) ? self[index] : nil
+    }
 }
 
 extension MutableCollectionType where Index == Int {
