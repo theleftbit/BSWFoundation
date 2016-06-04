@@ -35,7 +35,7 @@ extension Endpoint {
         return .GET
     }
     
-    var parameters: [String : AnyObject]? {
+    public var parameters: [String : AnyObject]? {
         return nil
     }
     
