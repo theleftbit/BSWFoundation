@@ -125,3 +125,19 @@ extension NSDate : Decodable {
         return self.init(timeIntervalSinceReferenceDate: date.timeIntervalSinceReferenceDate)
     }
 }
+
+extension NSURL : Decodable {
+    
+    public class func decode(j: AnyObject) throws -> Self {
+        
+        guard let urlString = j as? String else {
+            throw TypeMismatchError(expectedType: String.self, receivedType: j.dynamicType, object: j)
+        }
+        
+        guard let _ = NSURL(string: urlString) else {
+            throw RawRepresentableInitializationError(type: NSURL.self, rawValue: urlString, object: j)
+        }
+        
+        return self.init(string: urlString)!
+    }
+}
