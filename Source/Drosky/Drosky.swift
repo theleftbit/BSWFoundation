@@ -86,8 +86,8 @@ public final class Drosky {
     private let networkManager: Alamofire.Manager
     private let queue = queueForSubmodule("drosky", qualityOfService: .UserInitiated)
     private let dataSerializer = Alamofire.Request.dataResponseSerializer()
-    public var authToken: String?
     public var environment: Environment
+    public var authSignature: (() -> (header: String, value: String))?
     
     public init (environment: Environment, configuration: NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()) {
         self.environment = environment
@@ -133,8 +133,9 @@ public final class Drosky {
         let request = NSMutableURLRequest(URL: URL)
         request.HTTPMethod = endpoint.method.rawValue
         request.allHTTPHeaderFields = endpoint.httpHeaderFields
-        if let authToken = authToken {
-            request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        if let authSignature = authSignature {
+            let signature = authSignature()
+            request.setValue(signature.value, forHTTPHeaderField: signature.header)
         }
 
         let requestTuple = endpoint.parameterEncoding.alamofireParameterEncoding().encode(request, parameters: endpoint.parameters)
