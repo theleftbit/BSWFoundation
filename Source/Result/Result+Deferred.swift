@@ -42,6 +42,29 @@ public func both <T, U> (first first: Future<Result<T>>, second: Future<Result<U
     return Future(deferred)
 }
 
+public func bothSerially <T, U> (first first: Future<Result<T>>, second: T -> Future<Result<U>>) ->  Future<Result<(T, U)>> {
+    
+    let deferred = Deferred<Result<(T, U)>>()
+    
+    first.upon{ (firstResult) in
+        guard let firstValue = firstResult.value else {
+            deferred.fill(Result(error: firstResult.error!))
+            return
+        }
+        
+        second(firstValue).upon { (secondResult) in        
+            guard let secondValue = secondResult.value else {
+                deferred.fill(Result(error: secondResult.error!))
+                return
+            }
+            
+            deferred.fill(Result((firstValue, secondValue)))
+        }
+    }
+    
+    return Future(deferred)
+}
+
 //MARK: Private
 
 private func resultToDeferred <T, U>(result: Result<T>, f: T -> Future<Result<U>>) -> Future<Result<U>> {

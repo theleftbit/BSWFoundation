@@ -119,7 +119,7 @@ struct Router {
         }
         
         let request = NSMutableURLRequest(URL: URL)
-        request.HTTPMethod = endpoint.method.rawValue
+        request.HTTPMethod = endpoint.method.alamofireMethod().rawValue
         request.allHTTPHeaderFields = endpoint.httpHeaderFields
         if let signature = self.signature {
             request.setValue(signature.value, forHTTPHeaderField: signature.header)
@@ -164,12 +164,19 @@ public final class Drosky {
                 ≈> sendRequest
                 ≈> processResponse
     }
-    
+
     public func performAndValidateRequest(forEndpoint endpoint: Endpoint) -> Future<Result<DroskyResponse>> {
-        return performRequest(forEndpoint: endpoint) ≈> validateDroskyResponse
+        return performRequest(forEndpoint: endpoint)
+                ≈> validateDroskyResponse
     }
 
-
+    public func performMultipartRequest(forEndpoint endpoint: Endpoint, multipartParams: [MultipartParameter]) -> (Future<Result<DroskyResponse>>, Future<NSProgress>) {
+        let generatedRequest = try! router.urlRequestForEndpoint(endpoint).dematerialize()
+        let multipartRequestTuple = sendMultipartRequest(generatedRequest, multipartParameters: multipartParams)
+        let processedResponse = multipartRequestTuple.0 ≈> processResponse
+        return (processedResponse, multipartRequestTuple.1)
+    }
+    
     //MARK:- Internal
     private func generateRequest(endpoint: Endpoint) -> Future<Result<URLRequestConvertible>> {
         let deferred = Deferred<Result<URLRequestConvertible>>()
@@ -187,17 +194,36 @@ public final class Drosky {
         
         networkManager
             .request(request)
-            .responseData(queue: gcdQueue) { response in
-                switch response.result {
-                case .Failure(let error):
-                    deferred.fill(Result(error: error))
-                case .Success(let data):
-                    guard let response = response.response else { fatalError() }
-                    deferred.fill(Result(value: (data, response)))
-                }
-        }
+            .responseData(queue: gcdQueue) { self.processAlamofireResponse($0, deferred: deferred) }
         
         return Future(deferred)
+    }
+    
+    public func sendMultipartRequest(request: URLRequestConvertible, multipartParameters: [MultipartParameter]) -> (Future<Result<(NSData, NSHTTPURLResponse)>>, Future<NSProgress>) {
+        let deferredResponse = Deferred<Result<(NSData, NSHTTPURLResponse)>>()
+        let deferredProgress = Deferred<NSProgress>()
+        
+        networkManager.upload(
+            request,
+            multipartFormData: { (form) in
+                multipartParameters.forEach { param in
+                    form.appendBodyPart(fileURL: param.fileURL, name: param.parameterKey)
+                }
+            },
+            encodingCompletion: { (result) in
+                switch result {
+                case .Failure(let error):
+                    deferredResponse.fill(Result(error: error))
+                case .Success(let request, _,  _):
+                    deferredProgress.fill(request.progress)
+                    request.responseData(queue: self.gcdQueue) {
+                        self.processAlamofireResponse($0, deferred: deferredResponse)
+                    }
+                }
+            }
+        )
+        
+        return (Future(deferredResponse), Future(deferredProgress))
     }
     
     private func processResponse(data: NSData, urlResponse: NSHTTPURLResponse) -> Future<Result<DroskyResponse>> {
@@ -253,6 +279,16 @@ public final class Drosky {
         }
         
         return Future(deferred)
+    }
+
+    private func processAlamofireResponse(response: Alamofire.Response<NSData, NSError>, deferred: Deferred<Result<(NSData, NSHTTPURLResponse)>>) {
+        switch response.result {
+        case .Failure(let error):
+            deferred.fill(Result(error: error))
+        case .Success(let data):
+            guard let response = response.response else { fatalError() }
+            deferred.fill(Result(value: (data, response)))
+        }
     }
 }
 

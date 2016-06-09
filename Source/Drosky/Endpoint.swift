@@ -47,3 +47,14 @@ extension Endpoint {
         return nil
     }
 }
+
+
+public struct MultipartParameter {
+    public let parameterKey: String
+    public let fileURL: NSURL
+    
+    public init(parameterKey: String, fileURL: NSURL) {
+        self.parameterKey = parameterKey
+        self.fileURL = fileURL
+    }
+}
