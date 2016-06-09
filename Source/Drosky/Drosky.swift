@@ -76,7 +76,7 @@ extension HTTPParameterEncoding {
     }
 }
 
-// MARK: DroskyResponse
+// MARK:- DroskyResponse
 
 public struct DroskyResponse {
     public let statusCode: Int
@@ -104,6 +104,37 @@ extension DroskyResponse: CustomStringConvertible {
     }
 }
 
+
+// MARK:- Router
+
+public typealias Signature = (header: String, value: String)
+
+struct Router {
+    let environment: Environment
+    let signature: Signature?
+    
+    func urlRequestForEndpoint(endpoint: Endpoint) -> Result<URLRequestConvertible> {
+        guard let URL = NSURL(string: environment.routeURL(endpoint.path)) else {
+            return Result<URLRequestConvertible>(error: DroskyErrorKind.MalformedURLError)
+        }
+        
+        let request = NSMutableURLRequest(URL: URL)
+        request.HTTPMethod = endpoint.method.rawValue
+        request.allHTTPHeaderFields = endpoint.httpHeaderFields
+        if let signature = self.signature {
+            request.setValue(signature.value, forHTTPHeaderField: signature.header)
+        }
+        
+        let requestTuple = endpoint.parameterEncoding.alamofireParameterEncoding().encode(request, parameters: endpoint.parameters)
+        
+        if let error = requestTuple.1 {
+            return Result<URLRequestConvertible>(error: error)
+        } else {
+            return Result<URLRequestConvertible>(requestTuple.0)
+        }
+    }
+}
+
 // MARK: - Drosky
 
 public final class Drosky {
@@ -121,11 +152,11 @@ public final class Drosky {
     }
     
     public func setAuthSignature(signature: Signature) {
-        router = Router(environment: self.router.environment, signature: signature)
+        router = Router(environment: router.environment, signature: signature)
     }
 
     public func setEnvironment(environment: Environment) {
-        router = Router(environment: environment, signature: self.router.signature)
+        router = Router(environment: environment, signature: router.signature)
     }
 
     public func performRequest(forEndpoint endpoint: Endpoint) -> Future<Result<DroskyResponse>> {
@@ -134,7 +165,12 @@ public final class Drosky {
                 ≈> processResponse
     }
     
-    // Internal
+    public func performAndValidateRequest(forEndpoint endpoint: Endpoint) -> Future<Result<DroskyResponse>> {
+        return performRequest(forEndpoint: endpoint) ≈> validateDroskyResponse
+    }
+
+
+    //MARK:- Internal
     private func generateRequest(endpoint: Endpoint) -> Future<Result<URLRequestConvertible>> {
         let deferred = Deferred<Result<URLRequestConvertible>>()
         queue.addOperationWithBlock { [weak self] in
@@ -217,34 +253,6 @@ public final class Drosky {
         }
         
         return Future(deferred)
-    }
-}
-
-public typealias Signature = (header: String, value: String)
-
-struct Router {
-    let environment: Environment
-    let signature: Signature?
-    
-    func urlRequestForEndpoint(endpoint: Endpoint) -> Result<URLRequestConvertible> {
-        guard let URL = NSURL(string: environment.routeURL(endpoint.path)) else {
-            return Result<URLRequestConvertible>(error: DroskyErrorKind.MalformedURLError)
-        }
-        
-        let request = NSMutableURLRequest(URL: URL)
-        request.HTTPMethod = endpoint.method.rawValue
-        request.allHTTPHeaderFields = endpoint.httpHeaderFields
-        if let signature = self.signature {
-            request.setValue(signature.value, forHTTPHeaderField: signature.header)
-        }
-        
-        let requestTuple = endpoint.parameterEncoding.alamofireParameterEncoding().encode(request, parameters: endpoint.parameters)
-        
-        if let error = requestTuple.1 {
-            return Result<URLRequestConvertible>(error: error)
-        } else {
-            return Result<URLRequestConvertible>(requestTuple.0)
-        }
     }
 }
 
