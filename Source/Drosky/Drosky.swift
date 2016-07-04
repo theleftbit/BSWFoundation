@@ -141,17 +141,15 @@ public final class Drosky {
     
     private static let ModuleName = "drosky"
     private let networkManager: Alamofire.Manager
-    private lazy var backgroundNetworkManager: Alamofire.Manager = {
-        let appName = NSBundle.mainBundle().infoDictionary?[kCFBundleNameKey as String] as? String ?? Drosky.ModuleName
-        return Alamofire.Manager(configuration: NSURLSessionConfiguration.backgroundSessionConfiguration("\(appName)-\(NSUUID().UUIDString)"))
-    }()
+    private let backgroundNetworkManager: Alamofire.Manager
     private let queue = queueForSubmodule(Drosky.ModuleName, qualityOfService: .UserInitiated)
     private let gcdQueue = dispatch_queue_create(Drosky.ModuleName, DISPATCH_QUEUE_SERIAL)
     private let dataSerializer = Alamofire.Request.dataResponseSerializer()
     var router: Router
     
-    public init (environment: Environment, signature: Signature? = nil, configuration: NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()) {
-        networkManager = Alamofire.Manager(configuration: configuration)
+    public init (environment: Environment, signature: Signature? = nil, backgroundSessionID: String = Drosky.backgroundID()) {
+        networkManager = Alamofire.Manager(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
+        backgroundNetworkManager = Alamofire.Manager(configuration: NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(backgroundSessionID))
         router = Router(environment: environment, signature: signature)
         queue.underlyingQueue = gcdQueue
     }
@@ -180,22 +178,6 @@ public final class Drosky {
         let multipartRequestTuple = performUpload(generatedRequest, multipartParameters: multipartParams)
         let processedResponse = multipartRequestTuple.0 ≈> processResponse
         return (processedResponse, multipartRequestTuple.1)
-    }
-    
-    public var backgroundSessionID: String {
-        get {
-            guard let sessionID = backgroundNetworkManager.session.configuration.identifier else { fatalError("This should have a sessionID") }
-            return sessionID
-        }
-    }
-
-    public var backgroundCompletionHandler: (() -> Void)? {
-        get {
-            return backgroundNetworkManager.backgroundCompletionHandler
-        }
-        set {
-            backgroundNetworkManager.backgroundCompletionHandler = newValue
-        }
     }
 
     //MARK:- Internal
@@ -311,6 +293,40 @@ public final class Drosky {
             deferred.fill(Result(value: (data, response)))
         }
     }
+}
+
+//MARK: Background handling
+
+extension Drosky {
+    
+    private static func backgroundID() -> String {
+        let appName = NSBundle.mainBundle().infoDictionary?[kCFBundleNameKey as String] as? String ?? Drosky.ModuleName
+        return "\(appName)-\(NSUUID().UUIDString)"
+    }
+
+    public var backgroundSessionID: String {
+        get {
+            guard let sessionID = backgroundNetworkManager.session.configuration.identifier else { fatalError("This should have a sessionID") }
+            return sessionID
+        }
+    }
+    
+    public func completedBackgroundTasksURL() -> Future<[NSURL]> {
+        
+        let deferred = Deferred<[NSURL]>()
+        
+        backgroundNetworkManager.delegate.sessionDidFinishEventsForBackgroundURLSession = { session in
+            
+            session.getTasksWithCompletionHandler { (dataTasks, _, _) -> Void in
+                let completedTasks = dataTasks.filter { $0.state == .Completed && $0.originalRequest?.URL != nil}
+                deferred.fill(completedTasks.map { return $0.originalRequest!.URL!})
+                self.backgroundNetworkManager.backgroundCompletionHandler?()
+            }
+        }
+        
+        return Future(deferred)
+    }
+
 }
 
 //MARK:- Errors
