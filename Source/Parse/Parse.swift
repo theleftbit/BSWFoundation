@@ -9,7 +9,7 @@ import Deferred
 private let ParseSubmoduleName = "parse"
 private let ParseQueue = queueForSubmodule(ParseSubmoduleName)
 
-public func parseDataAsync<T : Decodable>(data:NSData) -> Future<Result<T>> {
+public func parseDataAsync<T : Decodable>(data: NSData) -> Future<Result<T>> {
     
     let deferred = Deferred<Result<T>>()
     
@@ -21,7 +21,7 @@ public func parseDataAsync<T : Decodable>(data:NSData) -> Future<Result<T>> {
 }
 
 
-public func parseDataAsync<T : Decodable>(data:NSData) -> Future<Result<[T]>> {
+public func parseDataAsync<T : Decodable>(data: NSData) -> Future<Result<[T]>> {
     
     let deferred = Deferred<Result<[T]>>()
 
@@ -41,7 +41,7 @@ public func parseData<T : Decodable>(data:NSData) -> Result<T> {
     return parseJSON(j)
 }
 
-public func parseData<T : Decodable>(data:NSData) -> Result<[T]> {
+public func parseData<T : Decodable>(data: NSData) -> Result<[T]> {
     
     guard let j = try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) else {
         return Result(error: DataParseErrorKind.MalformedJSON)
@@ -50,7 +50,7 @@ public func parseData<T : Decodable>(data:NSData) -> Result<[T]> {
     return parseJSON(j)
 }
 
-public func parseJSON<T : Decodable>(j:AnyObject) -> Result<T> {
+public func parseJSON<T : Decodable>(j: AnyObject) -> Result<T> {
     let result : Result<T>
     do {
         let output : T = try T.decode(j)
@@ -71,10 +71,17 @@ public func parseJSON<T : Decodable>(j:AnyObject) -> Result<T> {
     return result
 }
 
-public func parseJSON<T : Decodable>(j:AnyObject) -> Result<[T]> {
+public func parseJSON<T : Decodable>(j: AnyObject) -> Result<[T]> {
     let result : Result<[T]>
     do {
-        let output : [T] = try [T].decode(j, ignoreInvalidObjects: true)
+        
+        #if DEBUG
+            let ignoreInvalidObjects = false
+        #else
+            let ignoreInvalidObjects = true
+        #endif
+
+         let output: [T] = try [T].decode(j, ignoreInvalidObjects: ignoreInvalidObjects)
         result = Result(output)
     } catch let error {
     
