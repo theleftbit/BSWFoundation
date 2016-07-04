@@ -139,9 +139,14 @@ struct Router {
 
 public final class Drosky {
     
+    private static let ModuleName = "drosky"
     private let networkManager: Alamofire.Manager
-    private let queue = queueForSubmodule("drosky", qualityOfService: .UserInitiated)
-    private let gcdQueue = dispatch_queue_create("drosky", DISPATCH_QUEUE_SERIAL)
+    private lazy var backgroundNetworkManager: Alamofire.Manager = {
+        let appName = NSBundle.mainBundle().infoDictionary?[kCFBundleNameKey as String] as? String ?? Drosky.ModuleName
+        return Alamofire.Manager(configuration: NSURLSessionConfiguration.backgroundSessionConfiguration("\(appName)-\(NSUUID().UUIDString)"))
+    }()
+    private let queue = queueForSubmodule(Drosky.ModuleName, qualityOfService: .UserInitiated)
+    private let gcdQueue = dispatch_queue_create(Drosky.ModuleName, DISPATCH_QUEUE_SERIAL)
     private let dataSerializer = Alamofire.Request.dataResponseSerializer()
     var router: Router
     
@@ -170,13 +175,29 @@ public final class Drosky {
                 ≈> validateDroskyResponse
     }
 
-    public func performMultipartRequest(forEndpoint endpoint: Endpoint, multipartParams: [MultipartParameter]) -> (Future<Result<DroskyResponse>>, Future<NSProgress>) {
+    public func performMultipartUpload(forEndpoint endpoint: Endpoint, multipartParams: [MultipartParameter]) -> (Future<Result<DroskyResponse>>, Future<NSProgress>) {
         let generatedRequest = try! router.urlRequestForEndpoint(endpoint).dematerialize()
-        let multipartRequestTuple = sendMultipartRequest(generatedRequest, multipartParameters: multipartParams)
+        let multipartRequestTuple = performUpload(generatedRequest, multipartParameters: multipartParams)
         let processedResponse = multipartRequestTuple.0 ≈> processResponse
         return (processedResponse, multipartRequestTuple.1)
     }
     
+    public var backgroundSessionID: String {
+        get {
+            guard let sessionID = backgroundNetworkManager.session.configuration.identifier else { fatalError("This should have a sessionID") }
+            return sessionID
+        }
+    }
+
+    public var backgroundCompletionHandler: (() -> Void)? {
+        get {
+            return backgroundNetworkManager.backgroundCompletionHandler
+        }
+        set {
+            backgroundNetworkManager.backgroundCompletionHandler = newValue
+        }
+    }
+
     //MARK:- Internal
     private func generateRequest(endpoint: Endpoint) -> Future<Result<URLRequestConvertible>> {
         let deferred = Deferred<Result<URLRequestConvertible>>()
@@ -199,11 +220,11 @@ public final class Drosky {
         return Future(deferred)
     }
     
-    public func sendMultipartRequest(request: URLRequestConvertible, multipartParameters: [MultipartParameter]) -> (Future<Result<(NSData, NSHTTPURLResponse)>>, Future<NSProgress>) {
+    private func performUpload(request: URLRequestConvertible, multipartParameters: [MultipartParameter]) -> (Future<Result<(NSData, NSHTTPURLResponse)>>, Future<NSProgress>) {
         let deferredResponse = Deferred<Result<(NSData, NSHTTPURLResponse)>>()
         let deferredProgress = Deferred<NSProgress>()
         
-        networkManager.upload(
+        backgroundNetworkManager.upload(
             request,
             multipartFormData: { (form) in
                 multipartParameters.forEach { param in

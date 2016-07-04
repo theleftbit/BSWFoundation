@@ -66,6 +66,8 @@ public func parseJSON<T : Decodable>(j: AnyObject) -> Result<T> {
         } else {
             result = Result(error: DataParseErrorKind.UnknownError)
         }
+        
+        print("Received JSON: \(j)")
     }
     
     return result
@@ -94,6 +96,8 @@ public func parseJSON<T : Decodable>(j: AnyObject) -> Result<[T]> {
         } else {
             result = Result(error: DataParseErrorKind.UnknownError)
         }
+        
+        print("Received JSON: \(j)")
     }
     
     return result
