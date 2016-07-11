@@ -154,7 +154,7 @@ public final class Drosky {
         queue.underlyingQueue = gcdQueue
     }
     
-    public func setAuthSignature(signature: Signature) {
+    public func setAuthSignature(signature: Signature?) {
         router = Router(environment: router.environment, signature: signature)
     }
 
