@@ -1,6 +1,6 @@
 //
 //  Created by Pierluigi Cifani on 18/02/16.
-//  Copyright © 2016 Wallapop SL. All rights reserved.
+//  Copyright © 2016 Blurred Software SL SL. All rights reserved.
 //
 
 import Foundation
@@ -41,5 +41,11 @@ extension MutableCollectionType where Index == Int {
             guard i != j else { continue }
             swap(&self[i], &self[j])
         }
+    }
+}
+
+extension Array {
+    mutating public func moveItem(fromIndex oldIndex: Index, toIndex newIndex: Index) {
+        insert(removeAtIndex(oldIndex), atIndex: newIndex)
     }
 }
