@@ -63,6 +63,9 @@ public func parseJSON<T : Decodable>(j: AnyObject) -> Result<T> {
         } else if let missingKeyError = error as? MissingKeyError {
             print("*ERROR* decoding, key \"\(missingKeyError.key)\" is missing")
             result = Result(error: DataParseErrorKind.MalformedSchema)
+        } else if let rawRepresentationError = error as? RawRepresentableInitializationError {
+            print("*ERROR* decoding, \(rawRepresentationError.debugDescription)")
+            result = Result(error: DataParseErrorKind.MalformedSchema)
         } else {
             result = Result(error: DataParseErrorKind.UnknownError)
         }
@@ -92,6 +95,9 @@ public func parseJSON<T : Decodable>(j: AnyObject) -> Result<[T]> {
             result = Result(error: DataParseErrorKind.MalformedSchema)
         } else if let missingKeyError = error as? MissingKeyError {
             print("*ERROR* decoding, key \"\(missingKeyError.key)\" is missing")
+            result = Result(error: DataParseErrorKind.MalformedSchema)
+        } else if let rawRepresentationError = error as? RawRepresentableInitializationError {
+            print("*ERROR* decoding, \(rawRepresentationError.debugDescription)")
             result = Result(error: DataParseErrorKind.MalformedSchema)
         } else {
             result = Result(error: DataParseErrorKind.UnknownError)
