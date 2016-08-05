@@ -155,7 +155,7 @@ public final class Drosky {
         
         let serverTrustPolicies = Drosky.serverTrustPoliciesDisablingEvaluationForHosts(trustedHosts)
         
-        let serverTrustManager: ServerTrustPolicyManager? = ServerTrustPolicyManager(policies: serverTrustPolicies)
+        let serverTrustManager: ServerTrustPolicyManager = ServerTrustPolicyManager(policies: serverTrustPolicies)
         
         networkManager = Alamofire.Manager(
             configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
