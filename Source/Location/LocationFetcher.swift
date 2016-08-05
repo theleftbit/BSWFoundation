@@ -79,7 +79,7 @@ public class LocationFetcher: NSObject, CLLocationManagerDelegate {
         guard status != .NotDetermined else { return }
         
         if status == .AuthorizedAlways || status == .AuthorizedWhenInUse {
-            manager.startUpdatingLocation()
+            manager.requestLocation()
         } else {
             completeCurrentRequest()
         }
