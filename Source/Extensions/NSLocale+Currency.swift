@@ -1,6 +1,6 @@
 //
 //  Created by Pierluigi Cifani on 3/14/16.
-//  Copyright © 2016 Wallapop SL. All rights reserved.
+//  Copyright © 2016 Blurred Software SL SL. All rights reserved.
 //
 
 import Foundation

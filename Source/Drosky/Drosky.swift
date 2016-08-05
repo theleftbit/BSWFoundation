@@ -147,9 +147,25 @@ public final class Drosky {
     private let dataSerializer = Alamofire.Request.dataResponseSerializer()
     var router: Router
     
-    public init (environment: Environment, signature: Signature? = nil, backgroundSessionID: String = Drosky.backgroundID()) {
-        networkManager = Alamofire.Manager(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
-        backgroundNetworkManager = Alamofire.Manager(configuration: NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(backgroundSessionID))
+    public init (
+        environment: Environment,
+        signature: Signature? = nil,
+        backgroundSessionID: String = Drosky.backgroundID(),
+        trustedHosts: [String] = []) {
+        
+        let serverTrustPolicies = Drosky.serverTrustPoliciesDisablingEvaluationForHosts(trustedHosts)
+        
+        let serverTrustManager = ServerTrustPolicyManager(policies: serverTrustPolicies)
+        
+        networkManager = Alamofire.Manager(
+            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
+            serverTrustPolicyManager: serverTrustManager
+        )
+        
+        backgroundNetworkManager = Alamofire.Manager(
+            configuration: NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(backgroundSessionID),
+            serverTrustPolicyManager: serverTrustManager
+        )
         router = Router(environment: environment, signature: signature)
         queue.underlyingQueue = gcdQueue
     }
@@ -160,6 +176,12 @@ public final class Drosky {
 
     public func setEnvironment(environment: Environment) {
         router = Router(environment: environment, signature: router.signature)
+    }
+    
+    private static func serverTrustPoliciesDisablingEvaluationForHosts(hosts: [String]) -> [String: ServerTrustPolicy] {
+        var policies = [String: ServerTrustPolicy]()
+        hosts.forEach { policies[$0] = .DisableEvaluation }
+        return policies
     }
 
     public func performRequest(forEndpoint endpoint: Endpoint) -> Future<Result<DroskyResponse>> {
