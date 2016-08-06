@@ -7,6 +7,8 @@ import Foundation
 import CoreLocation
 import Deferred
 
+#if os(iOS)
+
 @available(iOS 9, *)
 public class LocationFetcher: NSObject, CLLocationManagerDelegate {
     
@@ -86,3 +88,5 @@ public class LocationFetcher: NSObject, CLLocationManagerDelegate {
     }
 
 }
+    
+#endif
