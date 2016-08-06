@@ -13,7 +13,7 @@ func submoduleName(submodule : String) -> String {
 
 public typealias VoidHandler = Void -> Void
 
-public func queueForSubmodule(submodule : String, qualityOfService: NSQualityOfService = .Background) -> NSOperationQueue {
+public func queueForSubmodule(submodule : String, qualityOfService: NSQualityOfService = .Default) -> NSOperationQueue {
     let queue = NSOperationQueue()
     queue.name = submoduleName(submodule)
     queue.qualityOfService = qualityOfService
