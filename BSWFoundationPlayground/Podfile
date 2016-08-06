@@ -1,7 +1,7 @@
 use_frameworks!
 
 abstract_target 'Common' do
-    pod 'BSWFoundation', :path => '/Users/piercifani/Workspace/BlurredSoftware/BSWFoundation'
+    pod 'BSWFoundation', :path => '../BSWFoundation.podspec'
     
     target 'BSWFoundationPlayground'
     target 'Tests'

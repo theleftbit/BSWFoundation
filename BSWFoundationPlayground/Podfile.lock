@@ -8,11 +8,11 @@ PODS:
   - Decodable (0.4.3)
 
 DEPENDENCIES:
-  - BSWFoundation (from `/Users/piercifani/Workspace/BlurredSoftware/BSWFoundation`)
+  - BSWFoundation (from `../BSWFoundation.podspec`)
 
 EXTERNAL SOURCES:
   BSWFoundation:
-    :path: "/Users/piercifani/Workspace/BlurredSoftware/BSWFoundation"
+    :path: "../BSWFoundation.podspec"
 
 SPEC CHECKSUMS:
   Alamofire: 369bc67b6f5ac33ded3648d7bd21c5bfb91c2ecc
@@ -20,6 +20,6 @@ SPEC CHECKSUMS:
   BSWFoundation: 588a7d67f040842f7414209bc210a712dc595e0a
   Decodable: ab6c7d02a5df949d3ab16b2696528a3241e37c76
 
-PODFILE CHECKSUM: fff359763bb3fd231f684e221446b6e5832a6a07
+PODFILE CHECKSUM: ad335ade2175ef4edb70aec508a1fe389368c196
 
 COCOAPODS: 1.0.1
