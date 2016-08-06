@@ -4,9 +4,7 @@ abstract_target 'Common' do
     pod 'BSWFoundation', :path => '/Users/piercifani/Workspace/BlurredSoftware/BSWFoundation'
     
     target 'BSWFoundationPlayground'
-    target 'Tests' do
-        inherit! :search_paths
-    end
+    target 'Tests'
 end
 
 post_install do |installer|
