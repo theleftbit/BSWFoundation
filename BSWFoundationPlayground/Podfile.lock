@@ -1,0 +1,25 @@
+PODS:
+  - Alamofire (3.3.1)
+  - BNRDeferred (2.0.0)
+  - BSWFoundation (0.1.0):
+    - Alamofire (~> 3.3.1)
+    - BNRDeferred (~> 2.0.0)
+    - Decodable (~> 0.4.2)
+  - Decodable (0.4.3)
+
+DEPENDENCIES:
+  - BSWFoundation (from `/Users/piercifani/Workspace/BlurredSoftware/BSWFoundation`)
+
+EXTERNAL SOURCES:
+  BSWFoundation:
+    :path: "/Users/piercifani/Workspace/BlurredSoftware/BSWFoundation"
+
+SPEC CHECKSUMS:
+  Alamofire: 369bc67b6f5ac33ded3648d7bd21c5bfb91c2ecc
+  BNRDeferred: 997afb88274c35536349074f731afa11d61ac433
+  BSWFoundation: 588a7d67f040842f7414209bc210a712dc595e0a
+  Decodable: ab6c7d02a5df949d3ab16b2696528a3241e37c76
+
+PODFILE CHECKSUM: 2ded5678337cec2f5e1ddf267fb7305d68e22257
+
+COCOAPODS: 1.0.1
