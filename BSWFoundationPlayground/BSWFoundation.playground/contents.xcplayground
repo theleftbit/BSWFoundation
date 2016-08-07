@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<playground version='5.0' target-platform='ios'>
-    <timeline fileName='timeline.xctimeline'/>
+<playground version='6.0' target-platform='ios' display-mode='raw'>
+    <pages>
+        <page name='Welcome'/>
+        <page name='Result and Deferred'/>
+        <page name='Parse'/>
+        <page name='Drosky'/>
+        <page name='LocationFetcher'/>
+    </pages>
 </playground>

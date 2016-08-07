@@ -1,7 +1,21 @@
 //: [Previous](@previous)
 
-import Foundation
+import BSWFoundation
+import XCPlayground
+XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
 
-var str = "Hello, playground"
+enum BSWEnvironment: Environment {
+    case Production
+    
+    var basePath: String {
+        switch self {
+        case .Production:
+            return "https://blurredsoftware.com/"
+        }
+    }
+}
+
+let drosky = Drosky(environment: BSWEnvironment.Production)
+print(drosky.backgroundSessionID)
 
 //: [Next](@next)
