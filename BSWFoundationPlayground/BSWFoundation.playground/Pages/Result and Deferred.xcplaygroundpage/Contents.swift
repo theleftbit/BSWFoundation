@@ -21,8 +21,8 @@ func calculatePowerOf2(value: String) -> Float {
 let invalidCharacter = "h"
 let validCharacter = "2"
 
-print(calculatePowerOf2(invalidCharacter))
-print(calculatePowerOf2(validCharacter))
+let invalidValue: Float = calculatePowerOf2(invalidCharacter)
+let validValue: Float =  calculatePowerOf2(validCharacter)
 
 /*:
  Notice that if the String couldn't be cast to a number, we are returning 0, because we have no way of notifying the caller that the operation couldn't be completed in a more expressive way.
@@ -49,7 +49,7 @@ print(calculatePowerOf2(validCharacter))
  Compare the previous version to this one, written using `Result<T>`:
  */
 
-func calculatePowerOf2WithResult(value: String) -> Result<Float> {
+func calculatePowerOf2(value: String) -> Result<Float> {
     
     enum PowerError: ErrorType {
         case couldNotCast
@@ -59,19 +59,46 @@ func calculatePowerOf2WithResult(value: String) -> Result<Float> {
     return Result(pow(floatValue, 2))
 }
 
-print(calculatePowerOf2WithResult(invalidCharacter))
-print(calculatePowerOf2WithResult(validCharacter))
+let failedResult: Result<Float> = calculatePowerOf2(invalidCharacter)
+let succesfulResult: Result<Float> = calculatePowerOf2(validCharacter)
 
 /*:
  Much better! Now on the calling site we have to explicitly handle the error case, which leads to safer code. 
  
  Also, on the function site we now have to explicitly return an error when something fails. On the example above, we created an `enum` to handle all the possible errors that could be thrown from that function. We could also use enum's associated values to attach more information of the error if necessary.
  
- But, this doesn't stop here. `Result` is a [monad](https://en.wikipedia.org/wiki/Monad_(functional_programming)), which means that we can use `map` and `flatMap` to create more complex operations:
+ But, this doesn't stop here. `Result` is a [monad](https://en.wikipedia.org/wiki/Monad_(functional_programming)), which means that we can use `map` to create more complex operations:
  */
 
 func multiplyByTwo(value: Float) -> Float {
     return value * 2
 }
 
-print(calculatePowerOf2WithResult(validCharacter).map(multiplyByTwo))
+let compoundOperation = calculatePowerOf2(validCharacter)
+                        .map(multiplyByTwo)
+
+switch compoundOperation {
+case .Success(let value):
+    print("The value is \(value)")
+case .Failure(let error):
+    print("There was an error: \(error)")
+}
+
+/*:
+ This allows us to decompose complex problems into functions that are:
+ 
+ 1. Small.
+ 2. Easy to reason about.
+ 3. Easy to test.
+ 
+ Then, using `map` and `flatMap` we "stich" these functions togheter to make sure that we have a valid solution for the complex problem. Like this:
+ ```    
+ public func fetchLocationAndUsers() -> Result<[User]> {
+        return fetchCurrentLocation()
+                .map(buildSearchFilter)
+                .flatMap(fetchUsers)
+ }
+```
+ */
+
+
