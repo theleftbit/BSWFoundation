@@ -257,13 +257,14 @@ public final class Drosky {
         
         queue.addOperationWithBlock {
             if let responseHeaders = urlResponse.allHeaderFields as? [String: String] {
-                let result = Result(value:
-                    DroskyResponse(
-                        statusCode: urlResponse.statusCode,
-                        httpHeaderFields: responseHeaders,
-                        data: data
-                    )
+
+                let droskyResponse = DroskyResponse(
+                    statusCode: urlResponse.statusCode,
+                    httpHeaderFields: responseHeaders,
+                    data: data
                 )
+                
+                let result = Result(droskyResponse)
                 deferred.fill(result)
             }
             else {
