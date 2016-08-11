@@ -5,7 +5,7 @@
 </p>
 
 ![](https://travis-ci.org/BlurredSoftware/BSWFoundation.svg?branch=master) ![](http://img.shields.io/cocoapods/v/BSWFoundation.svg?style=flat)
-![](https://img.shields.io/cocoapods/p/BSWFoundation.svg?style=flat)]
+![](https://img.shields.io/cocoapods/p/BSWFoundation.svg?style=flat)
 
 #About
 
