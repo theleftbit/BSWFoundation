@@ -21,6 +21,10 @@ public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: T -> U) -> Future<Result<U>
     return lhs.flatMap { resultToDeferred($0, f: rhs) }
 }
 
+public func ≈> <T, U>(lhs: Future<T>, rhs: T -> Result<U>) -> Future<Result<U>> {
+    return lhs.map { return rhs($0) }
+}
+
 public func both <T, U> (first first: Future<Result<T>>, second: Future<Result<U>>) ->  Future<Result<(T, U)>> {
     
     let deferred = Deferred<Result<(T, U)>>()
