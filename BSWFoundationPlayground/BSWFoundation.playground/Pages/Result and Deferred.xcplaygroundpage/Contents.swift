@@ -14,7 +14,7 @@ import Deferred
  Let's see what's wrong with this function, which calculates the power of two of an element the user introduced in a `UITextField`, which is, off course, a `String`:
  */
 func calculatePowerOf2(value: String) -> Float {
-    guard let floatValue = Float(value) else { return 0 }
+    guard let floatValue = Float(value) else { return -1 }
     return pow(floatValue, 2)
 }
 
@@ -25,7 +25,7 @@ let invalidValue: Float = calculatePowerOf2(invalidCharacter)
 let validValue: Float =  calculatePowerOf2(validCharacter)
 
 /*:
- Notice that if the String couldn't be cast to a number, we are returning 0, because we have no way of notifying the caller that the operation couldn't be completed in a more expressive way.
+ Notice that if the String couldn't be cast to a number, we are returning -1, because we have no way of notifying the caller that the operation couldn't be completed in a more expressive way.
  
  We could, off course, take a hint from Objective-C, which modeled this operations passing an NSError's pointer to the function, and setting that to an appropiate error when available, like this:
 
