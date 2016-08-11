@@ -15,10 +15,10 @@ public class LocationFetcher: NSObject, CLLocationManagerDelegate {
     public static let fetcher = LocationFetcher()
     
     private let locationManager = CLLocationManager()
-    private var lastKnownLocation: CLLocation?
     private var currentRequest: Deferred<CLLocation?>?
     public let desiredAccuracy = kCLLocationAccuracyHundredMeters
-    
+    public var lastKnownLocation: CLLocation?
+
     override init() {
         super.init()
         
