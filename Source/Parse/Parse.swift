@@ -50,6 +50,30 @@ public func parseData<T : Decodable>(data: NSData) -> Result<[T]> {
     return parseJSON(j)
 }
 
+public func dataIsNull(data: NSData) -> Bool {
+    guard let j = try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) else {
+        return false
+    }
+
+    guard let _ = j as? NSNull else {
+        return false
+    }
+    
+    return true
+}
+
+public func errorMessageFromData(data: NSData) -> String? {
+    guard let j = try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) else {
+        return nil
+    }
+    
+    guard let dictionary = j as? [String : String] else {
+        return nil
+    }
+    
+    return dictionary["error"]
+}
+
 public func parseJSON<T : Decodable>(j: AnyObject) -> Result<T> {
     let result : Result<T>
     do {
