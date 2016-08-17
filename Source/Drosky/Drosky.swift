@@ -264,6 +264,12 @@ public final class Drosky {
                     data: data
                 )
                 
+                #if DEBUG
+                    if let message = JSONParser.errorMessageFromData(droskyResponse.data) {
+                        print(message)
+                    }
+                #endif
+
                 let result = Result(droskyResponse)
                 deferred.fill(result)
             }
