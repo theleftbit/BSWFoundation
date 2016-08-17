@@ -149,10 +149,17 @@ public enum DataParseErrorKind: ResultErrorType {
 
 extension NSDate : Decodable {
     
-    private struct ISO8601DateFormatter {
-        static let Formatter: NSDateFormatter = {
+    private struct DateFormatter {
+        static let ISO8601Formatter: NSDateFormatter = {
             let dateFormatter = NSDateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+            return dateFormatter
+        }()
+        
+        static let SimpleFormatter: NSDateFormatter = {
+            let dateFormatter = NSDateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            dateFormatter.locale = NSLocale.currentLocale()
             return dateFormatter
         }()
     }
@@ -163,11 +170,15 @@ extension NSDate : Decodable {
             throw TypeMismatchError(expectedType: String.self, receivedType: j.dynamicType, object: j)
         }
 
-        guard let date = ISO8601DateFormatter.Formatter.dateFromString(dateString) else {
+        if let date = DateFormatter.ISO8601Formatter.dateFromString(dateString) {
+            return self.init(timeIntervalSinceReferenceDate: date.timeIntervalSinceReferenceDate)
+        }
+        else if let date = DateFormatter.SimpleFormatter.dateFromString(dateString) {
+            return self.init(timeIntervalSinceReferenceDate: date.timeIntervalSinceReferenceDate)
+        }
+        else {
             throw RawRepresentableInitializationError(type: NSDate.self, rawValue: dateString, object: j)
         }
-
-        return self.init(timeIntervalSinceReferenceDate: date.timeIntervalSinceReferenceDate)
     }
 }
 
