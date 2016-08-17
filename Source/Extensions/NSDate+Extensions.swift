@@ -4,17 +4,17 @@
 
 import Foundation
 
-extension NSDate {
+extension Date {
 
-    public convenience init(timestamp ts: Double, includesMiliseconds: Bool = false) {
-        self.init(timeIntervalSince1970: ts * (includesMiliseconds ? 1/1000 : 1))
+    public init(timestamp ts: Double, includesMiliseconds: Bool = false) {
+        (self as NSDate).init(timeIntervalSince1970: ts * (includesMiliseconds ? 1/1000 : 1))
     }
     
-    public func formattedStringTimestamp(includeMiliseconds: Bool = true) -> String {
+    public func formattedStringTimestamp(_ includeMiliseconds: Bool = true) -> String {
         return "\(timestamp(includeMiliseconds:includeMiliseconds))"
     }
 
-    public func timestamp(includeMiliseconds includeMiliseconds: Bool = true) -> UInt64 {
+    public func timestamp(includeMiliseconds: Bool = true) -> UInt64 {
         return UInt64(floor(self.timeIntervalSince1970 * (includeMiliseconds ? 1000 : 1)))
     }
 }

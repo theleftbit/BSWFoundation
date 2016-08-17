@@ -8,24 +8,24 @@ import Deferred
 
 public enum JSONParser {
     
-    private static let queue = queueForSubmodule("JSONParser")
+    fileprivate static let queue = queueForSubmodule("JSONParser")
 
-    public static func parseDataAsync<T: Decodable>(data: NSData) -> Future<Result<T>> {
+    public static func parseDataAsync<T: Decodable>(_ data: Data) -> Future<Result<T>> {
         
         let deferred = Deferred<Result<T>>()
         
-        queue.addOperationWithBlock {
+        queue.addOperation {
             deferred.fill(parseData(data))
         }
         
         return Future(deferred)
     }
 
-    public static func parseDataAsync<T : Decodable>(data: NSData) -> Future<Result<[T]>> {
+    public static func parseDataAsync<T : Decodable>(_ data: Data) -> Future<Result<[T]>> {
         
         let deferred = Deferred<Result<[T]>>()
         
-        queue.addOperationWithBlock {
+        queue.addOperation {
             deferred.fill(parseData(data))
         }
         
@@ -33,26 +33,26 @@ public enum JSONParser {
     }
 
     
-    public static func parseData<T : Decodable>(data:NSData) -> Result<T> {
+    public static func parseData<T : Decodable>(_ data:Data) -> Result<T> {
         
-        guard let j = try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) else {
-            return Result(error: DataParseErrorKind.MalformedJSON)
+        guard let j = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else {
+            return Result(error: DataParseErrorKind.malformedJSON)
         }
         
-        return parseJSON(j)
+        return parseJSON(j as AnyObject)
     }
     
-    public static func parseData<T : Decodable>(data: NSData) -> Result<[T]> {
+    public static func parseData<T : Decodable>(_ data: Data) -> Result<[T]> {
         
-        guard let j = try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) else {
-            return Result(error: DataParseErrorKind.MalformedJSON)
+        guard let j = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else {
+            return Result(error: DataParseErrorKind.malformedJSON)
         }
         
-        return parseJSON(j)
+        return parseJSON(j as AnyObject)
     }
 
-    public static func dataIsNull(data: NSData) -> Bool {
-        guard let j = try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) else {
+    public static func dataIsNull(_ data: Data) -> Bool {
+        guard let j = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else {
             return false
         }
         
@@ -63,8 +63,8 @@ public enum JSONParser {
         return true
     }
     
-    public static func errorMessageFromData(data: NSData) -> String? {
-        guard let j = try? NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments) else {
+    public static func errorMessageFromData(_ data: Data) -> String? {
+        guard let j = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else {
             return nil
         }
         
@@ -77,7 +77,7 @@ public enum JSONParser {
 
     //MARK: - Private
     
-    private static func parseJSON<T : Decodable>(j: AnyObject) -> Result<T> {
+    fileprivate static func parseJSON<T : Decodable>(_ j: AnyObject) -> Result<T> {
         let result : Result<T>
         do {
             let output : T = try T.decode(j)
@@ -86,15 +86,15 @@ public enum JSONParser {
             
             if let typeMismatchError = error as? TypeMismatchError {
                 print("*ERROR* decoding, type \"\(typeMismatchError.receivedType)\" mismatched, expected \"\(typeMismatchError.expectedType)\" type, path: \(typeMismatchError.path)")
-                result = Result(error: DataParseErrorKind.MalformedSchema)
+                result = Result(error: DataParseErrorKind.malformedSchema)
             } else if let missingKeyError = error as? MissingKeyError {
                 print("*ERROR* decoding, key \"\(missingKeyError.key)\" is missing")
-                result = Result(error: DataParseErrorKind.MalformedSchema)
+                result = Result(error: DataParseErrorKind.malformedSchema)
             } else if let rawRepresentationError = error as? RawRepresentableInitializationError {
                 print("*ERROR* decoding, \(rawRepresentationError.debugDescription)")
-                result = Result(error: DataParseErrorKind.MalformedSchema)
+                result = Result(error: DataParseErrorKind.malformedSchema)
             } else {
-                result = Result(error: DataParseErrorKind.UnknownError)
+                result = Result(error: DataParseErrorKind.unknownError)
             }
             
             print("Received JSON: \(j)")
@@ -103,7 +103,7 @@ public enum JSONParser {
         return result
     }
     
-    private static func parseJSON<T : Decodable>(j: AnyObject) -> Result<[T]> {
+    fileprivate static func parseJSON<T : Decodable>(_ j: AnyObject) -> Result<[T]> {
         let result : Result<[T]>
         do {
             
@@ -119,15 +119,15 @@ public enum JSONParser {
             
             if let typeMismatchError = error as? TypeMismatchError {
                 print("*ERROR* decoding, type \"\(typeMismatchError.receivedType)\" mismatched, expected \"\(typeMismatchError.expectedType)\" type, path: \(typeMismatchError.path)")
-                result = Result(error: DataParseErrorKind.MalformedSchema)
+                result = Result(error: DataParseErrorKind.malformedSchema)
             } else if let missingKeyError = error as? MissingKeyError {
                 print("*ERROR* decoding, key \"\(missingKeyError.key)\" is missing")
-                result = Result(error: DataParseErrorKind.MalformedSchema)
+                result = Result(error: DataParseErrorKind.malformedSchema)
             } else if let rawRepresentationError = error as? RawRepresentableInitializationError {
                 print("*ERROR* decoding, \(rawRepresentationError.debugDescription)")
-                result = Result(error: DataParseErrorKind.MalformedSchema)
+                result = Result(error: DataParseErrorKind.malformedSchema)
             } else {
-                result = Result(error: DataParseErrorKind.UnknownError)
+                result = Result(error: DataParseErrorKind.unknownError)
             }
             
             print("Received JSON: \(j)")
@@ -139,59 +139,59 @@ public enum JSONParser {
 
 //MARK: ErrorType
 
-public enum DataParseErrorKind: ResultErrorType {
-    case MalformedJSON
-    case MalformedSchema
-    case UnknownError
+public enum DataParseErrorKind: Error {
+    case malformedJSON
+    case malformedSchema
+    case unknownError
 }
 
 //MARK: Foundation Types
 
-extension NSDate : Decodable {
+extension Date : Decodable {
     
-    private struct DateFormatter {
-        static let ISO8601Formatter: NSDateFormatter = {
-            let dateFormatter = NSDateFormatter()
+    fileprivate struct DateFormatter {
+        static let ISO8601Formatter: Foundation.DateFormatter = {
+            let dateFormatter = Foundation.DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
             return dateFormatter
         }()
         
-        static let SimpleFormatter: NSDateFormatter = {
-            let dateFormatter = NSDateFormatter()
+        static let SimpleFormatter: Foundation.DateFormatter = {
+            let dateFormatter = Foundation.DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
-            dateFormatter.locale = NSLocale.currentLocale()
+            dateFormatter.locale = NSLocale.current
             return dateFormatter
         }()
     }
     
-    public class func decode(j: AnyObject) throws -> Self {
+    public static func decode(_ j: AnyObject) throws -> Date {
         
         guard let dateString = j as? String else {
-            throw TypeMismatchError(expectedType: String.self, receivedType: j.dynamicType, object: j)
+            throw TypeMismatchError(expectedType: String.self, receivedType: type(of: j), object: j)
         }
 
-        if let date = DateFormatter.ISO8601Formatter.dateFromString(dateString) {
+        if let date = DateFormatter.ISO8601Formatter.date(from: dateString) {
             return self.init(timeIntervalSinceReferenceDate: date.timeIntervalSinceReferenceDate)
         }
-        else if let date = DateFormatter.SimpleFormatter.dateFromString(dateString) {
+        else if let date = DateFormatter.SimpleFormatter.date(from: dateString) {
             return self.init(timeIntervalSinceReferenceDate: date.timeIntervalSinceReferenceDate)
         }
         else {
-            throw RawRepresentableInitializationError(type: NSDate.self, rawValue: dateString, object: j)
+            throw RawRepresentableInitializationError(type: Date.self, rawValue: dateString, object: j)
         }
     }
 }
 
-extension NSURL : Decodable {
+extension URL : Decodable {
     
-    public class func decode(j: AnyObject) throws -> Self {
+    public static func decode(_ j: AnyObject) throws -> URL {
         
         guard let urlString = j as? String else {
-            throw TypeMismatchError(expectedType: String.self, receivedType: j.dynamicType, object: j)
+            throw TypeMismatchError(expectedType: String.self, receivedType: type(of: j), object: j)
         }
         
-        guard let _ = NSURL(string: urlString) else {
-            throw RawRepresentableInitializationError(type: NSURL.self, rawValue: urlString, object: j)
+        guard let _ = URL(string: urlString) else {
+            throw RawRepresentableInitializationError(type: URL.self, rawValue: urlString, object: j)
         }
         
         return self.init(string: urlString)!

@@ -6,44 +6,44 @@
 import Foundation
 
 extension NSLocale {
-    public class func localeFromCurrencyCode(currencyCode: String) -> NSLocale {
+    public class func localeFromCurrencyCode(_ currencyCode: String) -> NSLocale {
         
-        if let cachedLocale = PriceFormatter.localeCache.objectForKey(currencyCode) as? NSLocale {
+        if let cachedLocale = PriceFormatter.localeCache.object(forKey: currencyCode) as? NSLocale {
             return cachedLocale
         }
         
-        for localeID in NSLocale.availableLocaleIdentifiers() {
+        for localeID in NSLocale.availableLocaleIdentifiers {
             let locale = NSLocale(localeIdentifier: localeID)
-            if let currencyCode_ = locale.objectForKey(NSLocaleCurrencyCode) as? String
-                where currencyCode == currencyCode_ {
+            if let currencyCode_ = (locale as NSLocale).object(forKey: NSLocale.Key.currencyCode) as? String
+                , currencyCode == currencyCode_ {
                     PriceFormatter.localeCache.setObject(locale, forKey: currencyCode)
                     return locale
             }
         }
         
-        return NSLocale.currentLocale()
+        return NSLocale.current
     }
     
     public func currencyCode() -> String {
-        return self.objectForKey(NSLocaleCurrencyCode) as? String ?? "USD"
+        return (self as NSLocale).object(forKey: NSLocale.Key.currencyCode) as? String ?? "USD"
     }
     
-    public func formattedPrice(price: NSNumber) -> String {
+    public func formattedPrice(_ price: NSNumber) -> String {
         
-        PriceFormatter.priceFormatter.locale = self
+        PriceFormatter.priceFormatter.locale = self as Locale!
         PriceFormatter.priceFormatter.maximumFractionDigits = price.isFraction ? 2 : 0
         
-        if let cachedValue = PriceFormatter.priceFormattedCache.objectForKey(NSLocale.keyForPrice(price, locale:self)) as? String {
+        if let cachedValue = PriceFormatter.priceFormattedCache.object(forKey: NSLocale.keyForPrice(price, locale:self)) as? String {
             return cachedValue
-        } else if let formattedPrice = PriceFormatter.priceFormatter.stringFromNumber(price) {
+        } else if let formattedPrice = PriceFormatter.priceFormatter.string(from: price) {
             PriceFormatter.priceFormattedCache.setObject(formattedPrice, forKey: NSLocale.keyForPrice(price, locale:self))
             return formattedPrice
         } else {
-            return PriceFormatter.priceFormatter.stringFromNumber(0)!
+            return PriceFormatter.priceFormatter.string(from: 0)!
         }
     }
     
-    private static func keyForPrice(price: NSNumber, locale: NSLocale) -> String {
+    fileprivate static func keyForPrice(_ price: NSNumber, locale: NSLocale) -> String {
         return "\(price)_\(locale.localeIdentifier)"
     }
 }
@@ -51,7 +51,7 @@ extension NSLocale {
 extension NSNumber {
     public var isInteger: Bool {
         var rounded = decimalValue
-        NSDecimalRound(&rounded, &rounded, 0, NSRoundingMode.RoundDown)
+        NSDecimalRound(&rounded, &rounded, 0, NSDecimalNumber.RoundingMode.down)
         return NSDecimalNumber(decimal: rounded) == self
     }
     
@@ -59,13 +59,13 @@ extension NSNumber {
 }
 
 private struct PriceFormatter {
-    static private let priceFormatter: NSNumberFormatter = {
-        let formatter = NSNumberFormatter()
-        formatter.formatterBehavior = .Behavior10_4
-        formatter.numberStyle = .CurrencyStyle
+    static fileprivate let priceFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.formatterBehavior = .behavior10_4
+        formatter.numberStyle = .currency
         return formatter
     }()
     
-    static private let priceFormattedCache = NSCache()
-    static private let localeCache = NSCache()
+    static fileprivate let priceFormattedCache = NSCache()
+    static fileprivate let localeCache = NSCache()
 }

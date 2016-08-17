@@ -5,8 +5,8 @@
 
 import Foundation
 
-extension SequenceType {
-    public func find(@noescape predicate: (Self.Generator.Element) throws -> Bool) rethrows -> Self.Generator.Element? {
+extension Sequence {
+    public func find(predicate: (Self.Iterator.Element) throws -> Bool) rethrows -> Self.Iterator.Element? {
         for element in self {
             if try predicate(element) {
                 return element
@@ -16,21 +16,21 @@ extension SequenceType {
     }
 }
 
-extension CollectionType {
+extension Collection {
     /// Return a copy of `self` with its elements shuffled
-    public func shuffle() -> [Generator.Element] {
+    public func shuffle() -> [Iterator.Element] {
         var list = Array(self)
         list.shuffleInPlace()
         return list
     }
     
     /// Returns the element at the specified index iff it is within bounds, otherwise nil.
-    public subscript (safe index: Index) -> Generator.Element? {
+    public subscript (safe index: Index) -> Iterator.Element? {
         return indices.contains(index) ? self[index] : nil
     }
 }
 
-extension MutableCollectionType where Index == Int {
+extension MutableCollection where Index == Int {
     /// Shuffle the elements of `self` in-place.
     mutating public func shuffleInPlace() {
         // empty and single-element collections don't shuffle
@@ -46,6 +46,6 @@ extension MutableCollectionType where Index == Int {
 
 extension Array {
     mutating public func moveItem(fromIndex oldIndex: Index, toIndex newIndex: Index) {
-        insert(removeAtIndex(oldIndex), atIndex: newIndex)
+        insert(remove(at: oldIndex), at: newIndex)
     }
 }

@@ -30,48 +30,48 @@ public enum HTTPMethod: String {
 }
 
 extension HTTPMethod {
-    func alamofireMethod() -> Alamofire.Method {
+    func alamofireMethod() -> Alamofire.HTTPMethod {
         switch self {
-        case GET:
-            return .GET
-        case POST:
-            return .POST
-        case PUT:
-            return .PUT
-        case DELETE:
-            return .DELETE
-        case OPTIONS:
-            return .OPTIONS
-        case HEAD:
-            return .HEAD
-        case PATCH:
-            return .PATCH
-        case TRACE:
-            return .TRACE
-        case CONNECT:
-            return .CONNECT
+        case .GET:
+            return .get
+        case .POST:
+            return .post
+        case .PUT:
+            return .put
+        case .DELETE:
+            return .delete
+        case .OPTIONS:
+            return .options
+        case .HEAD:
+            return .head
+        case .PATCH:
+            return .patch
+        case .TRACE:
+            return .trace
+        case .CONNECT:
+            return .connect
         }
     }
 }
 
 public enum HTTPParameterEncoding {
-    case URL
-    case JSON
-    case PropertyList(NSPropertyListFormat, NSPropertyListWriteOptions)
-    case Custom((URLRequestConvertible, [String: AnyObject]?) -> (NSMutableURLRequest, NSError?))
+    case url
+    case json
+    case propertyList(PropertyListSerialization.PropertyListFormat, PropertyListSerialization.WriteOptions)
+    case custom((URLRequestConvertible, [String: Any]?) -> (URLRequest, NSError?))
 }
 
 extension HTTPParameterEncoding {
     func alamofireParameterEncoding() -> Alamofire.ParameterEncoding {
         switch self {
-        case .URL:
-            return .URL
-        case .JSON:
-            return .JSON
-        case .PropertyList(let format, let options):
-            return .PropertyList(format, options)
-        case .Custom(let closure):
-            return .Custom(closure)
+        case .url:
+            return .url
+        case .json:
+            return .json
+        case .propertyList(let format, let options):
+            return .propertyList(format, options)
+        case .custom(let closure):
+            return .custom(closure)
         }
     }
 }
@@ -81,7 +81,7 @@ extension HTTPParameterEncoding {
 public struct DroskyResponse {
     public let statusCode: Int
     public let httpHeaderFields: [String: String]
-    public let data: NSData
+    public let data: Data
 }
 
 extension DroskyResponse {
@@ -89,7 +89,7 @@ extension DroskyResponse {
         let json: [String: AnyObject]?
         
         do {
-            json = try NSJSONSerialization.JSONObjectWithData(self.data, options: NSJSONReadingOptions.AllowFragments) as? [String: AnyObject]
+            json = try JSONSerialization.jsonObject(with: self.data, options: JSONSerialization.ReadingOptions.allowFragments) as? [String: AnyObject]
         } catch {
             json = nil
         }
@@ -113,13 +113,13 @@ struct Router {
     let environment: Environment
     let signature: Signature?
     
-    func urlRequestForEndpoint(endpoint: Endpoint) -> Result<URLRequestConvertible> {
-        guard let URL = NSURL(string: environment.routeURL(endpoint.path)) else {
-            return Result<URLRequestConvertible>(error: DroskyErrorKind.MalformedURLError)
+    func urlRequest(forEndpoint endpoint: Endpoint) -> Result<URLRequestConvertible> {
+        guard let URL = URL(string: environment.routeURL(endpoint.path)) else {
+            return Result<URLRequestConvertible>(error: DroskyErrorKind.malformedURLError)
         }
         
-        let request = NSMutableURLRequest(URL: URL)
-        request.HTTPMethod = endpoint.method.alamofireMethod().rawValue
+        var request = URLRequest(url: URL)
+        request.httpMethod = endpoint.method.alamofireMethod().rawValue
         request.allHTTPHeaderFields = endpoint.httpHeaderFields
         if let signature = self.signature {
             request.setValue(signature.value, forHTTPHeaderField: signature.header)
@@ -139,12 +139,12 @@ struct Router {
 
 public final class Drosky {
     
-    private static let ModuleName = "drosky"
-    private let networkManager: Alamofire.Manager
-    private let backgroundNetworkManager: Alamofire.Manager
-    private let queue = queueForSubmodule(Drosky.ModuleName, qualityOfService: .UserInitiated)
-    private let gcdQueue = dispatch_queue_create(Drosky.ModuleName, DISPATCH_QUEUE_SERIAL)
-    private let dataSerializer = Alamofire.Request.dataResponseSerializer()
+    fileprivate static let ModuleName = "drosky"
+    fileprivate let networkManager: Alamofire.SessionManager
+    fileprivate let backgroundNetworkManager: Alamofire.SessionManager
+    fileprivate let queue = queueForSubmodule(Drosky.ModuleName, qualityOfService: .userInitiated)
+    fileprivate let gcdQueue = DispatchQueue(label: Drosky.ModuleName, attributes: [])
+    fileprivate let dataSerializer = Alamofire.Request.dataResponseSerializer()
     var router: Router
     
     public init (
@@ -157,30 +157,30 @@ public final class Drosky {
         
         let serverTrustManager = ServerTrustPolicyManager(policies: serverTrustPolicies)
         
-        networkManager = Alamofire.Manager(
-            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
+        networkManager = Alamofire.SessionManager(
+            configuration: URLSessionConfiguration.default,
             serverTrustPolicyManager: serverTrustManager
         )
         
-        backgroundNetworkManager = Alamofire.Manager(
-            configuration: NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier(backgroundSessionID),
+        backgroundNetworkManager = Alamofire.SessionManager(
+            configuration: URLSessionConfiguration.background(withIdentifier: backgroundSessionID),
             serverTrustPolicyManager: serverTrustManager
         )
         router = Router(environment: environment, signature: signature)
         queue.underlyingQueue = gcdQueue
     }
     
-    public func setAuthSignature(signature: Signature?) {
+    public func setAuthSignature(_ signature: Signature?) {
         router = Router(environment: router.environment, signature: signature)
     }
 
-    public func setEnvironment(environment: Environment) {
+    public func setEnvironment(_ environment: Environment) {
         router = Router(environment: environment, signature: router.signature)
     }
     
-    private static func serverTrustPoliciesDisablingEvaluationForHosts(hosts: [String]) -> [String: ServerTrustPolicy] {
+    fileprivate static func serverTrustPoliciesDisablingEvaluationForHosts(_ hosts: [String]) -> [String: ServerTrustPolicy] {
         var policies = [String: ServerTrustPolicy]()
-        hosts.forEach { policies[$0] = .DisableEvaluation }
+        hosts.forEach { policies[$0] = .disableEvaluation }
         return policies
     }
 
@@ -195,27 +195,27 @@ public final class Drosky {
                 ≈> validateDroskyResponse
     }
 
-    public func performMultipartUpload(forEndpoint endpoint: Endpoint, multipartParams: [MultipartParameter]) -> (Future<Result<DroskyResponse>>, Future<NSProgress>) {
-        let generatedRequest = try! router.urlRequestForEndpoint(endpoint).dematerialize()
+    public func performMultipartUpload(forEndpoint endpoint: Endpoint, multipartParams: [MultipartParameter]) -> (Future<Result<DroskyResponse>>, Future<Progress>) {
+        let generatedRequest = try! router.urlRequest(forEndpoint: endpoint).dematerialize()
         let multipartRequestTuple = performUpload(generatedRequest, multipartParameters: multipartParams)
         let processedResponse = multipartRequestTuple.0 ≈> processResponse
         return (processedResponse, multipartRequestTuple.1)
     }
 
     //MARK:- Internal
-    private func generateRequest(endpoint: Endpoint) -> Future<Result<URLRequestConvertible>> {
+    fileprivate func generateRequest(_ endpoint: Endpoint) -> Future<Result<URLRequestConvertible>> {
         let deferred = Deferred<Result<URLRequestConvertible>>()
-        queue.addOperationWithBlock { [weak self] in
+        queue.addOperation { [weak self] in
             guard let strongSelf = self else { return }
-            let requestResult = strongSelf.router.urlRequestForEndpoint(endpoint)
+            let requestResult = strongSelf.router.urlRequest(forEndpoint: endpoint)
             deferred.fill(requestResult)
         }
         return Future(deferred)
     }
     
     
-    private func sendRequest(request: URLRequestConvertible) -> Future<Result<(NSData, NSHTTPURLResponse)>> {
-        let deferred = Deferred<Result<(NSData, NSHTTPURLResponse)>>()
+    fileprivate func sendRequest(_ request: URLRequestConvertible) -> Future<Result<(Data, HTTPURLResponse)>> {
+        let deferred = Deferred<Result<(Data, HTTPURLResponse)>>()
         
         networkManager
             .request(request)
@@ -224,9 +224,9 @@ public final class Drosky {
         return Future(deferred)
     }
     
-    private func performUpload(request: URLRequestConvertible, multipartParameters: [MultipartParameter]) -> (Future<Result<(NSData, NSHTTPURLResponse)>>, Future<NSProgress>) {
-        let deferredResponse = Deferred<Result<(NSData, NSHTTPURLResponse)>>()
-        let deferredProgress = Deferred<NSProgress>()
+    fileprivate func performUpload(_ request: URLRequestConvertible, multipartParameters: [MultipartParameter]) -> (Future<Result<(Data, HTTPURLResponse)>>, Future<Progress>) {
+        let deferredResponse = Deferred<Result<(Data, HTTPURLResponse)>>()
+        let deferredProgress = Deferred<Progress>()
         
         backgroundNetworkManager.upload(
             request,
@@ -251,11 +251,11 @@ public final class Drosky {
         return (Future(deferredResponse), Future(deferredProgress))
     }
     
-    private func processResponse(data: NSData, urlResponse: NSHTTPURLResponse) -> Future<Result<DroskyResponse>> {
+    fileprivate func processResponse(_ data: NSData, urlResponse: HTTPURLResponse) -> Future<Result<DroskyResponse>> {
         
         let deferred = Deferred<Result<DroskyResponse>>()
         
-        queue.addOperationWithBlock {
+        queue.addOperation {
             if let responseHeaders = urlResponse.allHeaderFields as? [String: String] {
 
                 let droskyResponse = DroskyResponse(
@@ -274,36 +274,36 @@ public final class Drosky {
                 deferred.fill(result)
             }
             else {
-                deferred.fill(Result(error: DroskyErrorKind.UnknownResponse))
+                deferred.fill(Result(error: DroskyErrorKind.unknownResponse))
             }
         }
         
         return Future(deferred)
     }
     
-    private func validateDroskyResponse(response: DroskyResponse) -> Future<Result<DroskyResponse>> {
+    fileprivate func validateDroskyResponse(_ response: DroskyResponse) -> Future<Result<DroskyResponse>> {
         
         let deferred = Deferred<Result<DroskyResponse>>()
         
-        queue.addOperationWithBlock {
+        queue.addOperation {
             switch response.statusCode {
             case 400:
-                let error = DroskyErrorKind.BadRequest
+                let error = DroskyErrorKind.badRequest
                 deferred.fill(Result<DroskyResponse>(error: error))
             case 401:
-                let error = DroskyErrorKind.Unauthorized
+                let error = DroskyErrorKind.unauthorized
                 deferred.fill(Result<DroskyResponse>(error: error))
             case 403:
-                let error = DroskyErrorKind.Forbidden
+                let error = DroskyErrorKind.forbidden
                 deferred.fill(Result<DroskyResponse>(error: error))
             case 404:
-                let error = DroskyErrorKind.ResourceNotFound
+                let error = DroskyErrorKind.resourceNotFound
                 deferred.fill(Result<DroskyResponse>(error: error))
             case 405...499:
-                let error = DroskyErrorKind.UnknownResponse
+                let error = DroskyErrorKind.unknownResponse
                 deferred.fill(Result<DroskyResponse>(error: error))
             case 500:
-                let error = DroskyErrorKind.ServerUnavailable
+                let error = DroskyErrorKind.serverUnavailable
                 deferred.fill(Result<DroskyResponse>(error: error))
             default:
                 deferred.fill(Result<DroskyResponse>(response))
@@ -313,11 +313,11 @@ public final class Drosky {
         return Future(deferred)
     }
 
-    private func processAlamofireResponse(response: Alamofire.Response<NSData, NSError>, deferred: Deferred<Result<(NSData, NSHTTPURLResponse)>>) {
+    fileprivate func processAlamofireResponse(_ response: Alamofire.Response<Data, NSError>, deferred: Deferred<Result<(Data, HTTPURLResponse)>>) {
         switch response.result {
-        case .Failure(let error):
+        case .failure(let error):
             deferred.fill(Result(error: error))
-        case .Success(let data):
+        case .success(let data):
             guard let response = response.response else { fatalError() }
             deferred.fill(Result(value: (data, response)))
         }
@@ -328,9 +328,9 @@ public final class Drosky {
 
 extension Drosky {
     
-    private static func backgroundID() -> String {
-        let appName = NSBundle.mainBundle().infoDictionary?[kCFBundleNameKey as String] as? String ?? Drosky.ModuleName
-        return "\(appName)-\(NSUUID().UUIDString)"
+    fileprivate static func backgroundID() -> String {
+        let appName = Bundle.main.infoDictionary?[kCFBundleNameKey as String] as? String ?? Drosky.ModuleName
+        return "\(appName)-\(Foundation.UUID().uuidString)"
     }
 
     public var backgroundSessionID: String {
@@ -342,7 +342,7 @@ extension Drosky {
     
     public func completedBackgroundTasksURL() -> Future<[NSURL]> {
         
-        let deferred = Deferred<[NSURL]>()
+        let deferred = Deferred<[URL]>()
         
         backgroundNetworkManager.delegate.sessionDidFinishEventsForBackgroundURLSession = { session in
             
@@ -360,13 +360,13 @@ extension Drosky {
 
 //MARK:- Errors
 
-public enum DroskyErrorKind: ResultErrorType {
-    case UnknownResponse
-    case Unauthorized
-    case ServerUnavailable
-    case ResourceNotFound
-    case FormattedError
-    case MalformedURLError
-    case Forbidden
-    case BadRequest
+public enum DroskyErrorKind: Error {
+    case unknownResponse
+    case unauthorized
+    case serverUnavailable
+    case resourceNotFound
+    case formattedError
+    case malformedURLError
+    case forbidden
+    case badRequest
 }

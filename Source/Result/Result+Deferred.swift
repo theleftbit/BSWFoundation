@@ -9,23 +9,23 @@ import Deferred
 
 infix operator ≈> { associativity left precedence 160 }
 
-public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: T -> Future<Result<U>>) -> Future<Result<U>> {
+public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: (T) -> Future<Result<U>>) -> Future<Result<U>> {
     return lhs.flatMap { resultToDeferred($0, f: rhs) }
 }
 
-public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: T -> Result<U>) -> Future<Result<U>> {
+public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: @escaping (T) -> Result<U>) -> Future<Result<U>> {
     return lhs.flatMap { resultToDeferred($0, f: rhs) }
 }
 
-public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: T -> U) -> Future<Result<U>> {
+public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: @escaping (T) -> U) -> Future<Result<U>> {
     return lhs.flatMap { resultToDeferred($0, f: rhs) }
 }
 
-public func ≈> <T, U>(lhs: Future<T>, rhs: T -> Result<U>) -> Future<Result<U>> {
+public func ≈> <T, U>(lhs: Future<T>, rhs: @escaping (T) -> Result<U>) -> Future<Result<U>> {
     return lhs.map { return rhs($0) }
 }
 
-public func both <T, U> (first first: Future<Result<T>>, second: Future<Result<U>>) ->  Future<Result<(T, U)>> {
+public func both <T, U> (first: Future<Result<T>>, second: Future<Result<U>>) ->  Future<Result<(T, U)>> {
     
     let deferred = Deferred<Result<(T, U)>>()
     
@@ -46,7 +46,7 @@ public func both <T, U> (first first: Future<Result<T>>, second: Future<Result<U
     return Future(deferred)
 }
 
-public func bothSerially <T, U> (first first: Future<Result<T>>, second: T -> Future<Result<U>>) ->  Future<Result<(T, U)>> {
+public func bothSerially <T, U> (first: Future<Result<T>>, second: (T) -> Future<Result<U>>) ->  Future<Result<(T, U)>> {
     
     let deferred = Deferred<Result<(T, U)>>()
     
@@ -71,7 +71,7 @@ public func bothSerially <T, U> (first first: Future<Result<T>>, second: T -> Fu
 
 //MARK: Private
 
-private func resultToDeferred <T, U>(result: Result<T>, f: T -> Future<Result<U>>) -> Future<Result<U>> {
+private func resultToDeferred <T, U>(_ result: Result<T>, f: (T) -> Future<Result<U>>) -> Future<Result<U>> {
     switch result {
     case let .Success(value):
         return f(value)
@@ -80,7 +80,7 @@ private func resultToDeferred <T, U>(result: Result<T>, f: T -> Future<Result<U>
     }
 }
 
-private func resultToDeferred <T, U>(result: Result<T>, f: T -> Result<U>) -> Future<Result<U>> {
+private func resultToDeferred <T, U>(_ result: Result<T>, f: (T) -> Result<U>) -> Future<Result<U>> {
     switch result {
     case let .Success(value):
         return Future(value: f(value))
@@ -89,7 +89,7 @@ private func resultToDeferred <T, U>(result: Result<T>, f: T -> Result<U>) -> Fu
     }
 }
 
-private func resultToDeferred <T, U>(result: Result<T>, f: T -> U) -> Future<Result<U>> {
+private func resultToDeferred <T, U>(_ result: Result<T>, f: (T) -> U) -> Future<Result<U>> {
     switch result {
     case let .Success(value):
         return Future(value: Result.Success(f(value)))

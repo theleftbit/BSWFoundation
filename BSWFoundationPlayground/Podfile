@@ -2,7 +2,12 @@ use_frameworks!
 
 abstract_target 'Common' do
     pod 'BSWFoundation', :path => '../BSWFoundation.podspec'
-    
+
+    #Swift 3 Pods
+    pod 'Alamofire',  :git => 'https://github.com/Alamofire/Alamofire.git', :branch => 'swift3'
+    pod 'Decodable',  :git => 'https://github.com/Anviking/Decodable.git', :branch => 'beta6'
+    pod 'BNRDeferred',  :git => 'https://github.com/bignerdranch/Deferred.git', :branch => 'zwaldowski/swift-3_0'
+
     target 'BSWFoundationPlayground'
     target 'Tests'
 end

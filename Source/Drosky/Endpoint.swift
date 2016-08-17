@@ -40,7 +40,7 @@ extension Endpoint {
     }
     
     public var parameterEncoding: HTTPParameterEncoding {
-        return .URL
+        return .url
     }
     
     public var httpHeaderFields: [String : String]? {
@@ -51,9 +51,9 @@ extension Endpoint {
 
 public struct MultipartParameter {
     public let parameterKey: String
-    public let fileURL: NSURL
+    public let fileURL: URL
     
-    public init(parameterKey: String, fileURL: NSURL) {
+    public init(parameterKey: String, fileURL: URL) {
         self.parameterKey = parameterKey
         self.fileURL = fileURL
     }

@@ -19,7 +19,7 @@ public extension UInt64 {
 }
 
 public extension UInt64 { // distance for possibly very large ranges and closed intervals
-    public static func distance(range: ClosedInterval<Int>) -> UInt64 { // TODO: Should be working with Int64 rather than Int
+    public static func distance(_ range: ClosedRange<Int>) -> UInt64 { // TODO: Should be working with Int64 rather than Int
         if range.start == Int.min && range.end == Int.max {
             return UInt64.max
         } else if range.start < 0 && range.end >= 0 {
@@ -32,7 +32,7 @@ public extension UInt64 { // distance for possibly very large ranges and closed 
 }
 
 public extension Int {
-    public static func random(i: ClosedInterval<Int>) -> Int {
+    public static func random(_ i: ClosedRange<Int>) -> Int {
         let distance = UInt64.distance(i)
         if distance == 0 {
             return i.start
@@ -46,16 +46,16 @@ public extension Int {
     }
 }
 
-public func random <C: CollectionType where C.Index == Int>
-    (c: C) -> C.Generator.Element? {
+public func random <C: Collection>
+    (_ c: C) -> C.Iterator.Element? where C.Index == Int {
         return c.random
 }
 
-public extension CollectionType where Index.Distance == Int { // random
-    public var random: Generator.Element? {
+public extension Collection where Index.Distance == Int { // random
+    public var random: Iterator.Element? {
         if isEmpty { return nil }
         let off = Int.random(0...(count - 1))
-        let idx = startIndex.advancedBy(off)
+        let idx = index.index(startIndex, offsetBy: off)
         return self[idx]
     }
 }

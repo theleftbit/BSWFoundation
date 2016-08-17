@@ -12,11 +12,11 @@ extension String {
     public var capitalizeFirst: String {
         if isEmpty { return "" }
         var result = self
-        result.replaceRange(startIndex...startIndex, with: String(self[startIndex]).uppercaseString)
+        result.replaceSubrange(startIndex...startIndex, with: String(self[startIndex]).uppercased())
         return result
     }
     
     public func trimmedStringAndWithoutNewlineCharacters() -> String {
-        return self.stringByReplacingOccurrencesOfString("\n", withString: " ").stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+        return self.replacingOccurrences(of: "\n", with: " ").trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     }
 }
