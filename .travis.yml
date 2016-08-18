@@ -4,4 +4,3 @@ podfile: BSWFoundationPlayground/Podfile
 xcode_workspace: BSWFoundationPlayground/BSWFoundation.xcworkspace
 xcode_scheme: Tests
 xcode_sdk: iphonesimulator10.0
-cocoapods: 1.0.1
