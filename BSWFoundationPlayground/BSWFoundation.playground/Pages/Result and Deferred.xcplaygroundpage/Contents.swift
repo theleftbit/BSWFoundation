@@ -21,8 +21,8 @@ func calculatePowerOf2(value: String) -> Float {
 let invalidCharacter = "h"
 let validCharacter = "2"
 
-let invalidValue: Float = calculatePowerOf2(invalidCharacter)
-let validValue: Float =  calculatePowerOf2(validCharacter)
+let invalidValue: Float = calculatePowerOf2(value: invalidCharacter)
+let validValue: Float =  calculatePowerOf2(value: validCharacter)
 
 /*:
  Notice that if the String couldn't be cast to a number, we are returning -1, because we have no way of notifying the caller that the operation couldn't be completed in a more expressive way.
@@ -51,16 +51,16 @@ let validValue: Float =  calculatePowerOf2(validCharacter)
 
 func calculatePowerOf2(value: String) -> Result<Float> {
     
-    enum PowerError: ErrorType {
+    enum PowerError: Error {
         case couldNotCast
     }
     
-    guard let floatValue = Float(value) else { return .Failure(PowerError.couldNotCast) }
+    guard let floatValue = Float(value) else { return .failure(PowerError.couldNotCast) }
     return Result(pow(floatValue, 2))
 }
 
-let failedResult: Result<Float> = calculatePowerOf2(invalidCharacter)
-let succesfulResult: Result<Float> = calculatePowerOf2(validCharacter)
+let failedResult: Result<Float> = calculatePowerOf2(value: invalidCharacter)
+let succesfulResult: Result<Float> = calculatePowerOf2(value: validCharacter)
 
 /*:
  Much better! Now on the calling site we have to explicitly handle the error case, which leads to safer code. 
@@ -74,13 +74,13 @@ func multiplyByTwo(value: Float) -> Float {
     return value * 2
 }
 
-let compoundOperation = calculatePowerOf2(validCharacter)
+let compoundOperation = calculatePowerOf2(value: validCharacter)
                         .map(multiplyByTwo)
 
 switch compoundOperation {
-case .Success(let value):
+case .success(let value):
     print("The value is \(value)")
-case .Failure(let error):
+case .failure(let error):
     print("There was an error: \(error)")
 }
 
