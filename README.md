@@ -4,8 +4,11 @@
   <img src="https://github.com/BlurredSoftware/BSWFoundation/raw/master/BSWFoundationLogo.png">
 </p>
 
-![](https://travis-ci.org/BlurredSoftware/BSWFoundation.svg?branch=master) ![](http://img.shields.io/cocoapods/v/BSWFoundation.svg?style=flat)
+![](https://travis-ci.org/BlurredSoftware/BSWFoundation.svg?branch=swift3) ![](http://img.shields.io/cocoapods/v/BSWFoundation.svg?style=flat)
 ![](https://img.shields.io/cocoapods/p/BSWFoundation.svg?style=flat)
+
+#Swift 3
+Right now, it is a Work in Progress.
 
 #About
 
@@ -26,5 +29,3 @@ In order to use it:
 5. Build the scheme `BSWFoundationPlayground`
 6. Enable the `Render Documentation` [option](https://camo.githubusercontent.com/9a1c0182ade7e293fa2c2221a15c430309eea4bf/687474703a2f2f692e696d6775722e636f6d2f697337633979532e706e67) for the Playground
 
-##Swift 3
-Right now, it is a Work in Progress. ![](https://travis-ci.org/BlurredSoftware/BSWFoundation.svg?branch=swift3)
