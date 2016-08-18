@@ -185,8 +185,8 @@ public final class Drosky {
     }
 
     public func performRequest(forEndpoint endpoint: Endpoint) -> Future<Result<DroskyResponse>> {
-        return generateRequest(endpoint)
-                ≈> sendRequest
+        return (generateRequest(forEndpoint: endpoint)
+                ≈> sendRequest)
                 ≈> processResponse
     }
 
@@ -203,7 +203,7 @@ public final class Drosky {
     }
 
     //MARK:- Internal
-    fileprivate func generateRequest(_ endpoint: Endpoint) -> Future<Result<URLRequestConvertible>> {
+    fileprivate func generateRequest(forEndpoint endpoint: Endpoint) -> Future<Result<URLRequestConvertible>> {
         let deferred = Deferred<Result<URLRequestConvertible>>()
         queue.addOperation { [weak self] in
             guard let strongSelf = self else { return }
@@ -229,17 +229,17 @@ public final class Drosky {
         let deferredProgress = Deferred<Progress>()
         
         backgroundNetworkManager.upload(
-            request,
             multipartFormData: { (form) in
                 multipartParameters.forEach { param in
-                    form.appendBodyPart(fileURL: param.fileURL, name: param.parameterKey)
+                    form.append(param.fileURL, withName: param.parameterKey)
                 }
             },
+            with: request,
             encodingCompletion: { (result) in
                 switch result {
-                case .Failure(let error):
+                case .failure(let error):
                     deferredResponse.fill(Result(error: error))
-                case .Success(let request, _,  _):
+                case .success(let request, _,  _):
                     deferredProgress.fill(request.progress)
                     request.responseData(queue: self.gcdQueue) {
                         self.processAlamofireResponse($0, deferred: deferredResponse)
@@ -251,31 +251,25 @@ public final class Drosky {
         return (Future(deferredResponse), Future(deferredProgress))
     }
     
-    fileprivate func processResponse(_ data: NSData, urlResponse: HTTPURLResponse) -> Future<Result<DroskyResponse>> {
+    fileprivate func processResponse(_ data: Data, urlResponse: HTTPURLResponse) -> Future<Result<DroskyResponse>> {
         
         let deferred = Deferred<Result<DroskyResponse>>()
         
         queue.addOperation {
-            if let responseHeaders = urlResponse.allHeaderFields as? [String: String] {
-
-                let droskyResponse = DroskyResponse(
-                    statusCode: urlResponse.statusCode,
-                    httpHeaderFields: responseHeaders,
-                    data: data
-                )
-                
-                #if DEBUG
-                    if let message = JSONParser.errorMessageFromData(droskyResponse.data) {
-                        print(message)
-                    }
-                #endif
-
-                let result = Result(droskyResponse)
-                deferred.fill(result)
-            }
-            else {
-                deferred.fill(Result(error: DroskyErrorKind.unknownResponse))
-            }
+            let droskyResponse = DroskyResponse(
+                statusCode: urlResponse.statusCode,
+                httpHeaderFields: urlResponse.headers,
+                data: data
+            )
+            
+            #if DEBUG
+                if let message = JSONParser.errorMessageFromData(droskyResponse.data) {
+                    print(message)
+                }
+            #endif
+            
+            let result = Result(droskyResponse)
+            deferred.fill(result)
         }
         
         return Future(deferred)
@@ -287,26 +281,22 @@ public final class Drosky {
         
         queue.addOperation {
             switch response.statusCode {
-            case 400:
-                let error = DroskyErrorKind.badRequest
-                deferred.fill(Result<DroskyResponse>(error: error))
-            case 401:
-                let error = DroskyErrorKind.unauthorized
-                deferred.fill(Result<DroskyResponse>(error: error))
-            case 403:
-                let error = DroskyErrorKind.forbidden
-                deferred.fill(Result<DroskyResponse>(error: error))
-            case 404:
-                let error = DroskyErrorKind.resourceNotFound
-                deferred.fill(Result<DroskyResponse>(error: error))
-            case 405...499:
-                let error = DroskyErrorKind.unknownResponse
-                deferred.fill(Result<DroskyResponse>(error: error))
-            case 500:
-                let error = DroskyErrorKind.serverUnavailable
-                deferred.fill(Result<DroskyResponse>(error: error))
-            default:
+            case 200...299:
                 deferred.fill(Result<DroskyResponse>(response))
+            case 400:
+                deferred.fill(.failure(DroskyErrorKind.badRequest))
+            case 401:
+                deferred.fill(.failure(DroskyErrorKind.unauthorized))
+            case 403:
+                deferred.fill(.failure(DroskyErrorKind.forbidden))
+            case 404:
+                deferred.fill(.failure(DroskyErrorKind.resourceNotFound))
+            case 405...499:
+                deferred.fill(.failure(DroskyErrorKind.unknownResponse))
+            case 500:
+                deferred.fill(.failure(DroskyErrorKind.serverUnavailable))
+            default:
+                deferred.fill(.failure(DroskyErrorKind.unknownResponse))
             }
         }
         
@@ -340,15 +330,15 @@ extension Drosky {
         }
     }
     
-    public func completedBackgroundTasksURL() -> Future<[NSURL]> {
+    public func completedBackgroundTasksURL() -> Future<[URL]> {
         
         let deferred = Deferred<[URL]>()
         
         backgroundNetworkManager.delegate.sessionDidFinishEventsForBackgroundURLSession = { session in
             
             session.getTasksWithCompletionHandler { (dataTasks, _, _) -> Void in
-                let completedTasks = dataTasks.filter { $0.state == .Completed && $0.originalRequest?.URL != nil}
-                deferred.fill(completedTasks.map { return $0.originalRequest!.URL!})
+                let completedTasks = dataTasks.filter { $0.state == .completed && $0.originalRequest?.url != nil}
+                deferred.fill(completedTasks.map { return $0.originalRequest!.url!})
                 self.backgroundNetworkManager.backgroundCompletionHandler?()
             }
         }
@@ -369,4 +359,18 @@ public enum DroskyErrorKind: Error {
     case malformedURLError
     case forbidden
     case badRequest
+}
+
+
+extension HTTPURLResponse {
+    var headers: [String: String] {
+        //TODO: Rewrite using map
+        var headers: [String: String] = [:]
+        for tuple in allHeaderFields {
+            if let key = tuple.0 as? String, let value = tuple.1 as? String {
+                headers[key] = value
+            }
+        }
+        return headers
+    }
 }

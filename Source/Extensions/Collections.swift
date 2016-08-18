@@ -18,26 +18,30 @@ extension Sequence {
 
 extension Collection {
     /// Return a copy of `self` with its elements shuffled
-    public func shuffle() -> [Iterator.Element] {
+    public func shuffled() -> [Iterator.Element] {
         var list = Array(self)
-        list.shuffleInPlace()
+        list.shuffle()
         return list
     }
-    
+}
+
+extension IndexableBase {
     /// Returns the element at the specified index iff it is within bounds, otherwise nil.
-    public subscript (safe index: Index) -> Iterator.Element? {
-        return indices.contains(index) ? self[index] : nil
+    public subscript(safe index: Index) -> _Element? {
+        return index >= startIndex && index < endIndex
+            ? self[index]
+            : nil
     }
 }
 
 extension MutableCollection where Index == Int {
     /// Shuffle the elements of `self` in-place.
-    mutating public func shuffleInPlace() {
+    mutating func shuffle() {
         // empty and single-element collections don't shuffle
         if count < 2 { return }
         
-        for i in 0..<count - 1 {
-            let j = Int(arc4random_uniform(UInt32(count - i))) + i
+        for i in startIndex ..< endIndex - 1 {
+            let j = Int(arc4random_uniform(UInt32(endIndex - i))) + i
             guard i != j else { continue }
             swap(&self[i], &self[j])
         }

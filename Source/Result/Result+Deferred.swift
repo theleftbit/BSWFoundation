@@ -9,7 +9,7 @@ import Deferred
 
 infix operator ≈> { associativity left precedence 160 }
 
-public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: (T) -> Future<Result<U>>) -> Future<Result<U>> {
+public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: @escaping (T) -> Future<Result<U>>) -> Future<Result<U>> {
     return lhs.flatMap { resultToDeferred($0, f: rhs) }
 }
 
@@ -46,19 +46,19 @@ public func both <T, U> (first: Future<Result<T>>, second: Future<Result<U>>) ->
     return Future(deferred)
 }
 
-public func bothSerially <T, U> (first: Future<Result<T>>, second: (T) -> Future<Result<U>>) ->  Future<Result<(T, U)>> {
+public func bothSerially <T, U> (first: Future<Result<T>>, second: @escaping (T) -> Future<Result<U>>) ->  Future<Result<(T, U)>> {
     
     let deferred = Deferred<Result<(T, U)>>()
     
     first.upon{ (firstResult) in
         guard let firstValue = firstResult.value else {
-            deferred.fill(Result(error: firstResult.error!))
+            deferred.fill(.failure(firstResult.error!))
             return
         }
         
         second(firstValue).upon { (secondResult) in        
             guard let secondValue = secondResult.value else {
-                deferred.fill(Result(error: secondResult.error!))
+                deferred.fill(.failure(secondResult.error!))
                 return
             }
             
@@ -73,27 +73,27 @@ public func bothSerially <T, U> (first: Future<Result<T>>, second: (T) -> Future
 
 private func resultToDeferred <T, U>(_ result: Result<T>, f: (T) -> Future<Result<U>>) -> Future<Result<U>> {
     switch result {
-    case let .Success(value):
+    case let .success(value):
         return f(value)
-    case let .Failure(error):
-        return Future(value: Result.Failure(error))
+    case let .failure(error):
+        return Future(value: .failure(error))
     }
 }
 
 private func resultToDeferred <T, U>(_ result: Result<T>, f: (T) -> Result<U>) -> Future<Result<U>> {
     switch result {
-    case let .Success(value):
+    case let .success(value):
         return Future(value: f(value))
-    case let .Failure(error):
-        return Future(value: Result.Failure(error))
+    case let .failure(error):
+        return Future(value: .failure(error))
     }
 }
 
 private func resultToDeferred <T, U>(_ result: Result<T>, f: (T) -> U) -> Future<Result<U>> {
     switch result {
-    case let .Success(value):
-        return Future(value: Result.Success(f(value)))
-    case let .Failure(error):
-        return Future(value: Result.Failure(error))
+    case let .success(value):
+        return Future(value: .success(f(value)))
+    case let .failure(error):
+        return Future(value: .failure(error))
     }
 }

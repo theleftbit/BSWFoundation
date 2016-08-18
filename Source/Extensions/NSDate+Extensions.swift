@@ -7,7 +7,7 @@ import Foundation
 extension Date {
 
     public init(timestamp ts: Double, includesMiliseconds: Bool = false) {
-        (self as NSDate).init(timeIntervalSince1970: ts * (includesMiliseconds ? 1/1000 : 1))
+        self.init(timeIntervalSince1970: ts * (includesMiliseconds ? 1/1000 : 1))
     }
     
     public func formattedStringTimestamp(_ includeMiliseconds: Bool = true) -> String {

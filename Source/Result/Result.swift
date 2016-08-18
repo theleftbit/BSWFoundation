@@ -133,7 +133,7 @@ public func materialize<T>(_ f: @autoclosure () throws -> T) -> Result<T> {
     ///     Result.try { NSData(contentsOfURL: URL, options: .DataReadingMapped, error: $0) }
     public func `try`<T>(_ function: String = #function, file: String = #file, line: Int = #line, `try`: (NSErrorPointer) -> T?) -> Result<T> {
         var error: NSError?
-        return `try`(&error).map(Result.success) ?? .failure(error ?? Result<T, NSError>.error(function: function, file: file, line: line))
+        return `try`(&error).map(Result.success) ?? .failure(error ?? Result<T>.error(function: function, file: file, line: line))
     }
     
     /// Constructs a Result with the result of calling `try` with an error pointer.
@@ -145,7 +145,7 @@ public func materialize<T>(_ f: @autoclosure () throws -> T) -> Result<T> {
         var error: NSError?
         return `try`(&error) ?
             .success(())
-            :	.failure(error ?? Result<(), NSError>.error(function: function, file: file, line: line))
+            :	.failure(error ?? Result<()>.error(function: function, file: file, line: line))
     }
     
 #endif
@@ -174,12 +174,12 @@ public enum NoError: Swift.Error { }
 // MARK: - migration support
 extension Result {
     @available(*, unavailable, renamed: "success")
-    public static func Success(_: T) -> Result<T, Error> {
+    public static func Success(_: T) -> Result<T> {
         fatalError()
     }
     
     @available(*, unavailable, renamed: "failure")
-    public static func Failure(_: Error) -> Result<T, Error> {
+    public static func Failure(_: Error) -> Result<T> {
         fatalError()
     }
 }

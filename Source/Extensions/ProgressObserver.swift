@@ -5,7 +5,7 @@
 
 import Foundation
 
-open class ProgressObserver: NSObject {
+public class ProgressObserver: NSObject {
     
     fileprivate let onUpdate: (Progress) -> Void
     fileprivate let progress: Progress
@@ -17,7 +17,7 @@ open class ProgressObserver: NSObject {
         progress.addObserver(self, forKeyPath: "fractionCompleted", options: .new, context: nil)
     }
     
-    open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [String : Any]?, context: UnsafeMutableRawPointer?) {
+    func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [String : Any]?, context: UnsafeMutableRawPointer?) {
         
         if let progress = object as? Progress , progress == self.progress {
             DispatchQueue.main.async {
