@@ -48,12 +48,11 @@ public extension Int {
 
 public func random <C: Collection>
     (_ c: C) -> C.Iterator.Element? where C.Index == Int {
-        return c.random
+        return c.randomElement
 }
 
 public extension Collection { // random
-    public var random: Iterator.Element? {
-        guard isEmpty == false else { return nil }
+    public var randomElement: Iterator.Element {
         return self.shuffled()[0]
     }
 }
