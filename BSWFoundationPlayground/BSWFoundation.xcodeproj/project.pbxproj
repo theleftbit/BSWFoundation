@@ -13,6 +13,16 @@
 		EB2D29E71D55FC0A00F77ABB /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2D29E61D55FC0A00F77ABB /* Tests.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		EB1C54861D66FFFB008EFB89 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DAE4EAD11600B16CE422FDCC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43AF3251CEA077D2ABA90182;
+			remoteInfo = BSWFoundationPlayground;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0046E71F39296C5A7E921B23 /* BSWFoundation.playground */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.playground; path = BSWFoundation.playground; sourceTree = "<group>"; };
 		0654B5356DEC24E5E9EAEBE0 /* Pods_Common_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Common_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -142,6 +152,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				EB1C54871D66FFFB008EFB89 /* PBXTargetDependency */,
 			);
 			name = Tests;
 			productName = Tests;
@@ -288,6 +299,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		EB1C54871D66FFFB008EFB89 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43AF3251CEA077D2ABA90182 /* BSWFoundationPlayground */;
+			targetProxy = EB1C54861D66FFFB008EFB89 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		8D3947FCE967C0D24A475F7A /* Release */ = {
