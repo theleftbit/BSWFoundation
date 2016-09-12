@@ -69,6 +69,20 @@ public func bothSerially <T, U> (first first: Future<Result<T>>, second: T -> Fu
     return Future(deferred)
 }
 
+extension Future where Value: ResultType {
+    func toObjectiveC<T>(completionHandler handler: (T?, NSError?) -> Void) {
+        uponMainQueue { (result) in
+            if let error = result.error {
+                handler(nil, error as NSError)
+            } else if let value = result.value as? T {
+                handler(value, nil)
+            } else {
+                handler(nil, NSError(domain: "BSWFoundation", code: -10, userInfo: nil))
+            }
+        }
+    }
+}
+
 //MARK: Private
 
 private func resultToDeferred <T, U>(result: Result<T>, f: T -> Future<Result<U>>) -> Future<Result<U>> {
