@@ -58,7 +58,7 @@ open class LocationFetcher: NSObject, CLLocationManagerDelegate {
     }
     
     fileprivate func completeCurrentRequest(_ location: CLLocation? = nil) {
-        self.currentRequest?.fill(location)
+        self.currentRequest?.fill(with: location)
         self.currentRequest = nil
     }
 

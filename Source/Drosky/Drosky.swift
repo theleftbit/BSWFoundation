@@ -57,21 +57,15 @@ extension HTTPMethod {
 public enum HTTPParameterEncoding {
     case url
     case json
-    case propertyList(PropertyListSerialization.PropertyListFormat, PropertyListSerialization.WriteOptions)
-    case custom((URLRequestConvertible, [String: Any]?) -> (URLRequest, NSError?))
 }
 
 extension HTTPParameterEncoding {
     func alamofireParameterEncoding() -> Alamofire.ParameterEncoding {
         switch self {
         case .url:
-            return .url
+            return URLEncoding.default
         case .json:
-            return .json
-        case .propertyList(let format, let options):
-            return .propertyList(format, options)
-        case .custom(let closure):
-            return .custom(closure)
+            return JSONEncoding.default
         }
     }
 }
@@ -125,12 +119,12 @@ struct Router {
             request.setValue(signature.value, forHTTPHeaderField: signature.header)
         }
         
-        let requestTuple = endpoint.parameterEncoding.alamofireParameterEncoding().encode(request, parameters: endpoint.parameters)
-        
-        if let error = requestTuple.1 {
+        do {
+            let alamofireEncoding = endpoint.parameterEncoding.alamofireParameterEncoding()
+            let request = try alamofireEncoding.encode(request, with: endpoint.parameters)
+            return Result<URLRequestConvertible>(request)
+        } catch let error {
             return Result<URLRequestConvertible>(error: error)
-        } else {
-            return Result<URLRequestConvertible>(requestTuple.0)
         }
     }
 }
@@ -144,7 +138,7 @@ public final class Drosky {
     fileprivate let backgroundNetworkManager: Alamofire.SessionManager
     fileprivate let queue = queueForSubmodule(Drosky.ModuleName, qualityOfService: .userInitiated)
     fileprivate let gcdQueue = DispatchQueue(label: Drosky.ModuleName, attributes: [])
-    fileprivate let dataSerializer = Alamofire.Request.dataResponseSerializer()
+    fileprivate let dataSerializer = Alamofire.DataRequest.dataResponseSerializer()
     var router: Router
     
     public init (
@@ -208,7 +202,7 @@ public final class Drosky {
         queue.addOperation { [weak self] in
             guard let strongSelf = self else { return }
             let requestResult = strongSelf.router.urlRequest(forEndpoint: endpoint)
-            deferred.fill(requestResult)
+            deferred.fill(with: requestResult)
         }
         return Future(deferred)
     }
@@ -238,9 +232,9 @@ public final class Drosky {
             encodingCompletion: { (result) in
                 switch result {
                 case .failure(let error):
-                    deferredResponse.fill(Result(error: error))
+                    deferredResponse.fill(with: Result(error: error))
                 case .success(let request, _,  _):
-                    deferredProgress.fill(request.progress)
+                    deferredProgress.fill(with: request.progress)
                     request.responseData(queue: self.gcdQueue) {
                         self.processAlamofireResponse($0, deferred: deferredResponse)
                     }
@@ -269,7 +263,7 @@ public final class Drosky {
             #endif
             
             let result = Result(droskyResponse)
-            deferred.fill(result)
+            deferred.fill(with: result)
         }
         
         return Future(deferred)
@@ -282,34 +276,34 @@ public final class Drosky {
         queue.addOperation {
             switch response.statusCode {
             case 200...299:
-                deferred.fill(Result<DroskyResponse>(response))
+                deferred.fill(with: Result<DroskyResponse>(response))
             case 400:
-                deferred.fill(.failure(DroskyErrorKind.badRequest))
+                deferred.fill(with: .failure(DroskyErrorKind.badRequest))
             case 401:
-                deferred.fill(.failure(DroskyErrorKind.unauthorized))
+                deferred.fill(with: .failure(DroskyErrorKind.unauthorized))
             case 403:
-                deferred.fill(.failure(DroskyErrorKind.forbidden))
+                deferred.fill(with: .failure(DroskyErrorKind.forbidden))
             case 404:
-                deferred.fill(.failure(DroskyErrorKind.resourceNotFound))
+                deferred.fill(with: .failure(DroskyErrorKind.resourceNotFound))
             case 405...499:
-                deferred.fill(.failure(DroskyErrorKind.unknownResponse))
+                deferred.fill(with: .failure(DroskyErrorKind.unknownResponse))
             case 500:
-                deferred.fill(.failure(DroskyErrorKind.serverUnavailable))
+                deferred.fill(with: .failure(DroskyErrorKind.serverUnavailable))
             default:
-                deferred.fill(.failure(DroskyErrorKind.unknownResponse))
+                deferred.fill(with: .failure(DroskyErrorKind.unknownResponse))
             }
         }
         
         return Future(deferred)
     }
 
-    fileprivate func processAlamofireResponse(_ response: Alamofire.Response<Data, NSError>, deferred: Deferred<Result<(Data, HTTPURLResponse)>>) {
+    fileprivate func processAlamofireResponse(_ response: DataResponse<Data>, deferred: Deferred<Result<(Data, HTTPURLResponse)>>) {
         switch response.result {
         case .failure(let error):
-            deferred.fill(Result(error: error))
+            deferred.fill(with: Result(error: error))
         case .success(let data):
             guard let response = response.response else { fatalError() }
-            deferred.fill(Result(value: (data, response)))
+            deferred.fill(with: Result(value: (data, response)))
         }
     }
 }
@@ -338,7 +332,7 @@ extension Drosky {
             
             session.getTasksWithCompletionHandler { (dataTasks, _, _) -> Void in
                 let completedTasks = dataTasks.filter { $0.state == .completed && $0.originalRequest?.url != nil}
-                deferred.fill(completedTasks.map { return $0.originalRequest!.url!})
+                deferred.fill(with: completedTasks.map { return $0.originalRequest!.url!})
                 self.backgroundNetworkManager.backgroundCompletionHandler?()
             }
         }

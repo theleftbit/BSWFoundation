@@ -15,7 +15,7 @@ public enum JSONParser {
         let deferred = Deferred<Result<T>>()
         
         queue.addOperation {
-            deferred.fill(parseData(data))
+            deferred.fill(with: parseData(data))
         }
         
         return Future(deferred)
@@ -26,7 +26,7 @@ public enum JSONParser {
         let deferred = Deferred<Result<[T]>>()
         
         queue.addOperation {
-            deferred.fill(parseData(data))
+            deferred.fill(with: parseData(data))
         }
         
         return Future(deferred)

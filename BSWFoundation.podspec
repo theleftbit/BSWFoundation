@@ -21,8 +21,8 @@ Pod::Spec.new do |s|
   s.source_files  = "Source/**/*.{swift,m,h}"
 
   # ――― Dependencies ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  s.dependency "Alamofire"
+  s.dependency "Alamofire", "~> 4.0.0"
   s.dependency "BNRDeferred"
-  s.dependency "Decodable"
+  s.dependency "Decodable", "~> 0.5"
 
 end

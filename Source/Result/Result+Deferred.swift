@@ -10,6 +10,7 @@ import Deferred
 infix operator ≈> { associativity left precedence 160 }
 
 public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: @escaping (T) -> Future<Result<U>>) -> Future<Result<U>> {
+    
     return lhs.flatMap { resultToDeferred($0, f: rhs) }
 }
 
@@ -31,16 +32,16 @@ public func both <T, U> (first: Future<Result<T>>, second: Future<Result<U>>) ->
     
     first.and(second).upon { (firstResult, secondResult) in
         guard let firstValue = firstResult.value else {
-            deferred.fill(Result(error: firstResult.error!))
+            deferred.fill(with: Result(error: firstResult.error!))
             return
         }
         
         guard let secondValue = secondResult.value else {
-            deferred.fill(Result(error: secondResult.error!))
+            deferred.fill(with: Result(error: secondResult.error!))
             return
         }
         
-        deferred.fill(Result((firstValue, secondValue)))
+        deferred.fill(with: Result((firstValue, secondValue)))
     }
     
     return Future(deferred)
@@ -52,17 +53,17 @@ public func bothSerially <T, U> (first: Future<Result<T>>, second: @escaping (T)
     
     first.upon{ (firstResult) in
         guard let firstValue = firstResult.value else {
-            deferred.fill(.failure(firstResult.error!))
+            deferred.fill(with: .failure(firstResult.error!))
             return
         }
         
         second(firstValue).upon { (secondResult) in        
             guard let secondValue = secondResult.value else {
-                deferred.fill(.failure(secondResult.error!))
+                deferred.fill(with: .failure(secondResult.error!))
                 return
             }
             
-            deferred.fill(Result((firstValue, secondValue)))
+            deferred.fill(with: Result((firstValue, secondValue)))
         }
     }
     

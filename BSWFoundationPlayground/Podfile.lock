@@ -1,48 +1,34 @@
 PODS:
   - Alamofire (4.0.0)
-  - BNRDeferred (2.0.0)
+  - BNRDeferred (2.2.0-rc.1)
   - BSWFoundation (0.1.0):
-    - Alamofire
+    - Alamofire (~> 4.0.0)
     - BNRDeferred
-    - Decodable
-  - Decodable (0.4.3)
+    - Decodable (~> 0.5)
+  - Decodable (0.5)
 
 DEPENDENCIES:
-  - Alamofire (from `https://github.com/Alamofire/Alamofire.git`, branch `swift3`)
-  - BNRDeferred (from `https://github.com/bignerdranch/Deferred.git`, branch `zwaldowski/swift-3_0`)
+  - BNRDeferred (from `https://github.com/bignerdranch/Deferred.git`, branch `zwaldowski/swift-3_0/naming`)
   - BSWFoundation (from `../BSWFoundation.podspec`)
-  - Decodable (from `https://github.com/Anviking/Decodable.git`, branch `beta6`)
 
 EXTERNAL SOURCES:
-  Alamofire:
-    :branch: swift3
-    :git: https://github.com/Alamofire/Alamofire.git
   BNRDeferred:
-    :branch: zwaldowski/swift-3_0
+    :branch: zwaldowski/swift-3_0/naming
     :git: https://github.com/bignerdranch/Deferred.git
   BSWFoundation:
     :path: "../BSWFoundation.podspec"
-  Decodable:
-    :branch: beta6
-    :git: https://github.com/Anviking/Decodable.git
 
 CHECKOUT OPTIONS:
-  Alamofire:
-    :commit: 1dc3992a3854ca369368c8997ea3c45054070e67
-    :git: https://github.com/Alamofire/Alamofire.git
   BNRDeferred:
-    :commit: ffe5b432333c65785cbc3375fbd0310e4b8684d2
+    :commit: cc9970e293f3e5ded86d5eccaa019193d5261eee
     :git: https://github.com/bignerdranch/Deferred.git
-  Decodable:
-    :commit: 46747006d676daaf1a71e35d119a229b06d1f654
-    :git: https://github.com/Anviking/Decodable.git
 
 SPEC CHECKSUMS:
   Alamofire: fef59f00388f267e52d9b432aa5d93dc97190f14
-  BNRDeferred: 997afb88274c35536349074f731afa11d61ac433
-  BSWFoundation: 02dc9b181c593c89c64f8f5787e31f76c05600fd
-  Decodable: ab6c7d02a5df949d3ab16b2696528a3241e37c76
+  BNRDeferred: e974d15fce7fbed07f7637856051b0fdb453756e
+  BSWFoundation: aae825d810ce652e2e09525583e59e986bfc41b0
+  Decodable: 7c90acc68d357b71d0d6efc120faf9c53c644b7e
 
-PODFILE CHECKSUM: b7435d5d6a72ca48aeff46ec52c1cc3fdfc5e1c4
+PODFILE CHECKSUM: 41f2e7a3c1e9ce29d91c312eb61e21f719e183e9
 
 COCOAPODS: 1.1.0.beta.2
