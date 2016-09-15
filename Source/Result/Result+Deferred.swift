@@ -10,20 +10,19 @@ import Deferred
 infix operator ≈> { associativity left precedence 160 }
 
 public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: @escaping (T) -> Future<Result<U>>) -> Future<Result<U>> {
-    
-    return lhs.flatMap { resultToDeferred($0, f: rhs) }
+    return lhs.andThen(upon: DispatchQueue.any()) { resultToDeferred($0, f: rhs) }
 }
 
 public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: @escaping (T) -> Result<U>) -> Future<Result<U>> {
-    return lhs.flatMap { resultToDeferred($0, f: rhs) }
+    return lhs.andThen(upon: DispatchQueue.any()) { resultToDeferred($0, f: rhs) }
 }
 
 public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: @escaping (T) -> U) -> Future<Result<U>> {
-    return lhs.flatMap { resultToDeferred($0, f: rhs) }
+    return lhs.andThen(upon: DispatchQueue.any()) { resultToDeferred($0, f: rhs) }
 }
 
 public func ≈> <T, U>(lhs: Future<T>, rhs: @escaping (T) -> Result<U>) -> Future<Result<U>> {
-    return lhs.map { return rhs($0) }
+    return lhs.map(upon: DispatchQueue.any()) { return rhs($0) }
 }
 
 public func both <T, U> (first: Future<Result<T>>, second: Future<Result<U>>) ->  Future<Result<(T, U)>> {
