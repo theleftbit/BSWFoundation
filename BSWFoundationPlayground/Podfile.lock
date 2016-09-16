@@ -20,15 +20,15 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   BNRDeferred:
-    :commit: cc9970e293f3e5ded86d5eccaa019193d5261eee
+    :commit: eb06b3a16ded452e23b469367db0c4ad891614d9
     :git: https://github.com/bignerdranch/Deferred.git
 
 SPEC CHECKSUMS:
   Alamofire: fef59f00388f267e52d9b432aa5d93dc97190f14
-  BNRDeferred: e974d15fce7fbed07f7637856051b0fdb453756e
+  BNRDeferred: e68ca797204d81a4516606a0cb597bc46fd0788b
   BSWFoundation: aae825d810ce652e2e09525583e59e986bfc41b0
   Decodable: 7c90acc68d357b71d0d6efc120faf9c53c644b7e
 
 PODFILE CHECKSUM: 41f2e7a3c1e9ce29d91c312eb61e21f719e183e9
 
-COCOAPODS: 1.1.0.beta.2
+COCOAPODS: 1.1.0.rc.2
