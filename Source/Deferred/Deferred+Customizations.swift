@@ -74,7 +74,7 @@ public func bothSerially <T, U> (first: Task<T>, second: @escaping (T) -> Task<U
 }
 
 extension Task {
-    func toObjectiveC(completionHandler handler: @escaping (SuccessValue?, NSError?) -> Void) {
+    public func toObjectiveC(completionHandler handler: @escaping (SuccessValue?, NSError?) -> Void) {
         upon(.main) { (result) in
             switch result {
             case .success(let value):
@@ -87,7 +87,7 @@ extension Task {
 }
 
 extension TaskResult {
-    var value: Value? {
+    public var value: Value? {
         switch self {
         case .success(let value):
             return value
@@ -96,7 +96,7 @@ extension TaskResult {
         }
     }
 
-    var error: Error? {
+    public var error: Error? {
         switch self {
         case .success(_):
             return nil
