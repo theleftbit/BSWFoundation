@@ -13,30 +13,34 @@ public func ≈> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> Task<U>) -> Task<U> 
     return lhs.andThen(upon: DispatchQueue.any(), start: rhs)
 }
 
-public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: @escaping (T) -> Future<Result<U>>) -> Future<Result<U>> {
-    return lhs.andThen(upon: DispatchQueue.any()) { resultToDeferred($0, f: rhs) }
-}
-
 public func ≈> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> TaskResult<U>) -> Task<U> {
     return lhs.andThen(upon: DispatchQueue.any()) { Task(Future(value: rhs($0))) }
-}
-
-public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: @escaping (T) -> Result<U>) -> Future<Result<U>> {
-    return lhs.andThen(upon: DispatchQueue.any()) { resultToDeferred($0, f: rhs) }
 }
 
 public func ≈> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> U) -> Task<U> {
     return lhs.andThen(upon: DispatchQueue.any()) { return Task(future: Future(value: .success(rhs($0)))) }
 }
 
-public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: @escaping (T) -> U) -> Future<Result<U>> {
-    return lhs.andThen(upon: DispatchQueue.any()) { resultToDeferred($0, f: rhs) }
-}
-
 public func ≈> <T, U>(lhs: Future<T>, rhs: @escaping (T) -> TaskResult<U>) -> Task<U> {
     return Task(future: lhs.map(upon: DispatchQueue.any()) { return rhs($0) })
 }
 
+@available(*, deprecated, message: "use Task<T> instead")
+public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: @escaping (T) -> Future<Result<U>>) -> Future<Result<U>> {
+    return lhs.andThen(upon: DispatchQueue.any()) { resultToDeferred($0, f: rhs) }
+}
+
+@available(*, deprecated, message: "use Task<T> instead")
+public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: @escaping (T) -> Result<U>) -> Future<Result<U>> {
+    return lhs.andThen(upon: DispatchQueue.any()) { resultToDeferred($0, f: rhs) }
+}
+
+@available(*, deprecated, message: "use Task<T> instead")
+public func ≈> <T, U>(lhs: Future<Result<T>>, rhs: @escaping (T) -> U) -> Future<Result<U>> {
+    return lhs.andThen(upon: DispatchQueue.any()) { resultToDeferred($0, f: rhs) }
+}
+
+@available(*, deprecated, message: "use Task<T> instead")
 public func ≈> <T, U>(lhs: Future<T>, rhs: @escaping (T) -> Result<U>) -> Future<Result<U>> {
     return lhs.map(upon: DispatchQueue.any()) { return rhs($0) }
 }

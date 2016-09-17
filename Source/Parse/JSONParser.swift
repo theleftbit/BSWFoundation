@@ -10,42 +10,42 @@ public enum JSONParser {
     
     fileprivate static let queue = queueForSubmodule("JSONParser")
 
-    public static func parseDataAsync<T: Decodable>(_ data: Data) -> Future<Result<T>> {
+    public static func parseDataAsync<T: Decodable>(_ data: Data) -> Task<T> {
         
-        let deferred = Deferred<Result<T>>()
+        let deferred = Deferred<TaskResult<T>>()
         
         queue.addOperation {
             deferred.fill(with: parseData(data))
         }
         
-        return Future(deferred)
+        return Task(future: Future(deferred))
     }
 
-    public static func parseDataAsync<T : Decodable>(_ data: Data) -> Future<Result<[T]>> {
+    public static func parseDataAsync<T : Decodable>(_ data: Data) -> Task<[T]> {
         
-        let deferred = Deferred<Result<[T]>>()
+        let deferred = Deferred<TaskResult<[T]>>()
         
         queue.addOperation {
             deferred.fill(with: parseData(data))
         }
         
-        return Future(deferred)
+        return Task(future: Future(deferred))
     }
 
     
-    public static func parseData<T : Decodable>(_ data:Data) -> Result<T> {
+    public static func parseData<T : Decodable>(_ data:Data) -> TaskResult<T> {
         
         guard let j = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else {
-            return Result(error: DataParseErrorKind.malformedJSON)
+            return .failure(DataParseErrorKind.malformedJSON)
         }
         
         return parseJSON(j as AnyObject)
     }
     
-    public static func parseData<T : Decodable>(_ data: Data) -> Result<[T]> {
+    public static func parseData<T : Decodable>(_ data: Data) -> TaskResult<[T]> {
         
         guard let j = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else {
-            return Result(error: DataParseErrorKind.malformedJSON)
+            return .failure(DataParseErrorKind.malformedJSON)
         }
         
         return parseJSON(j as AnyObject)
@@ -77,11 +77,11 @@ public enum JSONParser {
 
     //MARK: - Private
     
-    fileprivate static func parseJSON<T : Decodable>(_ j: AnyObject) -> Result<T> {
-        let result : Result<T>
+    fileprivate static func parseJSON<T : Decodable>(_ j: AnyObject) -> TaskResult<T> {
+        let result : TaskResult<T>
         do {
             let output : T = try T.decode(j)
-            result = Result(output)
+            result = .success(output)
         } catch let error {
             
             if let typeMismatchError = error as? DecodingError {
@@ -89,16 +89,16 @@ public enum JSONParser {
                 switch typeMismatchError {
                 case .typeMismatch(let expected, let actual, let metadata):
                     print("*ERROR* decoding, type \"\(actual)\" mismatched, expected \"\(expected)\" type, path: \(metadata.path)")
-                    result = Result(error: DataParseErrorKind.malformedSchema)
+                    result = .failure(DataParseErrorKind.malformedSchema)
                 case .missingKey(let key, let _):
                     print("*ERROR* decoding, key \"\(key)\" is missing")
-                    result = Result(error: DataParseErrorKind.malformedSchema)
+                    result = .failure(DataParseErrorKind.malformedSchema)
                 default:
                     print("unknownError decoding json")
-                    result = Result(error: DataParseErrorKind.unknownError)
+                    result = .failure(DataParseErrorKind.unknownError)
                 }
             } else {
-                result = Result(error: DataParseErrorKind.unknownError)
+                result = .failure(DataParseErrorKind.unknownError)
             }
             
             print("Received JSON: \(j)")
@@ -107,8 +107,8 @@ public enum JSONParser {
         return result
     }
     
-    fileprivate static func parseJSON<T : Decodable>(_ j: AnyObject) -> Result<[T]> {
-        let result : Result<[T]>
+    fileprivate static func parseJSON<T : Decodable>(_ j: AnyObject) -> TaskResult<[T]> {
+        let result : TaskResult<[T]>
         do {
             
             #if DEBUG
@@ -118,7 +118,7 @@ public enum JSONParser {
             #endif
             
             let output: [T] = try [T].decode(j, ignoreInvalidObjects: ignoreInvalidObjects)
-            result = Result(output)
+            result = .success(output)
         } catch let error {
             
             if let typeMismatchError = error as? DecodingError {
@@ -126,16 +126,16 @@ public enum JSONParser {
                 switch typeMismatchError {
                 case .typeMismatch(let expected, let actual, let metadata):
                     print("*ERROR* decoding, type \"\(actual)\" mismatched, expected \"\(expected)\" type, path: \(metadata.path)")
-                    result = Result(error: DataParseErrorKind.malformedSchema)
+                    result = .failure(DataParseErrorKind.malformedSchema)
                 case .missingKey(let key, let _):
                     print("*ERROR* decoding, key \"\(key)\" is missing")
-                    result = Result(error: DataParseErrorKind.malformedSchema)
+                    result = .failure(DataParseErrorKind.malformedSchema)
                 default:
                     print("unknownError decoding json")
-                    result = Result(error: DataParseErrorKind.unknownError)
+                    result = .failure(DataParseErrorKind.unknownError)
                 }
             } else {
-                result = Result(error: DataParseErrorKind.unknownError)
+                result = .failure(DataParseErrorKind.unknownError)
             }
             
             print("Received JSON: \(j)")
