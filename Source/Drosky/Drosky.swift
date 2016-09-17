@@ -179,8 +179,8 @@ public final class Drosky {
     }
 
     public func performRequest(forEndpoint endpoint: Endpoint) -> Task<DroskyResponse> {
-        return (generateRequest(forEndpoint: endpoint)
-                ≈> sendRequest)
+        return generateRequest(forEndpoint: endpoint)
+                ≈> sendRequest
                 ≈> processResponse
     }
 

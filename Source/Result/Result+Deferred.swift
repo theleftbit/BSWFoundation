@@ -7,7 +7,11 @@ import Deferred
 
 //MARK: Public
 
-infix operator ≈> { associativity left precedence 160 }
+precedencegroup Additive {
+    associativity: left
+}
+
+infix operator ≈> : Additive
 
 public func ≈> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> Task<U>) -> Task<U> {
     return lhs.andThen(upon: DispatchQueue.any(), start: rhs)
@@ -45,6 +49,7 @@ public func ≈> <T, U>(lhs: Future<T>, rhs: @escaping (T) -> Result<U>) -> Futu
     return lhs.map(upon: DispatchQueue.any()) { return rhs($0) }
 }
 
+@available(*, deprecated, message: "use Task<T> instead")
 public func both <T, U> (first: Future<Result<T>>, second: Future<Result<U>>) ->  Future<Result<(T, U)>> {
     
     let deferred = Deferred<Result<(T, U)>>()
@@ -66,6 +71,7 @@ public func both <T, U> (first: Future<Result<T>>, second: Future<Result<U>>) ->
     return Future(deferred)
 }
 
+@available(*, deprecated, message: "use Task<T> instead")
 public func bothSerially <T, U> (first: Future<Result<T>>, second: @escaping (T) -> Future<Result<U>>) ->  Future<Result<(T, U)>> {
     
     let deferred = Deferred<Result<(T, U)>>()
@@ -89,6 +95,7 @@ public func bothSerially <T, U> (first: Future<Result<T>>, second: @escaping (T)
     return Future(deferred)
 }
 
+@available(*, deprecated, message: "use Task<T> instead")
 extension Future where Value: ResultProtocol {
     func toObjectiveC<T>(completionHandler handler: @escaping (T?, NSError?) -> Void) {
         upon(.main) { (result) in
