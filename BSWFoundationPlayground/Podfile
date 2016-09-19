@@ -4,7 +4,7 @@ abstract_target 'Common' do
     pod 'BSWFoundation', :path => '../BSWFoundation.podspec'
 
     #Swift 3 Pods
-    pod 'BNRDeferred',  :git => 'https://github.com/bignerdranch/Deferred.git', :branch => 'zwaldowski/swift-3_0/naming'
+    pod 'BNRDeferred',  :git => 'https://github.com/bignerdranch/Deferred.git', :branch => 'swift-3_0'
 
     target 'BSWFoundationPlayground'
     target 'Tests'

@@ -8,19 +8,19 @@ PODS:
   - Decodable (0.5)
 
 DEPENDENCIES:
-  - BNRDeferred (from `https://github.com/bignerdranch/Deferred.git`, branch `zwaldowski/swift-3_0/naming`)
+  - BNRDeferred (from `https://github.com/bignerdranch/Deferred.git`, branch `swift-3_0`)
   - BSWFoundation (from `../BSWFoundation.podspec`)
 
 EXTERNAL SOURCES:
   BNRDeferred:
-    :branch: zwaldowski/swift-3_0/naming
+    :branch: swift-3_0
     :git: https://github.com/bignerdranch/Deferred.git
   BSWFoundation:
     :path: "../BSWFoundation.podspec"
 
 CHECKOUT OPTIONS:
   BNRDeferred:
-    :commit: eb06b3a16ded452e23b469367db0c4ad891614d9
+    :commit: 4fad78faf79c6f386f780bffb7c78ecdfbd1f10b
     :git: https://github.com/bignerdranch/Deferred.git
 
 SPEC CHECKSUMS:
@@ -29,6 +29,6 @@ SPEC CHECKSUMS:
   BSWFoundation: aae825d810ce652e2e09525583e59e986bfc41b0
   Decodable: 7c90acc68d357b71d0d6efc120faf9c53c644b7e
 
-PODFILE CHECKSUM: 41f2e7a3c1e9ce29d91c312eb61e21f719e183e9
+PODFILE CHECKSUM: 3134436df504e424a0bf38e6fc8dda7018f67865
 
 COCOAPODS: 1.1.0.rc.2
