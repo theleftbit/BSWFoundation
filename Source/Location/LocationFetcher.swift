@@ -10,14 +10,14 @@ import Deferred
 #if os(iOS)
 
 @available(iOS 9, *)
-open class LocationFetcher: NSObject, CLLocationManagerDelegate {
+public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
     
     open static let fetcher = LocationFetcher()
     
     fileprivate let locationManager = CLLocationManager()
     fileprivate var currentRequest: Deferred<CLLocation?>?
-    open let desiredAccuracy = kCLLocationAccuracyHundredMeters
-    open var lastKnownLocation: CLLocation?
+    public let desiredAccuracy = kCLLocationAccuracyHundredMeters
+    public var lastKnownLocation: CLLocation?
 
     override init() {
         super.init()
@@ -30,7 +30,7 @@ open class LocationFetcher: NSObject, CLLocationManagerDelegate {
         locationManager.desiredAccuracy = desiredAccuracy
     }
     
-    open func fetchCurrentLocation(_ useCachedLocationIfAvailable: Bool = true) -> Future<CLLocation?> {
+    public func fetchCurrentLocation(_ useCachedLocationIfAvailable: Bool = true) -> Future<CLLocation?> {
         if let lastKnownLocation = self.lastKnownLocation , useCachedLocationIfAvailable {
             return Future(value: lastKnownLocation)
         }
@@ -57,26 +57,26 @@ open class LocationFetcher: NSObject, CLLocationManagerDelegate {
         return Future(deferredLocation)
     }
     
-    fileprivate func completeCurrentRequest(_ location: CLLocation? = nil) {
+    private func completeCurrentRequest(_ location: CLLocation? = nil) {
         self.currentRequest?.fill(with: location)
         self.currentRequest = nil
     }
 
     //MARK:- CLLocationManagerDelegate
     
-    open func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.first {
             self.lastKnownLocation = location
             completeCurrentRequest(location)
         }
     }
     
-    open func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Error finding location: \(error.localizedDescription)")
         completeCurrentRequest()
     }
     
-    open func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
     
         guard status != .notDetermined else { return }
         
