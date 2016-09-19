@@ -107,9 +107,9 @@ struct Router {
     let environment: Environment
     let signature: Signature?
     
-    func urlRequest(forEndpoint endpoint: Endpoint) -> Result<URLRequestConvertible> {
+    func urlRequest(forEndpoint endpoint: Endpoint) -> TaskResult<URLRequestConvertible> {
         guard let URL = URL(string: environment.routeURL(endpoint.path)) else {
-            return Result<URLRequestConvertible>(error: DroskyErrorKind.malformedURLError)
+            return .failure(DroskyErrorKind.malformedURLError)
         }
         
         var request = URLRequest(url: URL)
@@ -122,9 +122,9 @@ struct Router {
         do {
             let alamofireEncoding = endpoint.parameterEncoding.alamofireParameterEncoding()
             let request = try alamofireEncoding.encode(request, with: endpoint.parameters)
-            return Result<URLRequestConvertible>(request)
+            return .success(request)
         } catch let error {
-            return Result<URLRequestConvertible>(error: error)
+            return .failure(error)
         }
     }
 }
@@ -172,55 +172,62 @@ public final class Drosky {
         router = Router(environment: environment, signature: router.signature)
     }
     
-    fileprivate static func serverTrustPoliciesDisablingEvaluationForHosts(_ hosts: [String]) -> [String: ServerTrustPolicy] {
+    private static func serverTrustPoliciesDisablingEvaluationForHosts(_ hosts: [String]) -> [String: ServerTrustPolicy] {
         var policies = [String: ServerTrustPolicy]()
         hosts.forEach { policies[$0] = .disableEvaluation }
         return policies
     }
 
-    public func performRequest(forEndpoint endpoint: Endpoint) -> Future<Result<DroskyResponse>> {
-        return (generateRequest(forEndpoint: endpoint)
-                ≈> sendRequest)
+    public func performRequest(forEndpoint endpoint: Endpoint) -> Task<DroskyResponse> {
+        return generateRequest(forEndpoint: endpoint)
+                ≈> sendRequest
                 ≈> processResponse
     }
 
-    public func performAndValidateRequest(forEndpoint endpoint: Endpoint) -> Future<Result<DroskyResponse>> {
+    public func performAndValidateRequest(forEndpoint endpoint: Endpoint) -> Task<DroskyResponse> {
         return performRequest(forEndpoint: endpoint)
                 ≈> validateDroskyResponse
     }
 
-    public func performMultipartUpload(forEndpoint endpoint: Endpoint, multipartParams: [MultipartParameter]) -> (Future<Result<DroskyResponse>>, Future<Progress>) {
-        let generatedRequest = try! router.urlRequest(forEndpoint: endpoint).dematerialize()
-        let multipartRequestTuple = performUpload(generatedRequest, multipartParameters: multipartParams)
-        let processedResponse = multipartRequestTuple.0 ≈> processResponse
-        return (processedResponse, multipartRequestTuple.1)
+    public func performMultipartUpload(forEndpoint endpoint: Endpoint, multipartParams: [MultipartParameter]) -> Task<DroskyResponse> {
+        
+        guard case let .success(request) = router.urlRequest(forEndpoint: endpoint) else {
+            return Task(future: Future(value: .failure(DroskyErrorKind.badRequest)))
+        }
+        
+        return performUpload(request, multipartParameters: multipartParams)
+                ≈> processResponse
     }
 
     //MARK:- Internal
-    fileprivate func generateRequest(forEndpoint endpoint: Endpoint) -> Future<Result<URLRequestConvertible>> {
-        let deferred = Deferred<Result<URLRequestConvertible>>()
+    private func generateRequest(forEndpoint endpoint: Endpoint) -> Task<URLRequestConvertible> {
+        
+        let deferred = Deferred<TaskResult<URLRequestConvertible>>()
+        
         queue.addOperation { [weak self] in
             guard let strongSelf = self else { return }
             let requestResult = strongSelf.router.urlRequest(forEndpoint: endpoint)
             deferred.fill(with: requestResult)
         }
-        return Future(deferred)
+        
+        return Task(future: Future(deferred))
     }
     
     
-    fileprivate func sendRequest(_ request: URLRequestConvertible) -> Future<Result<(Data, HTTPURLResponse)>> {
-        let deferred = Deferred<Result<(Data, HTTPURLResponse)>>()
+    private func sendRequest(_ request: URLRequestConvertible) -> Task<(Data, HTTPURLResponse)> {
+        let deferred = Deferred<TaskResult<(Data, HTTPURLResponse)>>()
         
         networkManager
             .request(request)
             .responseData(queue: gcdQueue) { self.processAlamofireResponse($0, deferred: deferred) }
         
-        return Future(deferred)
+        return Task(future: Future(deferred))
     }
     
-    fileprivate func performUpload(_ request: URLRequestConvertible, multipartParameters: [MultipartParameter]) -> (Future<Result<(Data, HTTPURLResponse)>>, Future<Progress>) {
-        let deferredResponse = Deferred<Result<(Data, HTTPURLResponse)>>()
-        let deferredProgress = Deferred<Progress>()
+    private func performUpload(_ request: URLRequestConvertible, multipartParameters: [MultipartParameter]) -> Task<(Data, HTTPURLResponse)> {
+        let deferredResponse = Deferred<TaskResult<(Data, HTTPURLResponse)>>()
+        let workToBeDone = Int64(100)
+        let progress = Progress(totalUnitCount: workToBeDone)
         
         backgroundNetworkManager.upload(
             multipartFormData: { (form) in
@@ -232,9 +239,9 @@ public final class Drosky {
             encodingCompletion: { (result) in
                 switch result {
                 case .failure(let error):
-                    deferredResponse.fill(with: Result(error: error))
+                    deferredResponse.fill(with: .failure(error))
                 case .success(let request, _,  _):
-                    deferredProgress.fill(with: request.progress)
+                    progress.addChild(request.progress, withPendingUnitCount: workToBeDone)
                     request.responseData(queue: self.gcdQueue) {
                         self.processAlamofireResponse($0, deferred: deferredResponse)
                     }
@@ -242,12 +249,12 @@ public final class Drosky {
             }
         )
         
-        return (Future(deferredResponse), Future(deferredProgress))
+        return Task(future: Future(deferredResponse), progress: progress)
     }
     
-    fileprivate func processResponse(_ data: Data, urlResponse: HTTPURLResponse) -> Future<Result<DroskyResponse>> {
+    private func processResponse(_ data: Data, urlResponse: HTTPURLResponse) -> Task<DroskyResponse> {
         
-        let deferred = Deferred<Result<DroskyResponse>>()
+        let deferred = Deferred<TaskResult<DroskyResponse>>()
         
         queue.addOperation {
             let droskyResponse = DroskyResponse(
@@ -262,21 +269,20 @@ public final class Drosky {
                 }
             #endif
             
-            let result = Result(droskyResponse)
-            deferred.fill(with: result)
+            deferred.fill(with: .success(droskyResponse))
         }
         
-        return Future(deferred)
+        return Task(future: Future(deferred))
     }
     
-    fileprivate func validateDroskyResponse(_ response: DroskyResponse) -> Future<Result<DroskyResponse>> {
+    private func validateDroskyResponse(_ response: DroskyResponse) -> Task<DroskyResponse> {
         
-        let deferred = Deferred<Result<DroskyResponse>>()
+        let deferred = Deferred<TaskResult<DroskyResponse>>()
         
         queue.addOperation {
             switch response.statusCode {
             case 200...299:
-                deferred.fill(with: Result<DroskyResponse>(response))
+                deferred.fill(with: .success(response))
             case 400:
                 deferred.fill(with: .failure(DroskyErrorKind.badRequest))
             case 401:
@@ -294,16 +300,16 @@ public final class Drosky {
             }
         }
         
-        return Future(deferred)
+        return Task(future: Future(deferred))
     }
 
-    fileprivate func processAlamofireResponse(_ response: DataResponse<Data>, deferred: Deferred<Result<(Data, HTTPURLResponse)>>) {
+    private func processAlamofireResponse(_ response: DataResponse<Data>, deferred: Deferred<TaskResult<(Data, HTTPURLResponse)>>) {
         switch response.result {
         case .failure(let error):
-            deferred.fill(with: Result(error: error))
+            deferred.fill(with: .failure(error))
         case .success(let data):
             guard let response = response.response else { fatalError() }
-            deferred.fill(with: Result(value: (data, response)))
+            deferred.fill(with: .success(data, response))
         }
     }
 }
