@@ -4,3 +4,5 @@ podfile: BSWFoundationPlayground/Podfile
 xcode_workspace: BSWFoundationPlayground/BSWFoundation.xcworkspace
 xcode_scheme: Tests
 xcode_sdk: iphonesimulator10.0
+before_install:
+ - pod repo update # Since Travis is not always on latest version
