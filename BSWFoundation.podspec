@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
 
   # ――― Dependencies ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   s.dependency "Alamofire", "~> 4.0.0"
-  s.dependency "BNRDeferred"
+  s.dependency "BNRDeferred", "3.0.0-beta.1"
   s.dependency "Decodable", "~> 0.5"
 
   # ――― Swift Version ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
