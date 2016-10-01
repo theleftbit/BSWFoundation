@@ -7,3 +7,4 @@ xcode_sdk: iphonesimulator10.0
 before_install:
  - cd BSWFoundationPlayground/  
  - pod update BNRDeferred
+ - cd ..
