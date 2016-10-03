@@ -21,8 +21,8 @@ func calculatePowerOf2(value: String) -> Float {
 let invalidCharacter = "h"
 let validCharacter = "2"
 
-let invalidValue: Float = calculatePowerOf2(invalidCharacter)
-let validValue: Float =  calculatePowerOf2(validCharacter)
+let invalidValue: Float = calculatePowerOf2(value: invalidCharacter)
+let validValue: Float =  calculatePowerOf2(value: validCharacter)
 
 /*:
  Notice that if the String couldn't be cast to a number, we are returning -1, because we have no way of notifying the caller that the operation couldn't be completed in a more expressive way.
@@ -49,18 +49,19 @@ let validValue: Float =  calculatePowerOf2(validCharacter)
  Compare the previous version to this one, written using `Result<T>`:
  */
 
-func calculatePowerOf2(value: String) -> Result<Float> {
+func calculatePowerOf2(value: String) -> TaskResult<Double> {
     
-    enum PowerError: ErrorType {
+    enum PowerError: Error {
         case couldNotCast
     }
     
-    guard let floatValue = Float(value) else { return .Failure(PowerError.couldNotCast) }
-    return Result(pow(floatValue, 2))
+    guard let doubleValue = Double(value) else { return .failure(PowerError.couldNotCast) }
+    
+    return TaskResult(pow(doubleValue, 2)
 }
 
-let failedResult: Result<Float> = calculatePowerOf2(invalidCharacter)
-let succesfulResult: Result<Float> = calculatePowerOf2(validCharacter)
+let failedResult: TaskResult<Double> = calculatePowerOf2(value: invalidCharacter)
+let succesfulResult: TaskResult<Double> = calculatePowerOf2(value: validCharacter)
 
 /*:
  Much better! Now on the calling site we have to explicitly handle the error case, which leads to safer code. 
@@ -70,17 +71,17 @@ let succesfulResult: Result<Float> = calculatePowerOf2(validCharacter)
  But, this doesn't stop here. `Result` is a [monad](https://en.wikipedia.org/wiki/Monad_(functional_programming)), which means that we can use `map` to create more complex operations:
  */
 
-func multiplyByTwo(value: Float) -> Float {
+func multiplyByTwo(value: Double) -> Double {
     return value * 2
 }
 
-let compoundOperation = calculatePowerOf2(validCharacter)
+let compoundOperation = calculatePowerOf2(value: validCharacter)
                         .map(multiplyByTwo)
 
 switch compoundOperation {
-case .Success(let value):
+case .success(let value):
     print("The value is \(value)")
-case .Failure(let error):
+case .failure(let error):
     print("There was an error: \(error)")
 }
 
@@ -93,7 +94,7 @@ case .Failure(let error):
  
  Then, using `map` and `flatMap` we "stich" these functions togheter to make sure that we have a valid solution for the complex problem. Like this:
  ```    
- public func fetchLocationAndUsers() -> Result<[User]> {
+ public func fetchLocationAndUsers() -> TaskResult<[User]> {
         return fetchCurrentLocation()
                 .map(buildSearchFilter)
                 .flatMap(fetchUsers)

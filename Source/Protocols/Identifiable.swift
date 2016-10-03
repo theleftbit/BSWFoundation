@@ -5,10 +5,10 @@
 
 import Foundation
 
-public typealias UUID = String
+public typealias Identity = String
 
 public protocol Identifiable {
-    var uuid: UUID { get }
+    var identity: Identity { get }
 }
 
 extension Equatable where Self : Identifiable {
@@ -16,5 +16,5 @@ extension Equatable where Self : Identifiable {
 }
 
 public func ==(lhs: Identifiable, rhs: Identifiable) -> Bool {
-    return lhs.uuid == rhs.uuid
+    return lhs.identity == rhs.identity
 }

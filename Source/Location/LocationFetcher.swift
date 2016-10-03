@@ -10,19 +10,19 @@ import Deferred
 #if os(iOS)
 
 @available(iOS 9, *)
-public class LocationFetcher: NSObject, CLLocationManagerDelegate {
+public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
     
-    public static let fetcher = LocationFetcher()
+    open static let fetcher = LocationFetcher()
     
-    private let locationManager = CLLocationManager()
-    private var currentRequest: Deferred<CLLocation?>?
+    fileprivate let locationManager = CLLocationManager()
+    fileprivate var currentRequest: Deferred<CLLocation?>?
     public let desiredAccuracy = kCLLocationAccuracyHundredMeters
     public var lastKnownLocation: CLLocation?
 
     override init() {
         super.init()
         
-        guard let _ = NSBundle.mainBundle().objectForInfoDictionaryKey("NSLocationWhenInUseUsageDescription") as? String else {
+        guard let _ = Bundle.main.object(forInfoDictionaryKey: "NSLocationWhenInUseUsageDescription") as? String else {
             fatalError("Please add a NSLocationWhenInUseUsageDescription entry to your Info.plist")
         }
         
@@ -30,8 +30,8 @@ public class LocationFetcher: NSObject, CLLocationManagerDelegate {
         locationManager.desiredAccuracy = desiredAccuracy
     }
     
-    public func fetchCurrentLocation(useCachedLocationIfAvailable: Bool = true) -> Future<CLLocation?> {
-        if let lastKnownLocation = self.lastKnownLocation where useCachedLocationIfAvailable {
+    public func fetchCurrentLocation(_ useCachedLocationIfAvailable: Bool = true) -> Future<CLLocation?> {
+        if let lastKnownLocation = self.lastKnownLocation , useCachedLocationIfAvailable {
             return Future(value: lastKnownLocation)
         }
         
@@ -40,15 +40,15 @@ public class LocationFetcher: NSObject, CLLocationManagerDelegate {
         }
 
         switch CLLocationManager.authorizationStatus() {
-        case .Restricted:
+        case .restricted:
             fallthrough
-        case .Denied:
+        case .denied:
             return Future(value: nil)
-        case .AuthorizedAlways:
+        case .authorizedAlways:
             fallthrough
-        case .AuthorizedWhenInUse:
+        case .authorizedWhenInUse:
             locationManager.requestLocation()
-        case .NotDetermined:
+        case .notDetermined:
             locationManager.requestWhenInUseAuthorization()
         }
         
@@ -57,30 +57,30 @@ public class LocationFetcher: NSObject, CLLocationManagerDelegate {
         return Future(deferredLocation)
     }
     
-    private func completeCurrentRequest(location: CLLocation? = nil) {
-        self.currentRequest?.fill(location)
+    private func completeCurrentRequest(_ location: CLLocation? = nil) {
+        self.currentRequest?.fill(with: location)
         self.currentRequest = nil
     }
 
     //MARK:- CLLocationManagerDelegate
     
-    public func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.first {
             self.lastKnownLocation = location
             completeCurrentRequest(location)
         }
     }
     
-    public func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
+    public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Error finding location: \(error.localizedDescription)")
         completeCurrentRequest()
     }
     
-    public func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
+    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
     
-        guard status != .NotDetermined else { return }
+        guard status != .notDetermined else { return }
         
-        if status == .AuthorizedAlways || status == .AuthorizedWhenInUse {
+        if status == .authorizedAlways || status == .authorizedWhenInUse {
             manager.requestLocation()
         } else {
             completeCurrentRequest()

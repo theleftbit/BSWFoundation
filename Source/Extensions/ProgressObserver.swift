@@ -7,20 +7,20 @@ import Foundation
 
 public class ProgressObserver: NSObject {
     
-    private let onUpdate: NSProgress -> Void
-    private let progress: NSProgress
+    fileprivate let onUpdate: (Progress) -> Void
+    fileprivate let progress: Progress
     
-    public init(progress: NSProgress, onUpdate: NSProgress -> Void) {
+    public init(progress: Progress, onUpdate: @escaping (Progress) -> Void) {
         self.progress = progress
         self.onUpdate = onUpdate
         super.init()
-        progress.addObserver(self, forKeyPath: "fractionCompleted", options: .New, context: nil)
+        progress.addObserver(self, forKeyPath: "fractionCompleted", options: .new, context: nil)
     }
     
-    public override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+    func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [String : Any]?, context: UnsafeMutableRawPointer?) {
         
-        if let progress = object as? NSProgress where progress == self.progress {
-            dispatch_async(dispatch_get_main_queue()) {
+        if let progress = object as? Progress , progress == self.progress {
+            DispatchQueue.main.async {
                 self.onUpdate(progress)
             }
         }

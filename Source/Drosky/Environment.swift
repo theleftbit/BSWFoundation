@@ -10,7 +10,7 @@ public protocol Environment {
 }
 
 public extension Environment {
-    func routeURL(pathURL: String) -> String {
+    func routeURL(_ pathURL: String) -> String {
         return basePath + pathURL
     }
 }

@@ -7,29 +7,25 @@ import Foundation
 
 let ModuleName = "com.bswfoundation"
 
-func submoduleName(submodule : String) -> String {
+func submoduleName(_ submodule : String) -> String {
     return ModuleName + "." + submodule
 }
 
-public typealias VoidHandler = Void -> Void
+public typealias VoidHandler = (Void) -> Void
 
-public func queueForSubmodule(submodule : String, qualityOfService: NSQualityOfService = .Default) -> NSOperationQueue {
-    let queue = NSOperationQueue()
+public func queueForSubmodule(_ submodule : String, qualityOfService: QualityOfService = .default) -> OperationQueue {
+    let queue = OperationQueue()
     queue.name = submoduleName(submodule)
     queue.qualityOfService = qualityOfService
     return queue
 }
 
-public func undefined<T>(hint: String = "", file: StaticString = #file, line: UInt = #line) -> T {
+public func undefined<T>(_ hint: String = "", file: StaticString = #file, line: UInt = #line) -> T {
     let message = hint == "" ? "" : ": \(hint)"
     fatalError("undefined \(T.self)\(message)", file:file, line:line)
 }
 
-public func delay(delay:Double, closure:()->()) {
-    dispatch_after(
-        dispatch_time(
-            DISPATCH_TIME_NOW,
-            Int64(delay * Double(NSEC_PER_SEC))
-        ),
-        dispatch_get_main_queue(), closure)
+public func delay(_ delay:Double, closure:@escaping ()->()) {
+    DispatchQueue.main.asyncAfter(
+        deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: closure)
 }
