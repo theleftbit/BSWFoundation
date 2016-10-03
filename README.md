@@ -5,7 +5,7 @@
 </p>
 
 
-[![travis badge](https://travis-ci.org/BlurredSoftware/BSWFoundation.svg?branch=swift3)](https://travis-ci.org/BlurredSoftware/BSWFoundation/)
+[![travis badge](https://travis-ci.org/BlurredSoftware/BSWFoundation.svg)](https://travis-ci.org/BlurredSoftware/BSWFoundation/)
 [![codebeat badge](https://codebeat.co/badges/31f28ef0-7271-46ef-8ec0-ec7a2011b5f0)](https://codebeat.co/projects/github-com-blurredsoftware-bswfoundation)
 ![](http://img.shields.io/cocoapods/v/BSWFoundation.svg?style=flat)
 ![](https://img.shields.io/cocoapods/p/BSWFoundation.svg?style=flat)
