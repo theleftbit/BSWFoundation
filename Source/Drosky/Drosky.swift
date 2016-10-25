@@ -183,6 +183,11 @@ public final class Drosky {
                 ≈> sendRequest
                 ≈> processResponse
     }
+    
+    public func performRequest(_ request: URLRequest) -> Task<DroskyResponse> {
+        return  sendRequest(request)
+            ≈> processResponse
+    }
 
     public func performAndValidateRequest(forEndpoint endpoint: Endpoint) -> Task<DroskyResponse> {
         return performRequest(forEndpoint: endpoint)
