@@ -1,9 +1,9 @@
 PODS:
   - Alamofire (4.0.0)
-  - BNRDeferred (3.0.0-beta.1)
-  - BSWFoundation (0.2.0):
+  - BNRDeferred (3.0.0-beta.2)
+  - BSWFoundation (0.2.1):
     - Alamofire (~> 4.0.0)
-    - BNRDeferred (= 3.0.0-beta.1)
+    - BNRDeferred (= 3.0.0-beta.2)
     - Decodable (~> 0.5)
   - Decodable (0.5)
 
@@ -16,10 +16,10 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Alamofire: fef59f00388f267e52d9b432aa5d93dc97190f14
-  BNRDeferred: d5be6829872c65f39c0470cdc322d85dc50e9d10
-  BSWFoundation: 80dee8079f404f9cb745f3d5637a24764e8d1519
+  BNRDeferred: 71b1981e816908e084fa11a7def77e46f7c697a1
+  BSWFoundation: 4b8c23a41a485adab0c0a607b771c01aa782bfd3
   Decodable: 7c90acc68d357b71d0d6efc120faf9c53c644b7e
 
 PODFILE CHECKSUM: 474e4f44206b268d4fad59ccaf3139e315a945f1
 
-COCOAPODS: 1.1.0.rc.2
+COCOAPODS: 1.1.1
