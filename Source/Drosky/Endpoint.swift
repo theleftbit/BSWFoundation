@@ -50,11 +50,16 @@ extension Endpoint {
 
 
 public struct MultipartParameter {
-    public let parameterKey: String
-    public let fileURL: URL
+    public enum ParameterType {
+        case url(URL)
+        case data(Data)
+    }
     
-    public init(parameterKey: String, fileURL: URL) {
+    public let parameterKey: String
+    public let parameterValue: ParameterType
+    
+    public init(parameterKey: String, parameterValue: ParameterType) {
         self.parameterKey = parameterKey
-        self.fileURL = fileURL
+        self.parameterValue = parameterValue
     }
 }
