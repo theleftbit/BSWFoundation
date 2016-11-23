@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name         = "BSWFoundation"
-  s.version      = "0.2.1"
+  s.version      = "0.2.2"
   s.summary      = "This framework creates the infrastructure that it's used throughout Blurred Software's projects."
   s.homepage     = "https://github.com/BlurredSoftware/BSWFoundation"
   s.license      = "MIT"
