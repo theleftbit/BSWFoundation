@@ -29,6 +29,38 @@ public func ≈> <T, U>(lhs: Future<T>, rhs: @escaping (T) -> TaskResult<U>) -> 
     return Task(future: lhs.map(upon: DispatchQueue.any()) { return rhs($0) })
 }
 
+public func ≈> <T, U>(lhs: Task<T>, rhs: @escaping (T) throws -> U) -> Task<U> {
+    return lhs.andThen(upon: DispatchQueue.any()) {(input) throws -> Task<U> in
+        let value = try rhs(input)
+        return Task(future: Future(value: .success(value)))
+    }
+}
+
+infix operator ↪️ : Additive
+
+public func ↪️ <T, U>(lhs: Task<T>, rhs: @escaping (T) -> Task<U>) -> Task<U> {
+    return lhs.andThen(upon: DispatchQueue.main, start: rhs)
+}
+
+public func ↪️ <T, U>(lhs: Task<T>, rhs: @escaping (T) -> TaskResult<U>) -> Task<U> {
+    return lhs.andThen(upon: DispatchQueue.main) { Task(Future(value: rhs($0))) }
+}
+
+public func ↪️ <T, U>(lhs: Task<T>, rhs: @escaping (T) -> U) -> Task<U> {
+    return lhs.andThen(upon: DispatchQueue.main) { return Task(future: Future(value: .success(rhs($0)))) }
+}
+
+public func ↪️ <T, U>(lhs: Future<T>, rhs: @escaping (T) -> TaskResult<U>) -> Task<U> {
+    return Task(future: lhs.map(upon: DispatchQueue.main) { return rhs($0) })
+}
+
+public func ↪️ <T, U>(lhs: Task<T>, rhs: @escaping (T) throws -> U) -> Task<U> {
+    return lhs.andThen(upon: DispatchQueue.main) {(input) throws -> Task<U> in
+        let value = try rhs(input)
+        return Task(future: Future(value: .success(value)))
+    }
+}
+
 public func both <T, U> (first: Task<T>, second: Task<U>) ->  Task<(T, U)> {
     
     let deferred = Deferred<TaskResult<(T, U)>>()
@@ -83,6 +115,20 @@ extension Task {
                 handler(nil, error as NSError)
             }
         }
+    }
+    
+    public func recover(upon executor: Executor, start startNextTask: @escaping(Error) -> Task<SuccessValue>) -> Task<SuccessValue> {
+        
+        let future: Future<TaskResult<SuccessValue>> = andThen(upon: executor) { (result) -> Task<SuccessValue> in
+            do {
+                let value = try result.extract()
+                return Task<SuccessValue>(success: value)
+            } catch let error {
+                return startNextTask(error)
+            }
+        }
+        
+        return Task<SuccessValue>(future: future)
     }
 }
 
