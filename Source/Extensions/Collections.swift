@@ -23,9 +23,7 @@ extension Collection {
         list.shuffle()
         return list
     }
-}
 
-extension IndexableBase {
     /// Returns the element at the specified index iff it is within bounds, otherwise nil.
     public subscript(safe index: Index) -> _Element? {
         return index >= startIndex && index < endIndex

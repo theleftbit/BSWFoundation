@@ -90,7 +90,7 @@ public enum JSONParser {
                 case .typeMismatch(let expected, let actual, let metadata):
                     print("*ERROR* decoding, type \"\(actual)\" mismatched, expected \"\(expected)\" type, path: \(metadata.path)")
                     result = .failure(DataParseErrorKind.malformedSchema)
-                case .missingKey(let key, let _):
+                case .missingKey(let key, _):
                     print("*ERROR* decoding, key \"\(key)\" is missing")
                     result = .failure(DataParseErrorKind.malformedSchema)
                 default:
@@ -127,7 +127,7 @@ public enum JSONParser {
                 case .typeMismatch(let expected, let actual, let metadata):
                     print("*ERROR* decoding, type \"\(actual)\" mismatched, expected \"\(expected)\" type, path: \(metadata.path)")
                     result = .failure(DataParseErrorKind.malformedSchema)
-                case .missingKey(let key, let _):
+                case .missingKey(let key, _):
                     print("*ERROR* decoding, key \"\(key)\" is missing")
                     result = .failure(DataParseErrorKind.malformedSchema)
                 default:
