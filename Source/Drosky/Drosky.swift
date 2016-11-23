@@ -237,7 +237,12 @@ public final class Drosky {
         backgroundNetworkManager.upload(
             multipartFormData: { (form) in
                 multipartParameters.forEach { param in
-                    form.append(param.fileURL, withName: param.parameterKey)
+                    switch param.parameterValue {
+                    case .url(let url):
+                        form.append(url, withName: param.parameterKey)
+                    case .data(let data):
+                        form.append(data, withName: param.parameterKey)
+                    }
                 }
             },
             with: request,
