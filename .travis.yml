@@ -1,10 +1,6 @@
 language: objective-c
-osx_image: xcode8
+osx_image: xcode8.2
 podfile: BSWFoundationPlayground/Podfile
 xcode_workspace: BSWFoundationPlayground/BSWFoundation.xcworkspace
 xcode_scheme: Tests
-xcode_sdk: iphonesimulator10.0
-before_install:
- - cd BSWFoundationPlayground/  
- - pod update BNRDeferred
- - cd ..
+xcode_sdk: iphonesimulator10.2
