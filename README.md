@@ -5,10 +5,8 @@
 </p>
 
 
-[![travis badge](https://travis-ci.org/BlurredSoftware/BSWFoundation.svg)](https://travis-ci.org/BlurredSoftware/BSWFoundation/)
+[![BuddyBuild](https://dashboard.buddybuild.com/api/statusImage?appID=58988f6590d2d70100209d96&branch=master&build=latest)](https://dashboard.buddybuild.com/apps/58988f6590d2d70100209d96/build/latest?branch=master)
 [![codebeat badge](https://codebeat.co/badges/31f28ef0-7271-46ef-8ec0-ec7a2011b5f0)](https://codebeat.co/projects/github-com-blurredsoftware-bswfoundation)
-![](http://img.shields.io/cocoapods/v/BSWFoundation.svg?style=flat)
-![](https://img.shields.io/cocoapods/p/BSWFoundation.svg?style=flat)
 
 
 #About
