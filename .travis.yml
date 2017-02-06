@@ -1,8 +1,0 @@
-language: objective-c
-osx_image: xcode8.2
-podfile: BSWFoundationPlayground/Podfile
-xcode_workspace: BSWFoundationPlayground/BSWFoundation.xcworkspace
-xcode_scheme: Tests
-xcode_sdk: iphonesimulator10.2
-before_install:
-  - gem install cocoapods -v '1.2.0'
