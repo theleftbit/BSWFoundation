@@ -55,22 +55,29 @@ extension DroskyResponse: CustomStringConvertible {
 // MARK: - Drosky
 
 public final class Drosky {
-    
-    fileprivate static let ModuleName = "drosky"
+
+    enum Constants {
+        static let ModuleName = "drosky"
+    }
+
     fileprivate let networkManager: Alamofire.SessionManager
     fileprivate let backgroundNetworkManager: Alamofire.SessionManager
-    fileprivate let queue = queueForSubmodule(Drosky.ModuleName, qualityOfService: .userInitiated)
-    fileprivate let gcdQueue = DispatchQueue(label: Drosky.ModuleName, attributes: [])
+    fileprivate let queue = queueForSubmodule(Constants.ModuleName, qualityOfService: .userInitiated)
+    fileprivate let gcdQueue = DispatchQueue(label: Constants.ModuleName)
     fileprivate let dataSerializer = Alamofire.DataRequest.dataResponseSerializer()
     var router: Router
     
     public init (
         environment: Environment,
         signature: Signature? = nil,
-        backgroundSessionID: String = Drosky.backgroundID(),
-        trustedHosts: [String] = []) {
-        
-        let serverTrustPolicies = Drosky.serverTrustPoliciesDisablingEvaluationForHosts(trustedHosts)
+        backgroundSessionID: String = Drosky.backgroundID()) {
+
+        let serverTrustPolicies: [String: ServerTrustPolicy] = {
+            guard !environment.shouldAllowInsecureConnections else {
+                return [:]
+            }
+            return [environment.basePath: .disableEvaluation]
+        }()
         
         let serverTrustManager = ServerTrustPolicyManager(policies: serverTrustPolicies)
         
@@ -95,12 +102,6 @@ public final class Drosky {
         router = Router(environment: environment, signature: router.signature)
     }
     
-    private static func serverTrustPoliciesDisablingEvaluationForHosts(_ hosts: [String]) -> [String: ServerTrustPolicy] {
-        var policies = [String: ServerTrustPolicy]()
-        hosts.forEach { policies[$0] = .disableEvaluation }
-        return policies
-    }
-
     public func performRequest(forEndpoint endpoint: Endpoint) -> Task<DroskyResponse> {
         return generateRequest(forEndpoint: endpoint)
                 ≈> sendRequest
@@ -263,7 +264,7 @@ public final class Drosky {
 extension Drosky {
     
     fileprivate static func backgroundID() -> String {
-        let appName = Bundle.main.infoDictionary?[kCFBundleNameKey as String] as? String ?? Drosky.ModuleName
+        let appName = Bundle.main.infoDictionary?[kCFBundleNameKey as String] as? String ?? Constants.ModuleName
         return "\(appName)-\(Foundation.UUID().uuidString)"
     }
 

@@ -9,7 +9,7 @@
 import XCTest
 @testable import BSWFoundation
 
-private enum BSWEnvironment: Environment {
+enum BSWEnvironment: Environment {
     case Production
     var basePath: String {
         switch self {
