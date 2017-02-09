@@ -12,7 +12,7 @@ import Deferred
 @available(iOS 9, *)
 public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
     
-    open static let fetcher = LocationFetcher()
+    public static let fetcher = LocationFetcher()
     
     fileprivate let locationManager = CLLocationManager()
     fileprivate var currentRequest: Deferred<CLLocation?>?
