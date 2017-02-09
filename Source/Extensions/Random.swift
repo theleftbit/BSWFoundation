@@ -45,14 +45,3 @@ public extension Int {
         }
     }
 }
-
-public func random <C: Collection>
-    (_ c: C) -> C.Iterator.Element? where C.Index == Int {
-        return c.randomElement
-}
-
-public extension Collection { // random
-    public var randomElement: Iterator.Element {
-        return self.shuffled()[0]
-    }
-}

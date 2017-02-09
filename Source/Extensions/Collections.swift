@@ -24,6 +24,10 @@ extension Collection {
         return list
     }
 
+    public var randomElement: Iterator.Element {
+        return self.shuffled()[0]
+    }
+
     /// Returns the element at the specified index iff it is within bounds, otherwise nil.
     public subscript(safe index: Index) -> _Element? {
         return index >= startIndex && index < endIndex
@@ -49,5 +53,14 @@ extension MutableCollection where Index == Int {
 extension Array {
     mutating public func moveItem(fromIndex oldIndex: Index, toIndex newIndex: Index) {
         insert(remove(at: oldIndex), at: newIndex)
+    }
+}
+
+extension Dictionary {
+    init(elements:[(Key, Value)]) {
+        self.init()
+        for (key, value) in elements {
+            updateValue(value, forKey: key)
+        }
     }
 }
