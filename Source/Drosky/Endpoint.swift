@@ -29,6 +29,15 @@ public protocol Endpoint {
     var httpHeaderFields: [String : String]? { get }
 }
 
+public enum HTTPMethod: String {
+    case GET, POST, PUT, DELETE, OPTIONS, HEAD, PATCH, TRACE, CONNECT
+}
+
+public enum HTTPParameterEncoding {
+    case url
+    case json
+}
+
 //  This is the default implementation for Endpoint 
 extension Endpoint {
     public var method: HTTPMethod {
