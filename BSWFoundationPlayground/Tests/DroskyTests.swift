@@ -1,7 +1,6 @@
 //
 //  Created by Pierluigi Cifani on 09/02/2017.
 //
-//
 
 import XCTest
 import Alamofire
@@ -55,7 +54,9 @@ class DroskyTests: XCTestCase {
         upload(shouldCancel: true)
     }
 
-    func get(shouldCancel: Bool) {
+    // MARK: - Private
+
+    private func get(shouldCancel: Bool) {
         let exp = expectation(description: "ip")
         let getTask = sut.performAndValidateRequest(forEndpoint: HTTPBINAPI.ip)
         getTask.upon(.main) { result in
@@ -76,7 +77,7 @@ class DroskyTests: XCTestCase {
         waitForExpectations(timeout: 10, handler: nil)
     }
 
-    func upload(shouldCancel: Bool) {
+    private func upload(shouldCancel: Bool) {
         guard let url = Bundle(for: type(of: self)).url(forResource: "cannavaro", withExtension: "jpg") else {
             XCTFail()
             return
@@ -107,6 +108,6 @@ class DroskyTests: XCTestCase {
             uploadTask.cancel()
         }
 
-        waitForExpectations(timeout: 10, handler: nil)
+        waitForExpectations(timeout: 600, handler: nil)
     }
 }
