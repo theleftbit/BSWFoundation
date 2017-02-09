@@ -17,9 +17,16 @@ class CollectionTests: XCTestCase {
     }
 
     func testShuffle() {
-        XCTAssert(sample.shuffled() != sample)
-        XCTAssert([0].shuffled() == [0])
-        XCTAssert(sample.randomElement != 0)
+        //These tests are testing for randomness, let's try up to 10 times if any of them fails
+        for _ in 0...10 {
+            let testShuffledArrayChanges = sample.shuffled() != sample
+            let testShuffledEmptyArrayDoesntChange = [0].shuffled() == [0]
+            let testRandomElement = sample.randomElement != 0
+            if testShuffledArrayChanges && testShuffledEmptyArrayDoesntChange && testRandomElement {
+                return
+            }
+        }
+        XCTFail()
     }
 
     func testMoveItem() {
