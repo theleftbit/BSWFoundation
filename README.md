@@ -22,8 +22,7 @@ There is an accompanying sample project with a functioning Playground showing th
 In order to use it: 
 
 1. Clone the project
-2. `cd` into `BSWFoundationPlayground`
-3. `pod install`
-4. Open the Workspace
-5. Build the scheme `BSWFoundationPlayground`
-6. Enable the `Render Documentation` [option](https://camo.githubusercontent.com/9a1c0182ade7e293fa2c2221a15c430309eea4bf/687474703a2f2f692e696d6775722e636f6d2f697337633979532e706e67) for the Playground
+2. `pod install`
+3. Open the Workspace
+4. Build the scheme `BSWFoundationPlayground`
+5. Enable the `Render Documentation` [option](https://camo.githubusercontent.com/9a1c0182ade7e293fa2c2221a15c430309eea4bf/687474703a2f2f692e696d6775722e636f6d2f697337633979532e706e67) for the Playground
