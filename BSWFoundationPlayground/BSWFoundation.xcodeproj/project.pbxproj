@@ -16,6 +16,7 @@
 		EB8954EC1E4CEE5E00FDA39D /* StringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8954EB1E4CEE5E00FDA39D /* StringTests.swift */; };
 		EB8954EF1E4CF02A00FDA39D /* IdentifiableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8954EE1E4CF02A00FDA39D /* IdentifiableTests.swift */; };
 		EB8954F11E4CF26200FDA39D /* ProgressObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8954F01E4CF26200FDA39D /* ProgressObserverTests.swift */; };
+		EB8954F61E4D010000FDA39D /* cannavaro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB8954F51E4D010000FDA39D /* cannavaro.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +47,7 @@
 		EB8954EB1E4CEE5E00FDA39D /* StringTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StringTests.swift; sourceTree = "<group>"; };
 		EB8954EE1E4CF02A00FDA39D /* IdentifiableTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IdentifiableTests.swift; sourceTree = "<group>"; };
 		EB8954F01E4CF26200FDA39D /* ProgressObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressObserverTests.swift; sourceTree = "<group>"; };
+		EB8954F51E4D010000FDA39D /* cannavaro.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = cannavaro.jpg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +142,7 @@
 		EB2D29E51D55FC0A00F77ABB /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				EB8954F41E4CFBC800FDA39D /* SampleFiles */,
 				EB8954ED1E4CF01E00FDA39D /* Protocols */,
 				EB01DA381E4CEA3900C6CC9A /* Extensions */,
 				EB01DA311E4BC20500C6CC9A /* Drosky */,
@@ -154,6 +157,14 @@
 				EB8954EE1E4CF02A00FDA39D /* IdentifiableTests.swift */,
 			);
 			name = Protocols;
+			sourceTree = "<group>";
+		};
+		EB8954F41E4CFBC800FDA39D /* SampleFiles */ = {
+			isa = PBXGroup;
+			children = (
+				EB8954F51E4D010000FDA39D /* cannavaro.jpg */,
+			);
+			name = SampleFiles;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -238,6 +249,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB8954F61E4D010000FDA39D /* cannavaro.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

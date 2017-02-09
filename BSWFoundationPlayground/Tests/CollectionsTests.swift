@@ -4,16 +4,16 @@ import XCTest
 
 class CollectionTests: XCTestCase {
 
-    fileprivate let sample = [1,2,3]
+    fileprivate let sample = [1,2,3,4,5,6,7,8,9]
 
     func testFind() {
         XCTAssertNotNil(sample.find(predicate: {$0 == 1}))
-        XCTAssertNil(sample.find(predicate: {$0 == 4}))
+        XCTAssertNil(sample.find(predicate: {$0 == 42}))
     }
 
     func testSafe() {
         XCTAssertNotNil(sample[safe: 0])
-        XCTAssertNil(sample[safe: 10])
+        XCTAssertNil(sample[safe: 42])
     }
 
     func testShuffle() {
