@@ -12,11 +12,11 @@ PODS:
   - KeychainAccess (3.0.1)
 
 DEPENDENCIES:
-  - BSWFoundation (from `../BSWFoundation.podspec`)
+  - BSWFoundation (from `./BSWFoundation.podspec`)
 
 EXTERNAL SOURCES:
   BSWFoundation:
-    :path: ../BSWFoundation.podspec
+    :path: ./BSWFoundation.podspec
 
 SPEC CHECKSUMS:
   Alamofire: 856a113053a7bc9cbe5d6367a555d773fc5cfef7
@@ -26,6 +26,6 @@ SPEC CHECKSUMS:
   JWTDecode: 178e47e5d28d3abcff778bacced8342858cd6cb5
   KeychainAccess: 017ea25e313a49eda10bb19b0bb0760fb1edfe1a
 
-PODFILE CHECKSUM: 474e4f44206b268d4fad59ccaf3139e315a945f1
+PODFILE CHECKSUM: d0561865047bd5048b901f40f657b1765db436e2
 
 COCOAPODS: 1.2.0

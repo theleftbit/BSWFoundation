@@ -2,7 +2,7 @@ use_frameworks!
 
 abstract_target 'Common' do
 
-    pod 'BSWFoundation', :path => '../BSWFoundation.podspec'
+    pod 'BSWFoundation', :path => './BSWFoundation.podspec'
 
     target 'BSWFoundationPlayground'
     target 'Tests'
@@ -12,7 +12,7 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['CONFIGURATION_BUILD_DIR'] = '$PODS_CONFIGURATION_BUILD_DIR'
-      config.build_settings['SWIFT_VERSION'] = "3.0"
+      config.build_settings['SWIFT_VERSION'] = "3.0.1"
     end
   end
 end
