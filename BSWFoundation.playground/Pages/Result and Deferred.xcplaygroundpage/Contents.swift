@@ -1,6 +1,7 @@
 
 import BSWFoundation
 import Deferred
+import XCPlayground
 
 XCPlaygroundPage.currentPage.needsIndefiniteExecution = true
 
@@ -59,7 +60,7 @@ func calculatePowerOf2(value: String) -> TaskResult<Double> {
     
     guard let doubleValue = Double(value) else { return .failure(PowerError.couldNotCast) }
     
-    return TaskResult(pow(doubleValue, 2)
+    return TaskResult(success: pow(doubleValue, 2))
 }
 
 let failedResult: TaskResult<Double> = calculatePowerOf2(value: invalidCharacter)

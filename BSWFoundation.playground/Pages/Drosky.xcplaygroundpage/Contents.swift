@@ -16,6 +16,7 @@ enum BSWEnvironment: Environment {
 }
 
 let drosky = Drosky(environment: BSWEnvironment.Production)
+
 print(drosky.backgroundSessionID)
 
 //: [Next](@next)
