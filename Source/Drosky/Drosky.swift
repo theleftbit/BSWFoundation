@@ -32,9 +32,14 @@ public struct DroskyResponse {
 }
 
 extension DroskyResponse {
+    func dataPrettyPrinted() -> String? {
+        guard let dictionary = dataAsJSON() else { return nil }
+        guard let data = try? JSONSerialization.data(withJSONObject: dictionary, options: .prettyPrinted) else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+
     func dataAsJSON() -> [String: AnyObject]? {
         let json: [String: AnyObject]?
-        
         do {
             json = try JSONSerialization.jsonObject(with: self.data, options: JSONSerialization.ReadingOptions.allowFragments) as? [String: AnyObject]
         } catch {
@@ -47,7 +52,9 @@ extension DroskyResponse {
 
 extension DroskyResponse: CustomStringConvertible {
     public var description: String {
-        return "StatusCode: " + String(statusCode) + "\nHeaders: " +  httpHeaderFields.description
+        return  "StatusCode: "  + String(statusCode) +
+                "\nHeaders: "   +  httpHeaderFields.description +
+                "\nData: "      +  (dataPrettyPrinted() ?? "no-data")
     }
 }
 
