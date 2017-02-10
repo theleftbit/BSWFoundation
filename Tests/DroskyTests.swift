@@ -27,6 +27,15 @@ private enum HTTPBINAPI: Endpoint {
             return "ip"
         }
     }
+
+    var method: BSWFoundation.HTTPMethod {
+        switch self {
+        case .upload:
+            return .POST
+        default:
+            return .GET
+        }
+    }
 }
 
 class DroskyTests: XCTestCase {
