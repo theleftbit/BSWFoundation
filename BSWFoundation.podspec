@@ -25,7 +25,6 @@ Pod::Spec.new do |s|
   s.dependency "BNRDeferred", "3.0.0-rc.2"
   s.dependency "Decodable", "~> 0.5"
   s.dependency "KeychainAccess", "~> 3.0.1"
-  s.dependency "JWTDecode", "~> 2.0.0"
 
   # ――― Swift Version ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   s.pod_target_xcconfig = { 'SWIFT_VERSION' => '3.0.1' }

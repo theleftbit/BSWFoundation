@@ -5,10 +5,8 @@ PODS:
     - Alamofire (~> 4.3.0)
     - BNRDeferred (= 3.0.0-rc.2)
     - Decodable (~> 0.5)
-    - JWTDecode (~> 2.0.0)
     - KeychainAccess (~> 3.0.1)
   - Decodable (0.5)
-  - JWTDecode (2.0.0)
   - KeychainAccess (3.0.1)
 
 DEPENDENCIES:
@@ -21,9 +19,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Alamofire: 856a113053a7bc9cbe5d6367a555d773fc5cfef7
   BNRDeferred: 2d806418ccb601fee328a1e0d634684ec1e5db3a
-  BSWFoundation: 781fbdb6ef9f9200508d51160ae131f41c8840fe
+  BSWFoundation: 9a99f5c5944ce5cdf935f6b20f3ddfec6a8991d4
   Decodable: 7c90acc68d357b71d0d6efc120faf9c53c644b7e
-  JWTDecode: 178e47e5d28d3abcff778bacced8342858cd6cb5
   KeychainAccess: 017ea25e313a49eda10bb19b0bb0760fb1edfe1a
 
 PODFILE CHECKSUM: d0561865047bd5048b901f40f657b1765db436e2
