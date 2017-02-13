@@ -128,7 +128,7 @@ public final class Drosky {
     public func performMultipartUpload(forEndpoint endpoint: Endpoint, multipartParams: [MultipartParameter], backgroundTask: Bool = false) -> Task<DroskyResponse> {
         
         guard case let .success(request) = router.urlRequest(forEndpoint: endpoint) else {
-            return Task(future: Future(value: .failure(DroskyErrorKind.badRequest)))
+            return Task(failure: DroskyErrorKind.badRequest)
         }
         
         return performUpload(request, multipartParameters: multipartParams, backgroundTask: backgroundTask)
@@ -165,10 +165,10 @@ public final class Drosky {
         })
     }
     
-    private func performUpload(_ request: URLRequestConvertible, multipartParameters: [MultipartParameter],backgroundTask: Bool) -> Task<(Data, HTTPURLResponse)> {
+    private func performUpload(_ request: URLRequestConvertible, multipartParameters: [MultipartParameter], backgroundTask: Bool) -> Task<(Data, HTTPURLResponse)> {
         let deferredResponse = Deferred<TaskResult<(Data, HTTPURLResponse)>>()
         let workToBeDone = Int64(100)
-        let progress = Progress(totalUnitCount: workToBeDone)
+        let progress = Progress.discreteProgress(totalUnitCount: workToBeDone)
 
         let manager: Alamofire.SessionManager = backgroundTask ? backgroundNetworkManager : networkManager
         manager.upload(
@@ -188,7 +188,7 @@ public final class Drosky {
                 case .failure(let error):
                     deferredResponse.fill(with: .failure(error))
                 case .success(let request, _,  _):
-                    progress.addChild(request.progress, withPendingUnitCount: workToBeDone)
+                    progress.addChild(request.uploadProgress, withPendingUnitCount: workToBeDone)
                     progress.cancellationHandler = {
                         self.gcdQueue.async { request.cancel() }
                     }
