@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name         = "BSWFoundation"
-  s.version      = "1.0.0"
+  s.version      = "1.0.1"
   s.summary      = "This framework creates the infrastructure that it's used throughout Blurred Software's projects."
   s.homepage     = "https://github.com/BlurredSoftware/BSWFoundation"
   s.license      = "MIT"
@@ -22,11 +22,11 @@ Pod::Spec.new do |s|
 
   # ――― Dependencies ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   s.dependency "Alamofire", "~> 4.3.0"
-  s.dependency "BNRDeferred", "3.0.0-rc.2"
+  s.dependency "BNRDeferred", "3.0.0"
   s.dependency "Decodable", "~> 0.5"
   s.dependency "KeychainAccess", "~> 3.0.1"
 
   # ――― Swift Version ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  s.pod_target_xcconfig = { 'SWIFT_VERSION' => '3.0.1' }
+  s.pod_target_xcconfig = { 'SWIFT_VERSION' => '3.0.2' }
 
 end
