@@ -74,7 +74,7 @@ class DroskyTests: XCTestCase {
                 return
             }
 
-            if let nsError = result.error as? NSError, nsError.domain == NSURLErrorDomain, nsError.code == -999 {
+            if let nsError = result.error as NSError?, nsError.domain == NSURLErrorDomain, nsError.code == -999 {
                 exp.fulfill()
             } else {
                 XCTFail()
@@ -106,7 +106,7 @@ class DroskyTests: XCTestCase {
                 return
             }
 
-            if let nsError = result.error as? NSError, nsError.domain == NSURLErrorDomain, nsError.code == -999 {
+            if let nsError = result.error as NSError?, nsError.domain == NSURLErrorDomain, nsError.code == -999 {
                 exp.fulfill()
             } else {
                 XCTFail()
