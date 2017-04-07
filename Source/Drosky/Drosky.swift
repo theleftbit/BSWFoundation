@@ -145,14 +145,18 @@ public final class Drosky {
         environment: Environment,
         signature: Signature? = nil,
         backgroundSessionID: String = Drosky.backgroundID(),
-        trustedHosts: [String] = []) {
+        trustedHosts: [String] = [],
+        disableCache: Bool = false) {
         
         let serverTrustPolicies = Drosky.serverTrustPoliciesDisablingEvaluationForHosts(trustedHosts)
         
         let serverTrustManager = ServerTrustPolicyManager(policies: serverTrustPolicies)
         
+        let configuration = URLSessionConfiguration.default
+        if disableCache == true { configuration.urlCache = nil }
+        
         networkManager = Alamofire.SessionManager(
-            configuration: URLSessionConfiguration.default,
+            configuration: configuration,
             serverTrustPolicyManager: serverTrustManager
         )
         
