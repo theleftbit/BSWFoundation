@@ -77,7 +77,8 @@ public final class Drosky {
     public init (
         environment: Environment,
         signature: Signature? = nil,
-        backgroundSessionID: String = Drosky.backgroundID()) {
+        backgroundSessionID: String = Drosky.backgroundID(),
+        disableCache: Bool = false) {
 
         let serverTrustPolicies: [String: ServerTrustPolicy] = {
             guard !environment.shouldAllowInsecureConnections else {
@@ -88,8 +89,11 @@ public final class Drosky {
         
         let serverTrustManager = ServerTrustPolicyManager(policies: serverTrustPolicies)
         
+        let configuration = URLSessionConfiguration.default
+        if disableCache == true { configuration.urlCache = nil }
+        
         networkManager = Alamofire.SessionManager(
-            configuration: URLSessionConfiguration.default,
+            configuration: configuration,
             serverTrustPolicyManager: serverTrustManager
         )
         
