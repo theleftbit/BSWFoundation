@@ -13,12 +13,12 @@ enum BSWEnvironment: Environment {
     case production
     case staging
 
-    var basePath: String {
+    var baseURL: URL {
         switch self {
         case .production:
-            return "https://blurredsoftware.com/"
+            return URL(string: "https://blurredsoftware.com/")!
         case .staging:
-            return "https://staging.blurredsoftware.com/"
+            return URL(string: "https://staging.blurredsoftware.com/")!
         }
     }
 

@@ -10,8 +10,8 @@ import Alamofire
 /// Full-suite tests are courtesy of our good friends of HTTPBin
 
 private struct HTTPBIN: Environment {
-    fileprivate var basePath: String {
-        return "https://httpbin.org/"
+    fileprivate var baseURL: URL {
+        return URL(string: "https://httpbin.org/")!
     }
 }
 

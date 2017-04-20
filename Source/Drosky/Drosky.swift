@@ -60,10 +60,10 @@ extension DroskyResponse: CustomStringConvertible {
 
 extension Environment {
     var serverTrustPolicies: [String: ServerTrustPolicy] {
-        guard self.shouldAllowInsecureConnections else {
+        guard self.shouldAllowInsecureConnections, let hostName = self.baseURL.host else {
             return [:]
         }
-        return [self.basePath: .disableEvaluation]
+        return [hostName: .disableEvaluation]
     }
 }
 

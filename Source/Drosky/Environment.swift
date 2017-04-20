@@ -6,13 +6,13 @@
 import Foundation
 
 public protocol Environment {
-    var basePath: String { get }
+    var baseURL: URL { get }
     var shouldAllowInsecureConnections: Bool { get }
 }
 
 public extension Environment {
     func routeURL(_ pathURL: String) -> String {
-        return basePath + pathURL
+        return baseURL.absoluteString + pathURL
     }
 
     var shouldAllowInsecureConnections: Bool {
