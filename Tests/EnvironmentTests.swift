@@ -10,24 +10,39 @@ import XCTest
 @testable import BSWFoundation
 
 enum BSWEnvironment: Environment {
-    case Production
-    var basePath: String {
+    case production
+    case staging
+
+    var baseURL: URL {
         switch self {
-        case .Production:
-            return "https://blurredsoftware.com/"
+        case .production:
+            return URL(string: "https://blurredsoftware.com/")!
+        case .staging:
+            return URL(string: "https://staging.blurredsoftware.com/")!
+        }
+    }
+
+    var shouldAllowInsecureConnections: Bool {
+        switch self {
+        case .production:
+            return false
+        default:
+            return true
         }
     }
 }
 
 class EnvironmentTests: XCTestCase {
     
-    private let sut = BSWEnvironment.Production
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
     func testRouteURL() {
+        let sut = BSWEnvironment.production
         XCTAssert(sut.routeURL("login") == "https://blurredsoftware.com/login")
+    }
+
+    func testInsecureConnections() {
+        let production = BSWEnvironment.production
+        let staging = BSWEnvironment.staging
+        XCTAssert(production.serverTrustPolicies.count == 0)
+        XCTAssert(staging.serverTrustPolicies.count == 1)
     }
 }

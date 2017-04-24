@@ -58,6 +58,14 @@ extension DroskyResponse: CustomStringConvertible {
     }
 }
 
+extension Environment {
+    var serverTrustPolicies: [String: ServerTrustPolicy] {
+        guard self.shouldAllowInsecureConnections, let hostName = self.baseURL.host else {
+            return [:]
+        }
+        return [hostName: .disableEvaluation]
+    }
+}
 
 // MARK: - Drosky
 
@@ -80,15 +88,7 @@ public final class Drosky {
         backgroundSessionID: String = Drosky.backgroundID(),
         disableCache: Bool = false) {
 
-        let serverTrustPolicies: [String: ServerTrustPolicy] = {
-            guard !environment.shouldAllowInsecureConnections else {
-                return [:]
-            }
-            return [environment.basePath: .disableEvaluation]
-        }()
-        
-        let serverTrustManager = ServerTrustPolicyManager(policies: serverTrustPolicies)
-        
+        let serverTrustManager = ServerTrustPolicyManager(policies: environment.serverTrustPolicies)
         let configuration = URLSessionConfiguration.default
         if disableCache == true { configuration.urlCache = nil }
         

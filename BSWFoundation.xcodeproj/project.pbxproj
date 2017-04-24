@@ -118,7 +118,9 @@
 				A12010E500727C37CE77F7B1 /* Frameworks */,
 				58430B2B40BD990EAD5A3C3B /* Pods */,
 			);
+			indentWidth = 4;
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		EB01DA311E4BC20500C6CC9A /* Drosky */ = {
 			isa = PBXGroup;
