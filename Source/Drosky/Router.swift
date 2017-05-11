@@ -15,7 +15,7 @@ struct Router {
     let environment: Environment
     let signature: Signature?
 
-    func urlRequest(forEndpoint endpoint: Endpoint) -> TaskResult<URLRequestConvertible> {
+    func urlRequest(forEndpoint endpoint: Endpoint) -> Task<URLRequestConvertible>.Result {
         guard let URL = URL(string: environment.routeURL(endpoint.path)) else {
             return .failure(DroskyErrorKind.malformedURLError)
         }
