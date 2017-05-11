@@ -14,7 +14,7 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   BSWFoundation:
-    :path: ./BSWFoundation.podspec
+    :path: "./BSWFoundation.podspec"
 
 SPEC CHECKSUMS:
   Alamofire: 856a113053a7bc9cbe5d6367a555d773fc5cfef7
@@ -23,6 +23,6 @@ SPEC CHECKSUMS:
   Decodable: 7c90acc68d357b71d0d6efc120faf9c53c644b7e
   KeychainAccess: 017ea25e313a49eda10bb19b0bb0760fb1edfe1a
 
-PODFILE CHECKSUM: efa1d661742eda2d3687507a5e25deafae29c7d8
+PODFILE CHECKSUM: bdae2576dea985cc2df24a4f666a9e53e2234fb6
 
-COCOAPODS: 1.2.0
+COCOAPODS: 1.2.1
