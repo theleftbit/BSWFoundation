@@ -12,7 +12,7 @@ public enum JSONParser {
 
     public static func parseDataAsync<T: Decodable>(_ data: Data) -> Task<T> {
         
-        let deferred = Deferred<TaskResult<T>>()
+        let deferred = Deferred<Task<T>.Result>()
         
         queue.addOperation {
             deferred.fill(with: parseData(data))
@@ -23,7 +23,7 @@ public enum JSONParser {
 
     public static func parseDataAsync<T : Decodable>(_ data: Data) -> Task<[T]> {
         
-        let deferred = Deferred<TaskResult<[T]>>()
+        let deferred = Deferred<Task<[T]>.Result>()
         
         queue.addOperation {
             deferred.fill(with: parseData(data))
@@ -33,7 +33,7 @@ public enum JSONParser {
     }
 
     
-    public static func parseData<T : Decodable>(_ data:Data) -> TaskResult<T> {
+    public static func parseData<T : Decodable>(_ data:Data) -> Task<T>.Result {
         
         guard let j = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else {
             return .failure(DataParseErrorKind.malformedJSON)
@@ -42,7 +42,7 @@ public enum JSONParser {
         return parseJSON(j as AnyObject)
     }
     
-    public static func parseData<T : Decodable>(_ data: Data) -> TaskResult<[T]> {
+    public static func parseData<T : Decodable>(_ data: Data) -> Task<[T]>.Result {
         
         guard let j = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else {
             return .failure(DataParseErrorKind.malformedJSON)
@@ -77,8 +77,8 @@ public enum JSONParser {
 
     //MARK: - Private
     
-    fileprivate static func parseJSON<T : Decodable>(_ j: AnyObject) -> TaskResult<T> {
-        let result : TaskResult<T>
+    fileprivate static func parseJSON<T : Decodable>(_ j: AnyObject) -> Task<T>.Result {
+        let result : Task<T>.Result
         do {
             let output : T = try T.decode(j)
             result = .success(output)
@@ -107,8 +107,8 @@ public enum JSONParser {
         return result
     }
     
-    fileprivate static func parseJSON<T : Decodable>(_ j: AnyObject) -> TaskResult<[T]> {
-        let result : TaskResult<[T]>
+    fileprivate static func parseJSON<T : Decodable>(_ j: AnyObject) -> Task<[T]>.Result {
+        let result : Task<[T]>.Result
         do {
             
             #if DEBUG

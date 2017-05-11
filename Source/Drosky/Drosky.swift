@@ -142,10 +142,13 @@ public final class Drosky {
     //MARK:- Internal
     private func generateRequest(forEndpoint endpoint: Endpoint) -> Task<URLRequestConvertible> {
         
-        let deferred = Deferred<TaskResult<URLRequestConvertible>>()
+        let deferred = Deferred<Task<URLRequestConvertible>.Result>()
         
         let operation = BlockOperation { [weak self] in
-            guard let strongSelf = self else { return }
+            guard let strongSelf = self else {
+                deferred.fill(with: .failure(DroskyErrorKind.canceledRequest))
+                return
+            }
             let requestResult = strongSelf.router.urlRequest(forEndpoint: endpoint)
             deferred.fill(with: requestResult)
         }
@@ -157,8 +160,8 @@ public final class Drosky {
     }
     
     
-    private func sendRequest(_ request: URLRequestConvertible) -> Task<(Data, HTTPURLResponse)> {
-        let deferred = Deferred<TaskResult<(Data, HTTPURLResponse)>>()
+    private func sendRequest(_ request: URLRequestConvertible) -> Task<AlamofireResponse> {
+        let deferred = Deferred<Task<AlamofireResponse>.Result>()
         
         let request = networkManager
             .request(request)
@@ -169,8 +172,8 @@ public final class Drosky {
         })
     }
     
-    private func performUpload(_ request: URLRequestConvertible, multipartParameters: [MultipartParameter], backgroundTask: Bool) -> Task<(Data, HTTPURLResponse)> {
-        let deferredResponse = Deferred<TaskResult<(Data, HTTPURLResponse)>>()
+    private func performUpload(_ request: URLRequestConvertible, multipartParameters: [MultipartParameter], backgroundTask: Bool) -> Task<AlamofireResponse> {
+        let deferredResponse = Deferred<Task<AlamofireResponse>.Result>()
         let workToBeDone = Int64(100)
         let progress = Progress.discreteProgress(totalUnitCount: workToBeDone)
 
@@ -208,7 +211,7 @@ public final class Drosky {
     
     private func processResponse(_ data: Data, urlResponse: HTTPURLResponse) -> Task<DroskyResponse> {
         
-        let deferred = Deferred<TaskResult<DroskyResponse>>()
+        let deferred = Deferred<Task<DroskyResponse>.Result>()
         
         let operation = BlockOperation {
             let droskyResponse = DroskyResponse(
@@ -234,7 +237,7 @@ public final class Drosky {
     
     private func validateDroskyResponse(_ response: DroskyResponse) -> Task<DroskyResponse> {
         
-        let deferred = Deferred<TaskResult<DroskyResponse>>()
+        let deferred = Deferred<Task<DroskyResponse>.Result>()
         
         let operation = BlockOperation {
             switch response.statusCode {
@@ -263,7 +266,7 @@ public final class Drosky {
         })
     }
 
-    private func processAlamofireResponse(_ response: DataResponse<Data>, deferred: Deferred<TaskResult<(Data, HTTPURLResponse)>>) {
+    private func processAlamofireResponse(_ response: DataResponse<Data>, deferred: Deferred<Task<AlamofireResponse>.Result>) {
         switch response.result {
         case .failure(let error):
             deferred.fill(with: .failure(error))
@@ -272,6 +275,8 @@ public final class Drosky {
             deferred.fill(with: .success(data, response))
         }
     }
+
+    fileprivate typealias AlamofireResponse = (Data, HTTPURLResponse)
 }
 
 //MARK: Background handling
@@ -319,6 +324,7 @@ public enum DroskyErrorKind: Error {
     case malformedURLError
     case forbidden
     case badRequest
+    case canceledRequest
 }
 
 
