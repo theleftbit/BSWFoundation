@@ -23,10 +23,9 @@ Pod::Spec.new do |s|
   # ――― Dependencies ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   s.dependency "Alamofire", "~> 4.3.0"
   s.dependency "BNRDeferred", "3.1.0"
-  s.dependency "Decodable", "~> 0.5"
   s.dependency "KeychainAccess", "~> 3.0.1"
 
   # ――― Swift Version ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  s.pod_target_xcconfig = { 'SWIFT_VERSION' => '3.1' }
+  s.pod_target_xcconfig = { 'SWIFT_VERSION' => '3.2' }
 
 end
