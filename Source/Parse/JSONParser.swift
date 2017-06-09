@@ -29,7 +29,13 @@ public enum JSONParser {
         
         return true
     }
-    
+
+    public static func parseDataAsJSONPrettyPrint(_ data: Data) -> String? {
+        guard let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else { return nil }
+        guard let prettyPrintedData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted) else { return nil }
+        return String(data: prettyPrintedData, encoding: .utf8)
+    }
+
     public static func errorMessageFromData(_ data: Data) -> String? {
         guard let j = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else {
             return nil

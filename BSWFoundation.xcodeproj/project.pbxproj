@@ -11,6 +11,13 @@
 		2F8F04530945CC7A05DB586D /* Pods_Common_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0654B5356DEC24E5E9EAEBE0 /* Pods_Common_Tests.framework */; };
 		55BFD5131AA5573089E21E99 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BE9DFBC8A51BCB32473D9A3 /* Foundation.framework */; };
 		EB92EAE41EEAFE08008FE3E6 /* cannavaro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB92EADC1EEAFDBF008FE3E6 /* cannavaro.jpg */; };
+		EB92EAE61EEAFF83008FE3E6 /* JSONParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EAD91EEAFDBF008FE3E6 /* JSONParserTests.swift */; };
+		EB92EAE71EEAFF8A008FE3E6 /* CollectionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EADF1EEAFDBF008FE3E6 /* CollectionsTests.swift */; };
+		EB92EAE81EEAFF8A008FE3E6 /* ProgressObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EADB1EEAFDBF008FE3E6 /* ProgressObserverTests.swift */; };
+		EB92EAE91EEAFF8A008FE3E6 /* StringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EAE01EEAFDBF008FE3E6 /* StringTests.swift */; };
+		EB92EAEA1EEAFF8E008FE3E6 /* IdentifiableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EADA1EEAFDBF008FE3E6 /* IdentifiableTests.swift */; };
+		EB92EAEB1EEAFF92008FE3E6 /* DroskyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EADE1EEAFDBF008FE3E6 /* DroskyTests.swift */; };
+		EB92EAEC1EEAFF92008FE3E6 /* EnvironmentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EADD1EEAFDBF008FE3E6 /* EnvironmentTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -222,7 +229,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0810;
+				LastUpgradeCheck = 0900;
 				TargetAttributes = {
 					43AF3251CEA077D2ABA90182 = {
 						LastSwiftMigration = 0800;
@@ -352,6 +359,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB92EAE61EEAFF83008FE3E6 /* JSONParserTests.swift in Sources */,
+				EB92EAEB1EEAFF92008FE3E6 /* DroskyTests.swift in Sources */,
+				EB92EAE81EEAFF8A008FE3E6 /* ProgressObserverTests.swift in Sources */,
+				EB92EAEA1EEAFF8E008FE3E6 /* IdentifiableTests.swift in Sources */,
+				EB92EAE91EEAFF8A008FE3E6 /* StringTests.swift in Sources */,
+				EB92EAE71EEAFF8A008FE3E6 /* CollectionsTests.swift in Sources */,
+				EB92EAEC1EEAFF92008FE3E6 /* EnvironmentTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -375,14 +389,20 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -411,14 +431,20 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -448,7 +474,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = B573AE1F54C7D2DCD93FEA98 /* Pods-Common-BSWFoundationPlayground.release.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEFINES_MODULE = NO;
@@ -478,7 +504,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 96125D09CAC849036B08228A /* Pods-Common-BSWFoundationPlayground.debug.xcconfig */;
 			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = NO;

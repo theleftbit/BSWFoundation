@@ -46,5 +46,21 @@ class JSONParserTests: XCTestCase {
         }
         waitForExpectations(timeout: 10, handler: nil)
     }
+
+    func testParsePrettyPrinting() throws {
+        let model = SampleModel(identity: "123456", name: "Hola", amount: 5678)
+        let jsonData = try JSONEncoder().encode(model)
+        guard let string = JSONParser.parseDataAsJSONPrettyPrint(jsonData) else {
+            throw ParseError()
+        }
+
+        let sampleString = """
+        {\n  \"id\" : \"123456\",\n  \"name\" : \"Hola\",\n  \"amount\" : 5678\n}
+        """
+        XCTAssert(string == sampleString)
+    }
+}
+
+struct ParseError: Error {
 }
 
