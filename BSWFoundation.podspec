@@ -21,12 +21,11 @@ Pod::Spec.new do |s|
   s.source_files  = "Source/**/*.{swift,m,h}"
 
   # ――― Dependencies ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  s.dependency "Alamofire", "~> 4.3.0"
-  s.dependency "BNRDeferred", "3.1.0"
-  s.dependency "Decodable", "~> 0.5"
-  s.dependency "KeychainAccess", "~> 3.0.1"
+  s.dependency "Alamofire", "~> 4.5.1"
+  s.dependency "BNRDeferred", "3.1.2"
+  s.dependency "KeychainAccess", "~> 3.1.0"
 
   # ――― Swift Version ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  s.pod_target_xcconfig = { 'SWIFT_VERSION' => '3.1' }
+  s.pod_target_xcconfig = { 'SWIFT_VERSION' => '3.2' }
 
 end

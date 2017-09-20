@@ -11,7 +11,7 @@ func submoduleName(_ submodule : String) -> String {
     return ModuleName + "." + submodule
 }
 
-public typealias VoidHandler = (Void) -> Void
+public typealias VoidHandler = () -> ()
 
 func queueForSubmodule(_ submodule : String, qualityOfService: QualityOfService = .default) -> OperationQueue {
     let queue = OperationQueue()
