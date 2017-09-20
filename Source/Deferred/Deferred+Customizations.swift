@@ -64,15 +64,14 @@ public func ==> <T, U>(lhs: Task<T>, rhs: @escaping (T) throws -> U) -> Task<U> 
 public func both <T, U> (first: Task<T>, second: Task<U>) ->  Task<(T, U)> {
     
     let deferred = Deferred<Task<(T, U)>.Result>()
-    
-    first.and(second).upon { (firstResult, secondResult) in
-        guard let firstValue = firstResult.value else {
-            deferred.fill(with: .failure(firstResult.error!))
+    first.and(second).upon { (tuple) in
+        guard let firstValue = tuple.0.value else {
+            deferred.fill(with: .failure(tuple.0.error!))
             return
         }
         
-        guard let secondValue = secondResult.value else {
-            deferred.fill(with: .failure(secondResult.error!))
+        guard let secondValue = tuple.1.value else {
+            deferred.fill(with: .failure(tuple.0.error!))
             return
         }
         
@@ -86,7 +85,7 @@ public func bothSerially <T, U> (first: Task<T>, second: @escaping (T) -> Task<U
     
     let deferred = Deferred<Task<(T, U)>.Result>()
     
-    first.upon{ (firstResult) in
+    first.upon { (firstResult) in
         guard let firstValue = firstResult.value else {
             deferred.fill(with: .failure(firstResult.error!))
             return
