@@ -272,7 +272,8 @@ public final class Drosky {
             deferred.fill(with: .failure(error))
         case .success(let data):
             guard let response = response.response else { fatalError() }
-            deferred.fill(with: .success(data, response))
+            let finalResponse: AlamofireResponse = (data, response)
+            deferred.fill(with: .success(finalResponse))
         }
     }
 
@@ -283,7 +284,7 @@ public final class Drosky {
 
 extension Drosky {
     
-    fileprivate static func backgroundID() -> String {
+    public static func backgroundID() -> String {
         let appName = Bundle.main.infoDictionary?[kCFBundleNameKey as String] as? String ?? Constants.ModuleName
         return "\(appName)-\(Foundation.UUID().uuidString)"
     }
