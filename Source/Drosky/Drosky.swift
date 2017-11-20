@@ -183,9 +183,19 @@ public final class Drosky {
                 multipartParameters.forEach { param in
                     switch param.parameterValue {
                     case .url(let url):
-                        form.append(url, withName: param.parameterKey)
+                        form.append(
+                            url,
+                            withName: param.parameterKey,
+                            fileName: param.fileName,
+                            mimeType: param.mimeType.rawType
+                        )
                     case .data(let data):
-                        form.append(data, withName: param.parameterKey)
+                        form.append(
+                            data,
+                            withName: param.parameterKey,
+                            fileName: param.fileName,
+                            mimeType: param.mimeType.rawType
+                        )
                     }
                 }
             },

@@ -96,7 +96,7 @@ class DroskyTests: XCTestCase {
         let uploadTask = sut.performMultipartUpload(
             forEndpoint: HTTPBINAPI.upload,
             multipartParams: [
-                MultipartParameter(parameterKey:"key", parameterValue: .url(url)),
+                MultipartParameter(parameterKey: "key", parameterValue: .url(url), fileName: "cannavaro.jpg", mimeType: .imageJPEG)
                 ]
         )
 

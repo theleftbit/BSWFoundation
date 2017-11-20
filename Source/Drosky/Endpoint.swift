@@ -58,6 +58,24 @@ extension Endpoint {
 }
 
 
+public enum MimeType {
+    case imageJPEG
+    case imagePNG
+    case custom(String)
+    
+    var rawType: String {
+        switch self {
+        case .imageJPEG:
+            return "image/jpeg"
+        case .imagePNG:
+            return "image/png"
+        case .custom(let mimeTypeStr):
+            return mimeTypeStr
+        }
+    }
+}
+
+
 public struct MultipartParameter {
     public enum ParameterType {
         case url(URL)
@@ -66,9 +84,13 @@ public struct MultipartParameter {
     
     public let parameterKey: String
     public let parameterValue: ParameterType
+    public let fileName: String
+    public let mimeType: MimeType
     
-    public init(parameterKey: String, parameterValue: ParameterType) {
+    public init(parameterKey: String, parameterValue: ParameterType, fileName: String, mimeType: MimeType) {
         self.parameterKey = parameterKey
         self.parameterValue = parameterValue
+        self.fileName = fileName
+        self.mimeType = mimeType
     }
 }
