@@ -6,9 +6,11 @@
 import Foundation
 
 extension String {
+    
     public var length: Int {
-        return characters.count
+        return count
     }
+    
     public var capitalizeFirst: String {
         if isEmpty { return "" }
         var result = self
