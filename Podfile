@@ -16,9 +16,6 @@ post_install do |installer|
       if target.name == 'BNRDeferred'
         config.build_settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS'] = "$(inherited) DEBUG"
       end
-      if target.name == 'BSWFoundation'
-          config.build_settings['SWIFT_VERSION'] = "4.0"
-      end
     end
   end
 end
