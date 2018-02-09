@@ -1,25 +1,34 @@
 PODS:
-  - Alamofire (4.5.1)
-  - BNRDeferred (3.1.2)
+  - Alamofire (4.6.0)
+  - BNRDeferred (3.3.0)
   - BSWFoundation (1.3.2):
-    - Alamofire (~> 4.5.1)
-    - BNRDeferred (= 3.1.2)
+    - Alamofire (~> 4.6.0)
+    - BNRDeferred (= 3.3.0)
     - KeychainAccess (~> 3.1.0)
   - KeychainAccess (3.1.0)
 
 DEPENDENCIES:
+  - BNRDeferred (from `https://github.com/bignerdranch/Deferred.git`, tag `3.3.0`)
   - BSWFoundation (from `./BSWFoundation.podspec`)
 
 EXTERNAL SOURCES:
+  BNRDeferred:
+    :git: https://github.com/bignerdranch/Deferred.git
+    :tag: 3.3.0
   BSWFoundation:
     :path: ./BSWFoundation.podspec
 
+CHECKOUT OPTIONS:
+  BNRDeferred:
+    :git: https://github.com/bignerdranch/Deferred.git
+    :tag: 3.3.0
+
 SPEC CHECKSUMS:
-  Alamofire: 2d95912bf4c34f164fdfc335872e8c312acaea4a
-  BNRDeferred: e3cdbffe7527482fb9908b79dd0a18d2b450fb10
-  BSWFoundation: ab5f130d8a140239a8a17d5e4661c13d21fb6adc
+  Alamofire: f41a599bd63041760b26d393ec1069d9d7b917f4
+  BNRDeferred: 1076622f62f3f6e49a6194d9aab84c3ca0fc016d
+  BSWFoundation: 2b732d747f88f069eea7b6f59358caddfba06276
   KeychainAccess: 94c5540b32eabf7bc32bfb976a268e8ea05fd6da
 
-PODFILE CHECKSUM: 3135308a1f8340e905f0951ea42e10fcf94d09f8
+PODFILE CHECKSUM: a89a9c68dcf6a321a8340ebe2071206aa93820e2
 
 COCOAPODS: 1.4.0
