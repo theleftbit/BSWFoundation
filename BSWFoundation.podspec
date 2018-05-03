@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.osx.deployment_target = "10.11"
   s.watchos.deployment_target = "2.0"
   s.tvos.deployment_target = "9.0"
-  s.swift_version = "4.0"
+  s.swift_version = "4.1"
 
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   s.source       = { :git => "https://github.com/BlurredSoftware/BSWFoundation.git", :tag => "#{s.version}" }
@@ -22,8 +22,8 @@ Pod::Spec.new do |s|
   s.source_files  = "Source/**/*.{swift,m,h}"
 
   # ――― Dependencies ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  s.dependency "Alamofire", "~> 4.5.1"
-  s.dependency "BNRDeferred", "3.1.2"
+  s.dependency "Alamofire", "~> 4.6.0"
+  s.dependency "BNRDeferred", "3.3.0"
   s.dependency "KeychainAccess", "~> 3.1.0"
 
 end
