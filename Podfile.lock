@@ -10,9 +10,15 @@ PODS:
 DEPENDENCIES:
   - BSWFoundation (from `./BSWFoundation.podspec`)
 
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - Alamofire
+    - BNRDeferred
+    - KeychainAccess
+
 EXTERNAL SOURCES:
   BSWFoundation:
-    :path: ./BSWFoundation.podspec
+    :path: "./BSWFoundation.podspec"
 
 SPEC CHECKSUMS:
   Alamofire: f41a599bd63041760b26d393ec1069d9d7b917f4
@@ -20,6 +26,6 @@ SPEC CHECKSUMS:
   BSWFoundation: 489b2bc76a37a79bd811200f9efbf427fa640f76
   KeychainAccess: 94c5540b32eabf7bc32bfb976a268e8ea05fd6da
 
-PODFILE CHECKSUM: c8aaff5116ffd19602f86420c159033d7791f147
+PODFILE CHECKSUM: 2d8a373a141055eebcbc0e3c7f99e9c71aa2857f
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.5.0

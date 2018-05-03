@@ -18,6 +18,7 @@
 		EB92EAEA1EEAFF8E008FE3E6 /* IdentifiableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EADA1EEAFDBF008FE3E6 /* IdentifiableTests.swift */; };
 		EB92EAEB1EEAFF92008FE3E6 /* DroskyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EADE1EEAFDBF008FE3E6 /* DroskyTests.swift */; };
 		EB92EAEC1EEAFF92008FE3E6 /* EnvironmentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EADD1EEAFDBF008FE3E6 /* EnvironmentTests.swift */; };
+		F5DE764E209B594C0072952A /* XCTestCase+Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5DE764D209B594C0072952A /* XCTestCase+Task.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,7 @@
 		EB92EADF1EEAFDBF008FE3E6 /* CollectionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsTests.swift; sourceTree = "<group>"; };
 		EB92EAE01EEAFDBF008FE3E6 /* StringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringTests.swift; sourceTree = "<group>"; };
 		F5BB4B262018EB2E00DA70F0 /* BSWFoundation.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = BSWFoundation.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		F5DE764D209B594C0072952A /* XCTestCase+Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Task.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +155,7 @@
 				EB92EADF1EEAFDBF008FE3E6 /* CollectionsTests.swift */,
 				EB92EADB1EEAFDBF008FE3E6 /* ProgressObserverTests.swift */,
 				EB92EAE01EEAFDBF008FE3E6 /* StringTests.swift */,
+				F5DE764D209B594C0072952A /* XCTestCase+Task.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -192,7 +195,6 @@
 				70BF4F5D8B7ABA357E9E701E /* [CP] Check Pods Manifest.lock */,
 				62DBEE46A4DFC0579C89BB06 /* Sources */,
 				69DA79361D9CEB26A17B1806 /* Frameworks */,
-				214CEEDC90801FAC5710D418 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -212,7 +214,6 @@
 				EB2D29E11D55FC0A00F77ABB /* Frameworks */,
 				EB2D29E21D55FC0A00F77ABB /* Resources */,
 				7A4BE1B8567C631D374603A2 /* [CP] Embed Pods Frameworks */,
-				32D590936F2C7557D4921220 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -273,36 +274,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		214CEEDC90801FAC5710D418 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Common-BSWFoundationPlayground/Pods-Common-BSWFoundationPlayground-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		32D590936F2C7557D4921220 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Common-Tests/Pods-Common-Tests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		70BF4F5D8B7ABA357E9E701E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -382,6 +353,7 @@
 				EB92EAE81EEAFF8A008FE3E6 /* ProgressObserverTests.swift in Sources */,
 				EB92EAEA1EEAFF8E008FE3E6 /* IdentifiableTests.swift in Sources */,
 				EB92EAE91EEAFF8A008FE3E6 /* StringTests.swift in Sources */,
+				F5DE764E209B594C0072952A /* XCTestCase+Task.swift in Sources */,
 				EB92EAE71EEAFF8A008FE3E6 /* CollectionsTests.swift in Sources */,
 				EB92EAEC1EEAFF92008FE3E6 /* EnvironmentTests.swift in Sources */,
 			);
@@ -437,7 +409,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				VALIDATE_PRODUCT = YES;
 			};

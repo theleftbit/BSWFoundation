@@ -47,76 +47,62 @@ class DroskyTests: XCTestCase {
         sut = Drosky(environment: HTTPBIN())
     }
 
-    func testGET() {
-        get(shouldCancel: false)
-    }
-
-    func testGETCancel() {
-        get(shouldCancel: true)
-    }
-
-    func testUpload() {
-        upload(shouldCancel: false)
-    }
-
-    func testUploadCancel() {
-        upload(shouldCancel: true)
-    }
-
-    // MARK: - Private
-
-    private func get(shouldCancel: Bool) {
-        let exp = expectation(description: "ip")
+    func testGET() throws {
         let getTask = sut.performAndValidateRequest(forEndpoint: HTTPBINAPI.ip)
-        getTask.upon(.main) { result in
-            guard shouldCancel else {
-                exp.fulfill()
-                return
-            }
-
-            if let nsError = result.error as NSError?, nsError.domain == NSURLErrorDomain, nsError.code == NSURLErrorCancelled {
-                exp.fulfill()
-            } else {
-                XCTFail()
-            }
-        }
-        if shouldCancel {
-            getTask.cancel()
-        }
-        waitForExpectations(timeout: 10, handler: nil)
+        let _ = try self.waitAndExtractValue(getTask)
     }
 
-    private func upload(shouldCancel: Bool) {
+    func testGETCancel() throws {
+        let getTask = sut.performAndValidateRequest(forEndpoint: HTTPBINAPI.ip)
+        getTask.cancel()
+
+        do {
+            let _ = try self.waitAndExtractValue(getTask)
+            XCTFail("This should fail here")
+        } catch let error {
+            let nsError = error as NSError
+            XCTAssert(nsError.domain == NSURLErrorDomain)
+            XCTAssert(nsError.code == NSURLErrorCancelled)
+        }
+    }
+
+    func testUpload() throws {
         guard let url = Bundle(for: type(of: self)).url(forResource: "cannavaro", withExtension: "jpg") else {
             XCTFail()
             return
         }
 
-        let exp = expectation(description: "uploadTask")
         let uploadTask = sut.performMultipartUpload(
             forEndpoint: HTTPBINAPI.upload,
             multipartParams: [
                 MultipartParameter(parameterKey: "key", parameterValue: .url(url), fileName: "cannavaro.jpg", mimeType: .imageJPEG)
-                ]
+            ]
         )
 
-        uploadTask.upon(.main) { result in
-            guard shouldCancel else {
-                exp.fulfill()
-                return
-            }
+        let _ = try self.waitAndExtractValue(uploadTask, timeout: 5)
+    }
 
-            if let nsError = result.error as NSError?, nsError.domain == NSURLErrorDomain, nsError.code == NSURLErrorCancelled {
-                exp.fulfill()
-            } else {
-                XCTFail()
-            }
+    func testUploadCancel() {
+        guard let url = Bundle(for: type(of: self)).url(forResource: "cannavaro", withExtension: "jpg") else {
+            XCTFail()
+            return
         }
 
-        if shouldCancel {
-            uploadTask.cancel()
-        }
+        let uploadTask = sut.performMultipartUpload(
+            forEndpoint: HTTPBINAPI.upload,
+            multipartParams: [
+                MultipartParameter(parameterKey: "key", parameterValue: .url(url), fileName: "cannavaro.jpg", mimeType: .imageJPEG)
+            ]
+        )
+        uploadTask.cancel()
 
-        waitForExpectations(timeout: 600, handler: nil)
+        do {
+            let _ = try self.waitAndExtractValue(uploadTask)
+            XCTFail("This should fail here")
+        } catch let error {
+            let nsError = error as NSError
+            XCTAssert(nsError.domain == NSURLErrorDomain)
+            XCTAssert(nsError.code == NSURLErrorCancelled)
+        }
     }
 }
