@@ -6,56 +6,18 @@ import XCTest
 import Alamofire
 @testable import BSWFoundation
 
-
-/// Full-suite tests are courtesy of our good friends of HTTPBin
-
-private struct HTTPBIN: Environment {
-    fileprivate var baseURL: URL {
-        return URL(string: "https://httpbin.org/")!
-    }
-}
-
-private enum HTTPBINAPI: Endpoint {
-    case ip
-    case upload
-
-    var path: String {
-        switch self {
-        case .upload:
-            return "post"
-        case .ip:
-            return "ip"
-        }
-    }
-
-    var method: BSWFoundation.HTTPMethod {
-        switch self {
-        case .upload:
-            return .POST
-        default:
-            return .GET
-        }
-    }
-}
-
-private enum HTTPBINResponses {
-    struct IP: Decodable {
-        let origin: String
-    }
-}
-
 class APIClientTests: XCTestCase {
 
     var sut: APIClient!
 
     override func setUp() {
         super.setUp()
-        sut = APIClient(environment: HTTPBIN())
+        sut = APIClient(environment: HTTPBin.Hosts.production)
     }
 
     func testGET() throws {
-        let ipRequest = BSWFoundation.Request<HTTPBINResponses.IP>(
-            endpoint: HTTPBINAPI.ip
+        let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
+            endpoint: HTTPBin.API.ip
         )
 
         let getTask = sut.perform(ipRequest)
@@ -63,8 +25,8 @@ class APIClientTests: XCTestCase {
     }
 
     func testGETCancel() throws {
-        let ipRequest = BSWFoundation.Request<HTTPBINResponses.IP>(
-            endpoint: HTTPBINAPI.ip
+        let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
+            endpoint: HTTPBin.API.ip
         )
 
         let getTask = sut.perform(ipRequest)

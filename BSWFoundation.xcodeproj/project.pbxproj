@@ -18,6 +18,8 @@
 		EB92EAEA1EEAFF8E008FE3E6 /* IdentifiableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EADA1EEAFDBF008FE3E6 /* IdentifiableTests.swift */; };
 		EB92EAEB1EEAFF92008FE3E6 /* APIClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EADE1EEAFDBF008FE3E6 /* APIClientTests.swift */; };
 		EB92EAEC1EEAFF92008FE3E6 /* EnvironmentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EADD1EEAFDBF008FE3E6 /* EnvironmentTests.swift */; };
+		F5BD76E520A0B2020060476E /* RouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BD76E420A0B2020060476E /* RouterTests.swift */; };
+		F5BD76E720A0B2880060476E /* Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5BD76E620A0B2880060476E /* Stubs.swift */; };
 		F5DE764E209B594C0072952A /* XCTestCase+Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5DE764D209B594C0072952A /* XCTestCase+Task.swift */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +54,8 @@
 		EB92EADF1EEAFDBF008FE3E6 /* CollectionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionsTests.swift; sourceTree = "<group>"; };
 		EB92EAE01EEAFDBF008FE3E6 /* StringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringTests.swift; sourceTree = "<group>"; };
 		F5BB4B262018EB2E00DA70F0 /* BSWFoundation.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = BSWFoundation.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		F5BD76E420A0B2020060476E /* RouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterTests.swift; sourceTree = "<group>"; };
+		F5BD76E620A0B2880060476E /* Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stubs.swift; sourceTree = "<group>"; };
 		F5DE764D209B594C0072952A /* XCTestCase+Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Task.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -165,6 +169,8 @@
 			children = (
 				EB92EADE1EEAFDBF008FE3E6 /* APIClientTests.swift */,
 				EB92EADD1EEAFDBF008FE3E6 /* EnvironmentTests.swift */,
+				F5BD76E420A0B2020060476E /* RouterTests.swift */,
+				F5BD76E620A0B2880060476E /* Stubs.swift */,
 			);
 			path = APIClient;
 			sourceTree = "<group>";
@@ -355,7 +361,9 @@
 				EB92EAE91EEAFF8A008FE3E6 /* StringTests.swift in Sources */,
 				F5DE764E209B594C0072952A /* XCTestCase+Task.swift in Sources */,
 				EB92EAE71EEAFF8A008FE3E6 /* CollectionsTests.swift in Sources */,
+				F5BD76E520A0B2020060476E /* RouterTests.swift in Sources */,
 				EB92EAEC1EEAFF92008FE3E6 /* EnvironmentTests.swift in Sources */,
+				F5BD76E720A0B2880060476E /* Stubs.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

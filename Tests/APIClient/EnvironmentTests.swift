@@ -1,36 +1,10 @@
 //
-//  Tests.swift
-//  Tests
-//
 //  Created by Pierluigi Cifani on 06/08/16.
 //
 //
 
 import XCTest
 @testable import BSWFoundation
-
-enum BSWEnvironment: Environment {
-    case production
-    case staging
-
-    var baseURL: URL {
-        switch self {
-        case .production:
-            return URL(string: "https://theleftbit.com/")!
-        case .staging:
-            return URL(string: "https://staging.theleftbit.com/")!
-        }
-    }
-
-    var shouldAllowInsecureConnections: Bool {
-        switch self {
-        case .production:
-            return false
-        default:
-            return true
-        }
-    }
-}
 
 class EnvironmentTests: XCTestCase {
     
