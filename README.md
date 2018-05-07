@@ -1,17 +1,11 @@
  
-
-<p align="center">
-  <img src="https://github.com/BlurredSoftware/BSWFoundation/raw/master/BSWFoundationLogo.png">
-</p>
-
-
 ![BitRise](https://www.bitrise.io/app/f9cf8e733b7b6fc4/status.svg?token=4zvKyGYwdE3lBsKhXhAtpA&branch=master)
 [![codebeat badge](https://codebeat.co/badges/31f28ef0-7271-46ef-8ec0-ec7a2011b5f0)](https://codebeat.co/projects/github-com-blurredsoftware-bswfoundation)
 
 
 #About
 
- These are collection of types that are use throughout all Blurred Software's iOS projects and that allow us to write better apps, faster.
+ These are collection of types that are use throughout all TheLeftBit's iOS projects and that allow us to write better apps, faster.
  
  This project leverages heavily on Swift's [core features](https://swift.org/about/), so you have to be very profficient with these in order to understand why this types are so important.
  
