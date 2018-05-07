@@ -1,6 +1,6 @@
 //
 //  Created by Pierluigi Cifani on 29/03/2018.
-//  Copyright © 2018 Blurred Software. All rights reserved.
+//  Copyright © 2018 TheLeftBit. All rights reserved.
 //
 
 import XCTest
