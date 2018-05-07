@@ -16,9 +16,9 @@ enum BSWEnvironment: Environment {
     var baseURL: URL {
         switch self {
         case .production:
-            return URL(string: "https://blurredsoftware.com/")!
+            return URL(string: "https://theleftbit.com/")!
         case .staging:
-            return URL(string: "https://staging.blurredsoftware.com/")!
+            return URL(string: "https://staging.theleftbit.com/")!
         }
     }
 
@@ -36,7 +36,7 @@ class EnvironmentTests: XCTestCase {
     
     func testRouteURL() {
         let sut = BSWEnvironment.production
-        XCTAssert(sut.routeURL("login") == "https://blurredsoftware.com/login")
+        XCTAssert(sut.routeURL("login") == "https://theleftbit.com/login")
     }
 
     func testInsecureConnections() {
