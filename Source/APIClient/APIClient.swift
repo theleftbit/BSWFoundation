@@ -12,11 +12,11 @@ public protocol APIClientNetworkFetcher {
 
 open class APIClient {
 
-    let router: Router
-    let jsonDecoder = JSONDecoder()
     var delegateQueue = DispatchQueue.main
-    let workerQueue: OperationQueue
-    let networkFetcher: APIClientNetworkFetcher
+    private let router: Router
+    private let jsonDecoder = JSONDecoder()
+    private let workerQueue: OperationQueue
+    private let networkFetcher: APIClientNetworkFetcher
 
     public init(environment: Environment, signature: Signature? = nil, networkFetcher: APIClientNetworkFetcher? = nil) {
         let queue = queueForSubmodule("APIClient", qualityOfService: .userInitiated)
