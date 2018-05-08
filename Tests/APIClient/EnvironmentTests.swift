@@ -16,7 +16,7 @@ class EnvironmentTests: XCTestCase {
     func testInsecureConnections() {
         let production = BSWEnvironment.production
         let staging = BSWEnvironment.staging
-        XCTAssert(production.serverTrustPolicies.count == 0)
-        XCTAssert(staging.serverTrustPolicies.count == 1)
+        XCTAssert(production.shouldAllowInsecureConnections == false)
+        XCTAssert(staging.shouldAllowInsecureConnections == true)
     }
 }

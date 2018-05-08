@@ -3,7 +3,6 @@
 //
 
 import XCTest
-import Alamofire
 @testable import BSWFoundation
 
 class APIClientTests: XCTestCase {
@@ -21,7 +20,7 @@ class APIClientTests: XCTestCase {
         )
 
         let getTask = sut.perform(ipRequest)
-        let _ = try self.waitAndExtractValue(getTask)
+        let _ = try self.waitAndExtractValue(getTask, timeout: 3)
     }
 
     func testGETCancel() throws {

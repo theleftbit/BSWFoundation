@@ -4,6 +4,10 @@
 
 import BSWFoundation
 
+enum Error: Swift.Error {
+    case objectUnwrappedFailed
+}
+
 /// Full-suite tests are courtesy of our good friends of HTTPBin
 
 enum HTTPBin {
@@ -42,6 +46,26 @@ enum HTTPBin {
                 return .GET
             }
         }
+
+        var parameterEncoding: HTTPParameterEncoding {
+            switch self {
+            case .ip:
+                return .url
+            case .orderPizza:
+                return .json
+            }
+        }
+
+        var parameters: [String : Any]? {
+            switch self {
+            case .ip:
+                return nil
+            case .orderPizza:
+                return [
+                    "topping": ["peperoni", "olives"]
+                ]
+            }
+        }
     }
 
     enum Responses {
@@ -70,6 +94,89 @@ enum BSWEnvironment: Environment {
             return false
         default:
             return true
+        }
+    }
+}
+
+enum Giphy {
+    enum Hosts: Environment {
+        case production
+
+        var baseURL: URL {
+            switch self {
+            case .production:
+                return URL(string: "https://api.giphy.com")!
+            }
+        }
+    }
+
+    enum API: Endpoint {
+        case trending
+        case search(String)
+
+        var path: String {
+            switch self {
+            case .trending:
+                return "/v1/gifs/trending"
+            case .search:
+                return "/v1/gifs/search"
+            }
+        }
+
+        var parameterEncoding: HTTPParameterEncoding {
+            return .url
+        }
+
+        var parameters: [String : Any]? {
+            switch self {
+            case .search(let term):
+                return [
+                    "q": term
+                ]
+            default:
+                return nil
+            }
+        }
+    }
+
+    enum Responses {
+        struct GIF: Decodable {
+            let id: String
+            let url: URL
+            let title: String
+            private enum GIFKeys: String, CodingKey {
+                case id = "id"
+                case images = "images"
+                case title = "title"
+            }
+
+            private enum ImagesKeys: String, CodingKey {
+                case original = "original"
+            }
+
+            private enum ImageKeys: String, CodingKey {
+                case url = "url"
+            }
+
+            init(id: String, url: URL, title: String) {
+                self.id = id
+                self.url = url
+                self.title = title
+            }
+
+            init(from decoder: Decoder) throws {
+                let container = try decoder.container(keyedBy: GIFKeys.self)
+                let id: String = try container.decode(String.self, forKey: .id)
+                let title: String = try container.decode(String.self, forKey: .title)
+                let imagesContainer = try container.nestedContainer(keyedBy: ImagesKeys.self, forKey: .images)
+                let originalContainer = try imagesContainer.nestedContainer(keyedBy: ImageKeys.self, forKey: .original)
+                let url: URL = try originalContainer.decode(URL.self, forKey: .url)
+                self.init(id: id, url: url, title: title)
+            }
+        }
+
+        struct Page: Decodable {
+            public let data: [GIF]
         }
     }
 }
