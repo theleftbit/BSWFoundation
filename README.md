@@ -1,5 +1,5 @@
  
-![BitRise](https://www.bitrise.io/app/f9cf8e733b7b6fc4/status.svg?token=4zvKyGYwdE3lBsKhXhAtpA&branch=master)
+![BitRise](https://www.bitrise.io/app/d8144e8dc4af6044/status.svg?token=iieYhPPhUWnpxWmgurFMiA&branch=master)
 [![codebeat badge](https://codebeat.co/badges/31f28ef0-7271-46ef-8ec0-ec7a2011b5f0)](https://codebeat.co/projects/github-com-blurredsoftware-bswfoundation)
 
 

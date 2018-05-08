@@ -3,7 +3,7 @@
  
  ![](BSWFoundationLogo-tiny.png)
  
- These are collection of types that are use throughout all Blurred Software's iOS projects and that allow us to write better apps, faster.
+ These are collection of types that are use throughout all TheLeftBit's iOS projects and that allow us to write better apps, faster.
  
  - important: Please build the scheme `BSWFoundationPlayground` before executing anything on this Playground
 

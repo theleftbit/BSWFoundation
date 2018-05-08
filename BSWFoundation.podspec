@@ -2,11 +2,10 @@
 Pod::Spec.new do |s|
   s.name         = "BSWFoundation"
   s.version      = "1.4.0"
-  s.summary      = "This framework creates the infrastructure that it's used throughout Blurred Software's projects."
-  s.homepage     = "https://github.com/BlurredSoftware/BSWFoundation"
+  s.summary      = "This framework creates the infrastructure that it's used throughout TheLeftBit's projects."
+  s.homepage     = "https://github.com/TheLeftBit/BSWFoundation"
   s.license      = "MIT"
-  s.author             = { "Pierluigi Cifani" => "pcifani@blurredsoftware.com" }
-  s.social_media_url   = "http://twitter.com/piercifani"
+  s.author             = { "Pierluigi Cifani" => "pcifani@theleftbit.com" }
 
   # ――― Platform Specifics ――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   s.ios.deployment_target = "9.0"
@@ -16,7 +15,7 @@ Pod::Spec.new do |s|
   s.swift_version = "4.1"
 
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  s.source       = { :git => "https://github.com/BlurredSoftware/BSWFoundation.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/TheLeftBit/BSWFoundation.git", :tag => "#{s.version}" }
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   s.source_files  = "Source/**/*.{swift,m,h}"
