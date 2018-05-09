@@ -28,9 +28,12 @@ enum HTTPBin {
     enum API: Endpoint {
         case ip
         case orderPizza
+        case upload
 
         var path: String {
             switch self {
+            case .upload:
+                return "/post"
             case .orderPizza:
                 return "/forms/post"
             case .ip:
@@ -40,6 +43,8 @@ enum HTTPBin {
 
         var method: HTTPMethod {
             switch self {
+            case .upload:
+                return .POST
             case .orderPizza:
                 return .POST
             default:
@@ -49,21 +54,21 @@ enum HTTPBin {
 
         var parameterEncoding: HTTPParameterEncoding {
             switch self {
-            case .ip:
-                return .url
             case .orderPizza:
                 return .json
+            default:
+                return .url
             }
         }
 
         var parameters: [String : Any]? {
             switch self {
-            case .ip:
-                return nil
             case .orderPizza:
                 return [
                     "topping": ["peperoni", "olives"]
                 ]
+            default:
+                return nil
             }
         }
     }
