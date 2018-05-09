@@ -61,6 +61,6 @@ class JSONParserTests: XCTestCase {
     }
 }
 
-struct ParseError: Error {
+struct ParseError: Swift.Error {
 }
 

@@ -5,6 +5,10 @@
 
 import Foundation
 
+public struct Request<ResponseType>{
+    let endpoint: Endpoint
+}
+
 public protocol Environment {
     var baseURL: URL { get }
     var shouldAllowInsecureConnections: Bool { get }
