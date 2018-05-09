@@ -9,8 +9,9 @@ import Deferred
 public enum JSONParser {
     
     fileprivate static let queue = queueForSubmodule("JSONParser")
+    fileprivate static let jsonDecoder = JSONDecoder()
 
-    public static func parseDataAsync<T: Decodable>(_ data: Data) -> Task<T> {
+    public static func parseData<T: Decodable>(_ data: Data) -> Task<T> {
         let deferred = Deferred<Task<T>.Result>()
         queue.addOperation {
             deferred.fill(with: parseData(data))
@@ -47,38 +48,37 @@ public enum JSONParser {
     }
 
     static func parseData<T : Decodable>(_ data: Data) -> Task<T>.Result {
-        let result : Task<T>.Result
+        let result: Task<T>.Result
         do {
-            let output: T = try JSONDecoder().decode(T.self, from: data)
+            let output: T = try jsonDecoder.decode(T.self, from: data)
             result = .success(output)
         } catch let decodingError as DecodingError {
             switch decodingError {
             case .keyNotFound(let missingKey, let context):
                 print("*ERROR* decoding, key \"\(missingKey)\" is missing, Context: \(context)")
-                result = .failure(DataParseErrorKind.malformedSchema)
+                result = .failure(Error.malformedSchema)
             case .typeMismatch(let type, let context):
                 print("*ERROR* decoding, type \"\(type)\" mismatched, context: \(context)")
-                result = .failure(DataParseErrorKind.malformedSchema)
+                result = .failure(Error.malformedSchema)
             case .valueNotFound(let type, let context):
                 print("*ERROR* decoding, value not found \"\(type)\", context: \(context)")
-                result = .failure(DataParseErrorKind.malformedSchema)
+                result = .failure(Error.malformedSchema)
             case .dataCorrupted(let context):
                 print("*ERROR* Data Corrupted \"\(context)\"")
-                result = .failure(DataParseErrorKind.malformedJSON)
+                result = .failure(Error.malformedJSON)
             }
         } catch {
-            result = .failure(DataParseErrorKind.unknownError)
+            result = .failure(Error.unknownError)
         }
         
         return result
     }
+
+    //MARK: Error
+
+    public enum Error: Swift.Error {
+        case malformedJSON
+        case malformedSchema
+        case unknownError
+    }
 }
-
-//MARK: ErrorType
-
-public enum DataParseErrorKind: Error {
-    case malformedJSON
-    case malformedSchema
-    case unknownError
-}
-

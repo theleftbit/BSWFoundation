@@ -3,7 +3,7 @@
 //
 
 import XCTest
-@testable import BSWFoundation
+import BSWFoundation
 import Deferred
 
 class JSONParserTests: XCTestCase {
@@ -21,7 +21,7 @@ class JSONParserTests: XCTestCase {
     func testParsing() throws {
         let model = SampleModel(identity: "123456", name: "Hola", amount: 5678)
         let jsonData = try JSONEncoder().encode(model)
-        let task: Task<SampleModel> = JSONParser.parseDataAsync(jsonData)
+        let task: Task<SampleModel> = JSONParser.parseData(jsonData)
 
         let exp = expectation(description: "")
         task.upon(.main) { (result) in
@@ -37,7 +37,7 @@ class JSONParserTests: XCTestCase {
         let array = [model1, model2]
         let jsonData = try JSONEncoder().encode(array)
 
-        let task: Task<[SampleModel]> = JSONParser.parseDataAsync(jsonData)
+        let task: Task<[SampleModel]> = JSONParser.parseData(jsonData)
 
         let exp = expectation(description: "")
         task.upon(.main) { (result) in

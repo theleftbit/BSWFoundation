@@ -5,8 +5,8 @@
 
 import Foundation
 
-extension Sequence {
-    public func find(predicate: (Self.Iterator.Element) throws -> Bool) rethrows -> Self.Iterator.Element? {
+public extension Sequence {
+    func find(predicate: (Self.Iterator.Element) throws -> Bool) rethrows -> Self.Iterator.Element? {
         for element in self {
             if try predicate(element) {
                 return element
@@ -16,27 +16,27 @@ extension Sequence {
     }
 }
 
-extension Collection {
+public extension Collection {
     /// Return a copy of `self` with its elements shuffled
-    public func shuffled() -> [Iterator.Element] {
+    func shuffled() -> [Iterator.Element] {
         var list = Array(self)
         list.shuffle()
         return list
     }
 
-    public var randomElement: Iterator.Element {
+    var randomElement: Iterator.Element {
         return self.shuffled()[0]
     }
 
     /// Returns the element at the specified index iff it is within bounds, otherwise nil.
-    public subscript(safe index: Index) -> Element? {
+    subscript(safe index: Index) -> Element? {
         return index >= startIndex && index < endIndex
             ? self[index]
             : nil
     }
 }
 
-extension MutableCollection where Index == Int {
+public extension MutableCollection where Index == Int {
     /// Shuffle the elements of `self` in-place.
     mutating func shuffle() {
         // empty and single-element collections don't shuffle
@@ -50,13 +50,13 @@ extension MutableCollection where Index == Int {
     }
 }
 
-extension Array {
-    mutating public func moveItem(fromIndex oldIndex: Index, toIndex newIndex: Index) {
+public extension Array {
+    mutating func moveItem(fromIndex oldIndex: Index, toIndex newIndex: Index) {
         insert(remove(at: oldIndex), at: newIndex)
     }
 }
 
-extension Dictionary {
+public extension Dictionary {
     init(elements:[(Key, Value)]) {
         self.init()
         for (key, value) in elements {

@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import BSWFoundation
+import BSWFoundation
 
 class IdentifiableTests: XCTestCase {
 

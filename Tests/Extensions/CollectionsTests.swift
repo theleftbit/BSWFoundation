@@ -1,6 +1,6 @@
 
 import XCTest
-@testable import BSWFoundation
+import BSWFoundation
 
 class CollectionTests: XCTestCase {
 

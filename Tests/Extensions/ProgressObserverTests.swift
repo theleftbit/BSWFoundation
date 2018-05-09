@@ -1,7 +1,7 @@
 
 import Foundation
 import XCTest
-@testable import BSWFoundation
+import BSWFoundation
 
 class ProgressObserverTests: XCTestCase {
 

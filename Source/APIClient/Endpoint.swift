@@ -20,13 +20,13 @@ public protocol Endpoint {
     var method: HTTPMethod { get }
     
     /// Optional parameters for the request
-    var parameters: [String : Any]? { get }
+    var parameters: [String: Any]? { get }
     
     /// How the parameters should be encoded
     var parameterEncoding: HTTPParameterEncoding { get }
     
     /// The HTTP headers to be sent
-    var httpHeaderFields: [String : String]? { get }
+    var httpHeaderFields: HTTPHeaders? { get }
 }
 
 public enum HTTPMethod: String {
@@ -44,7 +44,7 @@ extension Endpoint {
         return .GET
     }
     
-    public var parameters: [String : Any]? {
+    public var parameters: [String: Any]? {
         return nil
     }
     
@@ -52,7 +52,7 @@ extension Endpoint {
         return .url
     }
     
-    public var httpHeaderFields: [String : String]? {
+    public var httpHeaderFields: HTTPHeaders? {
         return nil
     }
 }

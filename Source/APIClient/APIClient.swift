@@ -15,10 +15,9 @@ open class APIClient {
 
     var delegateQueue = DispatchQueue.main
     private let router: Router
-    private let jsonDecoder = JSONDecoder()
     private let workerQueue: OperationQueue
-    private let workerGCDQueue = DispatchQueue(label: "com.bswfoundation.APIClient", qos: .userInitiated)
-    private let fileManagerQueue = DispatchQueue(label: "com.bswfoundation.APIClient.filemanager")
+    private let workerGCDQueue = DispatchQueue(label: "\(ModuleName).APIClient", qos: .userInitiated)
+    private let fileManagerQueue = DispatchQueue(label: "\(ModuleName).APIClient.filemanager")
     private let fileManager = FileManager.default
     private let networkFetcher: APIClientNetworkFetcher
 
@@ -90,19 +89,7 @@ extension APIClient {
 private extension APIClient {
 
     func parseResponse<T: Decodable>(data: Data) -> Task<T> {
-        let deferred = Deferred<Task<T>.Result>()
-        let workItem = DispatchWorkItem {
-            do {
-                let response: T = try self.jsonDecoder.decode(T.self, from: data)
-                deferred.fill(with: .success(response))
-            } catch let error {
-                deferred.fill(with: .failure(Error.malformedJSONResponse(error)))
-            }
-        }
-        workerGCDQueue.async(execute: workItem)
-        return Task(deferred, cancellation: { [weak workItem] in
-            workItem?.cancel()
-        })
+        return JSONParser.parseData(data)
     }
 
     func createURLRequest(endpoint: Endpoint) -> Task<URLRequest> {
