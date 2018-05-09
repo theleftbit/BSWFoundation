@@ -161,6 +161,7 @@ private extension APIClient {
         })
     }
 
+    @discardableResult
     func deleteFileAtPath(fileURL: URL) -> Task<()> {
         let deferred = Deferred<Task<()>.Result>()
         self.fileManagerQueue.sync {
@@ -204,7 +205,7 @@ extension URLSession: APIClientNetworkFetcher {
             return
         }
 
-        guard let httpResponse = response as? HTTPURLResponse,
+        guard let _ = response as? HTTPURLResponse,
             let data = data else {
                 deferred.fill(with: .failure(APIClient.Error.malformedResponse))
                 return
