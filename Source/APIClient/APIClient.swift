@@ -179,7 +179,6 @@ private extension APIClient {
         self.fileManagerQueue.sync {
             do {
                 try self.fileManager.removeItem(at: fileURL)
-                print("self.fileManager.removeItem")
                 deferred.succeed(with: ())
             } catch let error {
                 deferred.fail(with: error)
