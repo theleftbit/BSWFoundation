@@ -1,7 +1,7 @@
 PODS:
-  - BNRDeferred (3.3.0)
+  - BNRDeferred (3.3.1)
   - BSWFoundation (2.0.0):
-    - BNRDeferred (= 3.3.0)
+    - BNRDeferred (= 3.3.1)
     - KeychainAccess (~> 3.1.0)
   - KeychainAccess (3.1.0)
 
@@ -9,7 +9,7 @@ DEPENDENCIES:
   - BSWFoundation (from `./BSWFoundation.podspec`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://github.com/cocoapods/specs.git:
     - BNRDeferred
     - KeychainAccess
 
@@ -18,10 +18,10 @@ EXTERNAL SOURCES:
     :path: "./BSWFoundation.podspec"
 
 SPEC CHECKSUMS:
-  BNRDeferred: 1076622f62f3f6e49a6194d9aab84c3ca0fc016d
-  BSWFoundation: 925ad3e76fa88ae867d5abd9466c7248f38c1641
+  BNRDeferred: 3936d5a6c2181731eb6528662881312f9aaed08e
+  BSWFoundation: 573c8e33e036bfa674c25b1d773ca1be6c250e4e
   KeychainAccess: 94c5540b32eabf7bc32bfb976a268e8ea05fd6da
 
 PODFILE CHECKSUM: c8aaff5116ffd19602f86420c159033d7791f147
 
-COCOAPODS: 1.5.0
+COCOAPODS: 1.5.2
