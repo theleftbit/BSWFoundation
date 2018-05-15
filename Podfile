@@ -10,7 +10,7 @@ target 'BSWFoundationPlayground-iOS' do
 end
 
 target 'BSWFoundationPlayground-tvOS' do
-    platform :tvos
+    platform :tvos, '9.0'
 
     pod 'BSWFoundation', :path => './BSWFoundation.podspec'
 
