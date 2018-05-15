@@ -14,9 +14,9 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EB2D29E31D55FC0A00F77ABB"
-               BuildableName = "Tests.xctest"
-               BlueprintName = "Tests"
+               BlueprintIdentifier = "F5B0D9AE20AB197100EFAF33"
+               BuildableName = "Tests-tvOS.xctest"
+               BlueprintName = "Tests-tvOS"
                ReferencedContainer = "container:BSWFoundation.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EB2D29E31D55FC0A00F77ABB"
-               BuildableName = "Tests.xctest"
-               BlueprintName = "Tests"
+               BlueprintIdentifier = "F5B0D9AE20AB197100EFAF33"
+               BuildableName = "Tests-tvOS.xctest"
+               BlueprintName = "Tests-tvOS"
                ReferencedContainer = "container:BSWFoundation.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -55,9 +55,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EB2D29E31D55FC0A00F77ABB"
-            BuildableName = "Tests.xctest"
-            BlueprintName = "Tests"
+            BlueprintIdentifier = "F5B0D9AE20AB197100EFAF33"
+            BuildableName = "Tests-tvOS.xctest"
+            BlueprintName = "Tests-tvOS"
             ReferencedContainer = "container:BSWFoundation.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -73,9 +73,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EB2D29E31D55FC0A00F77ABB"
-            BuildableName = "Tests.xctest"
-            BlueprintName = "Tests"
+            BlueprintIdentifier = "F5B0D9AE20AB197100EFAF33"
+            BuildableName = "Tests-tvOS.xctest"
+            BlueprintName = "Tests-tvOS"
             ReferencedContainer = "container:BSWFoundation.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
