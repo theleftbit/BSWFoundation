@@ -183,9 +183,13 @@ extension URLSession: APIClientNetworkFetcher {
             self.analyzeResponse(deferred: deferred, data: data, response: response, error: error)
         }
         task.resume()
-        return Task(deferred, cancellation: { [weak task] in
-            task?.cancel()
-        })
+        if #available(iOS 11.0, *) {
+            return Task(deferred, progress: task.progress)
+        } else {
+            return Task(deferred, cancellation: { [weak task] in
+                task?.cancel()
+            })
+        }
     }
 
     public func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<Data> {
@@ -194,9 +198,13 @@ extension URLSession: APIClientNetworkFetcher {
             self.analyzeResponse(deferred: deferred, data: data, response: response, error: error)
         }
         task.resume()
-        return Task(deferred, cancellation: { [weak task] in
-            task?.cancel()
-        })
+        if #available(iOS 11.0, *) {
+            return Task(deferred, progress: task.progress)
+        } else {
+            return Task(deferred, cancellation: { [weak task] in
+                task?.cancel()
+            })
+        }
     }
 
     private func analyzeResponse(deferred: Deferred<Task<Data>.Result>, data: Data?, response: URLResponse?, error: Error?) {

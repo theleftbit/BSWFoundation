@@ -13,6 +13,7 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = "2.0"
   s.tvos.deployment_target = "9.0"
   s.swift_version = "4.1"
+  s.module_name = "BSWFoundation"
 
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   s.source       = { :git => "https://github.com/TheLeftBit/BSWFoundation.git", :tag => "#{s.version}" }
@@ -21,7 +22,7 @@ Pod::Spec.new do |s|
   s.source_files  = "Source/**/*.{swift,m,h}"
 
   # ――― Dependencies ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  s.dependency "BNRDeferred", "3.3.0"
+  s.dependency "BNRDeferred", "3.3.1"
   s.dependency "KeychainAccess", "~> 3.1.0"
 
 end

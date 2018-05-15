@@ -1,10 +1,18 @@
 platform :ios, '9.0'
-use_frameworks!
+use_modular_headers!
 
-abstract_target 'Common' do
+target 'BSWFoundationPlayground' do
 
     pod 'BSWFoundation', :path => './BSWFoundation.podspec'
 
-    target 'BSWFoundationPlayground'
-    target 'Tests'
+    target 'Tests' do
+    end
+end
+
+post_install do |installer|
+    installer.pods_project.targets.each do |target|
+        target.build_configurations.each do |config|
+            config.build_settings['SWIFT_VERSION'] = '4.1.0'
+        end
+    end
 end
