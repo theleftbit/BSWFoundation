@@ -1,6 +1,6 @@
 PODS:
   - BNRDeferred (3.3.1)
-  - BSWFoundation (2.0.0):
+  - BSWFoundation (2.0.1):
     - BNRDeferred (= 3.3.1)
     - KeychainAccess (~> 3.1.0)
   - KeychainAccess (3.1.0)
@@ -19,7 +19,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   BNRDeferred: 3936d5a6c2181731eb6528662881312f9aaed08e
-  BSWFoundation: 20ca942ec80523f78e844d89ba1c25d1a465504b
+  BSWFoundation: 70ab2d2d90e965bb7d046fc9bdf12fb8965b3835
   KeychainAccess: 94c5540b32eabf7bc32bfb976a268e8ea05fd6da
 
 PODFILE CHECKSUM: 3905b301a193046fc918ee9e06601ed495485c77
