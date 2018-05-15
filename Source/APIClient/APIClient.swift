@@ -183,7 +183,7 @@ extension URLSession: APIClientNetworkFetcher {
             self.analyzeResponse(deferred: deferred, data: data, response: response, error: error)
         }
         task.resume()
-        if #available(iOS 11.0, *) {
+        if #available(iOS 11.0, tvOS 11.0, watchOS 4.0, macOS 10.13, *) {
             return Task(deferred, progress: task.progress)
         } else {
             return Task(deferred, cancellation: { [weak task] in
@@ -198,7 +198,7 @@ extension URLSession: APIClientNetworkFetcher {
             self.analyzeResponse(deferred: deferred, data: data, response: response, error: error)
         }
         task.resume()
-        if #available(iOS 11.0, *) {
+        if #available(iOS 11.0, tvOS 11.0, watchOS 4.0, macOS 10.13, *) {
             return Task(deferred, progress: task.progress)
         } else {
             return Task(deferred, cancellation: { [weak task] in
