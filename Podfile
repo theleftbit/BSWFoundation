@@ -1,11 +1,20 @@
-platform :ios, '9.0'
 use_modular_headers!
 
-target 'BSWFoundationPlayground' do
+target 'BSWFoundationPlayground-iOS' do
+    platform :ios, '9.0'
 
     pod 'BSWFoundation', :path => './BSWFoundation.podspec'
 
-    target 'Tests' do
+    target 'Tests-iOS' do
+    end
+end
+
+target 'BSWFoundationPlayground-tvOS' do
+    platform :tvos
+
+    pod 'BSWFoundation', :path => './BSWFoundation.podspec'
+
+    target 'Tests-tvOS' do
     end
 end
 
