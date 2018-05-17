@@ -6,7 +6,10 @@
 import Foundation
 
 public struct Request<ResponseType>{
-    let endpoint: Endpoint
+    public let endpoint: Endpoint
+    public init(endpoint: Endpoint) {
+        self.endpoint = endpoint
+    }
 }
 
 public protocol Environment {

@@ -3,7 +3,7 @@
 //
 
 import XCTest
-@testable import BSWFoundation
+import BSWFoundation
 
 class APIClientTests: XCTestCase {
 
