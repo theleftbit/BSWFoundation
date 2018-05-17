@@ -14,7 +14,7 @@ public protocol APIClientNetworkFetcher {
 open class APIClient {
 
     var delegateQueue = DispatchQueue.main
-    private let router: Router
+    private var router: Router
     private let workerQueue: OperationQueue
     private let workerGCDQueue = DispatchQueue(label: "\(ModuleName).APIClient", qos: .userInitiated)
     private let fileManagerQueue = DispatchQueue(label: "\(ModuleName).APIClient.filemanager")
@@ -61,6 +61,13 @@ open class APIClient {
         }
 
         return parseTask
+    }
+
+    public func addTokenSignature(token: String) {
+        self.router = Router(
+            environment: router.environment,
+            signature: Signature(name: "Authorization", value: "Bearer \(token)")
+        )
     }
 }
 
