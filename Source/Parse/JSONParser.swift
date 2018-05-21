@@ -9,8 +9,8 @@ import Deferred
 public enum JSONParser {
     
     private static let queue = queueForSubmodule("JSONParser")
-    private static let jsonDecoder = JSONDecoder()
-    private static let Options: JSONSerialization.ReadingOptions = [.allowFragments]
+    public static let jsonDecoder = JSONDecoder()
+    public static let Options: JSONSerialization.ReadingOptions = [.allowFragments]
 
     public static func parseData<T: Decodable>(_ data: Data) -> Task<T> {
         let deferred = Deferred<Task<T>.Result>()
