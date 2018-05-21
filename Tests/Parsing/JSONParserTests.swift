@@ -22,13 +22,7 @@ class JSONParserTests: XCTestCase {
         let model = SampleModel(identity: "123456", name: "Hola", amount: 5678)
         let jsonData = try JSONEncoder().encode(model)
         let task: Task<SampleModel> = JSONParser.parseData(jsonData)
-
-        let exp = expectation(description: "")
-        task.upon(.main) { (result) in
-            XCTAssert(result.value != nil)
-            exp.fulfill()
-        }
-        waitForExpectations(timeout: 10, handler: nil)
+        let _ = try self.waitAndExtractValue(task)
     }
 
     func testArrayParsing() throws {
@@ -38,13 +32,7 @@ class JSONParserTests: XCTestCase {
         let jsonData = try JSONEncoder().encode(array)
 
         let task: Task<[SampleModel]> = JSONParser.parseData(jsonData)
-
-        let exp = expectation(description: "")
-        task.upon(.main) { (result) in
-            XCTAssert(result.value != nil)
-            exp.fulfill()
-        }
-        waitForExpectations(timeout: 10, handler: nil)
+        let _ = try self.waitAndExtractValue(task)
     }
 
     func testParsePrettyPrinting() throws {
@@ -58,6 +46,15 @@ class JSONParserTests: XCTestCase {
         {\n  \"id\" : \"123456\",\n  \"name\" : \"Hola\",\n  \"amount\" : 5678\n}
         """
         XCTAssert(string == sampleString)
+    }
+
+    func testEmptyResponseParsing() throws {
+        let jsonData = """
+        """.data(using: .utf8)!
+        print(jsonData)
+        let task: Task<EmptyResponse> = JSONParser.parseData(jsonData)
+        let value = try self.waitAndExtractValue(task)
+        print(value)
     }
 }
 

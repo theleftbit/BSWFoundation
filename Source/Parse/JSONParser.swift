@@ -6,10 +6,13 @@
 import Foundation
 import Deferred
 
+public struct EmptyResponse: Decodable { }
+
 public enum JSONParser {
     
-    fileprivate static let queue = queueForSubmodule("JSONParser")
-    fileprivate static let jsonDecoder = JSONDecoder()
+    private static let queue = queueForSubmodule("JSONParser")
+    private static let jsonDecoder = JSONDecoder()
+    private static let Options: JSONSerialization.ReadingOptions = [.allowFragments]
 
     public static func parseData<T: Decodable>(_ data: Data) -> Task<T> {
         let deferred = Deferred<Task<T>.Result>()
@@ -20,7 +23,7 @@ public enum JSONParser {
     }
 
     public static func dataIsNull(_ data: Data) -> Bool {
-        guard let j = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else {
+        guard let j = try? JSONSerialization.jsonObject(with: data, options: JSONParser.Options) else {
             return false
         }
         
@@ -32,22 +35,28 @@ public enum JSONParser {
     }
 
     public static func parseDataAsJSONPrettyPrint(_ data: Data) -> String? {
-        guard let json = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else { return nil }
+        guard let json = try? JSONSerialization.jsonObject(with: data, options: JSONParser.Options) else { return nil }
         guard let prettyPrintedData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted) else { return nil }
         return String(data: prettyPrintedData, encoding: .utf8)
     }
 
     public static func errorMessageFromData(_ data: Data) -> String? {
-        guard let j = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) else {
+        guard let j = try? JSONSerialization.jsonObject(with: data, options: JSONParser.Options) else {
             return nil
         }
-        guard let dictionary = j as? [String : String] else {
+        guard let dictionary = j as? [String: String] else {
             return nil
         }        
         return dictionary["error"]
     }
 
-    static func parseData<T : Decodable>(_ data: Data) -> Task<T>.Result {
+    static func parseData<T: Decodable>(_ data: Data) -> Task<T>.Result {
+
+        guard T.self != EmptyResponse.self else {
+            let response = EmptyResponse.init() as! T
+            return .success(response)
+        }
+
         let result: Task<T>.Result
         do {
             let output: T = try jsonDecoder.decode(T.self, from: data)
