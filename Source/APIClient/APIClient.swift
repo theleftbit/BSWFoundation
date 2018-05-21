@@ -227,10 +227,15 @@ extension URLSession: APIClientNetworkFetcher {
             return
         }
 
-        guard let _ = response as? HTTPURLResponse,
+        guard let httpResponse = response as? HTTPURLResponse,
             let data = data else {
                 deferred.fill(with: .failure(APIClient.Error.malformedResponse))
                 return
+        }
+
+        guard (200..<300) ~= httpResponse.statusCode else {
+            deferred.fill(with: .failure(APIClient.Error.failureStatusCode(httpResponse.statusCode)))
+            return
         }
 
         deferred.fill(with: .success(data))
