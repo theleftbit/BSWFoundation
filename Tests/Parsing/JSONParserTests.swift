@@ -52,7 +52,7 @@ class JSONParserTests: XCTestCase {
         let jsonData = """
         """.data(using: .utf8)!
         print(jsonData)
-        let task: Task<EmptyResponse> = JSONParser.parseData(jsonData)
+        let task: Task<VoidResponse> = JSONParser.parseData(jsonData)
         let value = try self.waitAndExtractValue(task)
         print(value)
     }

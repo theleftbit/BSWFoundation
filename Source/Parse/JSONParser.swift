@@ -6,8 +6,6 @@
 import Foundation
 import Deferred
 
-public struct EmptyResponse: Decodable { }
-
 public enum JSONParser {
     
     private static let queue = queueForSubmodule("JSONParser")
@@ -52,8 +50,8 @@ public enum JSONParser {
 
     static func parseData<T: Decodable>(_ data: Data) -> Task<T>.Result {
 
-        guard T.self != EmptyResponse.self else {
-            let response = EmptyResponse.init() as! T
+        guard T.self != VoidResponse.self else {
+            let response = VoidResponse.init() as! T
             return .success(response)
         }
 
