@@ -69,6 +69,13 @@ open class APIClient {
             signature: Signature(name: "Authorization", value: "Bearer \(token)")
         )
     }
+
+    public func removeTokenSignature() {
+        self.router = Router(
+            environment: router.environment,
+            signature: nil
+        )
+    }
 }
 
 extension APIClient {
