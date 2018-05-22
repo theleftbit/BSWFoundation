@@ -31,12 +31,12 @@ public class AuthStorage {
         userDefaults.synchronize()
     }
 
-    public func token() -> String? {
+    public func jwtToken() -> String? {
         let token = keychain[Keys.JWT]
         return token
     }
 
-    public func setToken(_ authToken: String) throws {
+    public func setJTWToken(_ authToken: String) throws {
         _ = try decode(jwt: authToken)
         keychain[Keys.JWT] = authToken
     }
