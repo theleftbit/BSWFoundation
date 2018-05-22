@@ -54,14 +54,24 @@ public class AuthStorage {
         keychain[Keys.UserID] = userID
     }
 
+    public func authToken() -> String? {
+        return keychain[Keys.AuthToken]
+    }
+
+    public func setAuthToken(_ token: String) {
+        keychain[Keys.AuthToken] = token
+    }
+
     public func clearKeychain() {
         keychain[Keys.JWT] = nil
+        keychain[Keys.AuthToken] = nil
         keychain[Keys.UserID] = nil
     }
 }
 
 private struct Keys {
     static let JWT = "JWT"
+    static let AuthToken = "AuthToken"
     static let UserID = "UserID"
     static let HasAppBeenExecuted = "HasAppBeenExecuted"
 }
