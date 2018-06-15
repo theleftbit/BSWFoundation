@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5FE07E8D8CC3FF9BCA5FB5F9 /* libPods-BSWFoundationPlayground-Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A19B7F9F4AB1DD3284E7C5B /* libPods-BSWFoundationPlayground-Tests.a */; };
-		9AB560276E08DF498E31C4E9 /* libPods-BSWFoundationPlayground.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFE6E5B427F72B4F1CBB822F /* libPods-BSWFoundationPlayground.a */; };
+		4384AD9657CF67836DF0A001 /* Pods_BSWFoundationPlayground_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9F504808D79613F25EFC165 /* Pods_BSWFoundationPlayground_Tests.framework */; };
+		45757EE42BF215F9916AD265 /* Pods_BSWFoundationPlayground.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 38DABC4057C9D1B7C488B02A /* Pods_BSWFoundationPlayground.framework */; };
 		EB92EAE41EEAFE08008FE3E6 /* cannavaro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB92EADC1EEAFDBF008FE3E6 /* cannavaro.jpg */; };
 		EB92EAE61EEAFF83008FE3E6 /* JSONParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EAD91EEAFDBF008FE3E6 /* JSONParserTests.swift */; };
 		EB92EAE71EEAFF8A008FE3E6 /* CollectionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB92EADF1EEAFDBF008FE3E6 /* CollectionsTests.swift */; };
@@ -34,14 +34,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		7A19B7F9F4AB1DD3284E7C5B /* libPods-BSWFoundationPlayground-Tests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BSWFoundationPlayground-Tests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		38DABC4057C9D1B7C488B02A /* Pods_BSWFoundationPlayground.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BSWFoundationPlayground.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BE9DFBC8A51BCB32473D9A3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.3.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		AAC90E169E215AC5355228DA /* Pods-BSWFoundationPlayground.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BSWFoundationPlayground.release.xcconfig"; path = "Pods/Target Support Files/Pods-BSWFoundationPlayground/Pods-BSWFoundationPlayground.release.xcconfig"; sourceTree = "<group>"; };
 		AE308F1E803968379DD88394 /* BSWFoundationPlayground.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BSWFoundationPlayground.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		AFE6E5B427F72B4F1CBB822F /* libPods-BSWFoundationPlayground.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BSWFoundationPlayground.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B286A1FB388B680D0B7680FA /* libPods-Common-Tests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Common-Tests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B414D6449302B8AD729B7F98 /* libPods-Common-BSWFoundationPlayground.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Common-BSWFoundationPlayground.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B48E89A1838989D401DB0A9A /* Pods-BSWFoundationPlayground.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BSWFoundationPlayground.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BSWFoundationPlayground/Pods-BSWFoundationPlayground.debug.xcconfig"; sourceTree = "<group>"; };
+		B9F504808D79613F25EFC165 /* Pods_BSWFoundationPlayground_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_BSWFoundationPlayground_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC38B5A3A2B96427849E5B85 /* Pods-BSWFoundationPlayground-Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BSWFoundationPlayground-Tests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BSWFoundationPlayground-Tests/Pods-BSWFoundationPlayground-Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		EB2D29E41D55FC0A00F77ABB /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB2D29E81D55FC0A00F77ABB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -66,7 +66,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9AB560276E08DF498E31C4E9 /* libPods-BSWFoundationPlayground.a in Frameworks */,
+				45757EE42BF215F9916AD265 /* Pods_BSWFoundationPlayground.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,7 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5FE07E8D8CC3FF9BCA5FB5F9 /* libPods-BSWFoundationPlayground-Tests.a in Frameworks */,
+				4384AD9657CF67836DF0A001 /* Pods_BSWFoundationPlayground_Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -106,8 +106,8 @@
 				69CAED10BDE0265BAA655A99 /* iOS */,
 				B414D6449302B8AD729B7F98 /* libPods-Common-BSWFoundationPlayground.a */,
 				B286A1FB388B680D0B7680FA /* libPods-Common-Tests.a */,
-				AFE6E5B427F72B4F1CBB822F /* libPods-BSWFoundationPlayground.a */,
-				7A19B7F9F4AB1DD3284E7C5B /* libPods-BSWFoundationPlayground-Tests.a */,
+				38DABC4057C9D1B7C488B02A /* Pods_BSWFoundationPlayground.framework */,
+				B9F504808D79613F25EFC165 /* Pods_BSWFoundationPlayground_Tests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -222,6 +222,7 @@
 				EB2D29E01D55FC0A00F77ABB /* Sources */,
 				EB2D29E11D55FC0A00F77ABB /* Frameworks */,
 				EB2D29E21D55FC0A00F77ABB /* Resources */,
+				C1BD1F41E7E9E76A360BBD22 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -298,6 +299,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C1BD1F41E7E9E76A360BBD22 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-BSWFoundationPlayground-Tests/Pods-BSWFoundationPlayground-Tests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BNRDeferred/Deferred.framework",
+				"${BUILT_PRODUCTS_DIR}/BSWFoundation/BSWFoundation.framework",
+				"${BUILT_PRODUCTS_DIR}/KeychainAccess/KeychainAccess.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Deferred.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BSWFoundation.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KeychainAccess.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BSWFoundationPlayground-Tests/Pods-BSWFoundationPlayground-Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		CC2CC67F3AC3F01B89B20CE5 /* [CP] Check Pods Manifest.lock */ = {
