@@ -17,13 +17,16 @@ public extension Sequence {
 }
 
 public extension Collection {
+    
+    #if !swift(>=4.2)
     /// Return a copy of `self` with its elements shuffled
     func shuffled() -> [Iterator.Element] {
         var list = Array(self)
         list.shuffle()
         return list
     }
-
+    #endif
+    
     var randomElement: Iterator.Element {
         return self.shuffled()[0]
     }
