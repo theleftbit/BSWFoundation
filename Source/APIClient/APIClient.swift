@@ -64,9 +64,13 @@ open class APIClient {
     }
 
     public func addTokenSignature(token: String) {
+        self.addSignature(Signature(name: "Authorization", value: "Bearer \(token)"))
+    }
+    
+    public func addSignature(_ signature: Signature) {
         self.router = Router(
             environment: router.environment,
-            signature: Signature(name: "Authorization", value: "Bearer \(token)")
+            signature: signature
         )
     }
 
