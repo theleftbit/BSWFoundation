@@ -80,6 +80,10 @@ open class APIClient {
             signature: nil
         )
     }
+    
+    public var currentEnvironment: Environment {
+        return self.router.environment
+    }
 }
 
 extension APIClient {
