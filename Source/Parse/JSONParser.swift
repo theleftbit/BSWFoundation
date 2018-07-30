@@ -89,3 +89,11 @@ public enum JSONParser {
         case unknownError
     }
 }
+
+@objc(BSWJSONParserCustomizations)
+public class JSONParserCustomizations: NSObject {
+    @objc public class func setDateParseStrategy(with dateFormatter: DateFormatter) {
+        JSONParser.jsonDecoder.dateDecodingStrategy = .formatted(dateFormatter)
+    }
+}
+
