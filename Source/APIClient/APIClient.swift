@@ -96,7 +96,7 @@ extension APIClient {
         case encodingRequestFailed
         case multipartEncodingFailed(reason: MultipartFormFailureReason)
         case malformedJSONResponse(Swift.Error)
-        case failureStatusCode(Int)
+        case failureStatusCode(Int, Data?)
         case unknownError
     }
 
@@ -247,7 +247,8 @@ extension URLSession: APIClientNetworkFetcher {
         }
 
         guard (200..<300) ~= httpResponse.statusCode else {
-            deferred.fill(with: .failure(APIClient.Error.failureStatusCode(httpResponse.statusCode)))
+            let apiError = APIClient.Error.failureStatusCode(httpResponse.statusCode, data)
+            deferred.fill(with: .failure(apiError))
             return
         }
 
