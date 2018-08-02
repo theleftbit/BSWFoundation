@@ -48,7 +48,7 @@ public enum JSONParser {
         return dictionary["error"]
     }
 
-    static func parseData<T: Decodable>(_ data: Data) -> Task<T>.Result {
+    static public func parseData<T: Decodable>(_ data: Data) -> Task<T>.Result {
 
         guard T.self != VoidResponse.self else {
             let response = VoidResponse.init() as! T
