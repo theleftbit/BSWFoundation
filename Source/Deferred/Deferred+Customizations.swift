@@ -71,7 +71,7 @@ public func both <T, U> (first: Task<T>, second: Task<U>) ->  Task<(T, U)> {
         }
         
         guard let secondValue = tuple.1.value else {
-            deferred.fill(with: .failure(tuple.0.error!))
+            deferred.fill(with: .failure(tuple.1.error!))
             return
         }
         
