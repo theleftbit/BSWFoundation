@@ -55,6 +55,12 @@ public enum JSONParser {
             return .success(response)
         }
 
+        if let provider = T.self as? DateDecodingStrategyProvider.Type {
+            jsonDecoder.dateDecodingStrategy = .formatted(provider.dateDecodingStrategy)
+        } else {
+            jsonDecoder.dateDecodingStrategy = .formatted(iso8601DateFormatter)
+        }
+
         let result: Task<T>.Result
         do {
             let output: T = try jsonDecoder.decode(T.self, from: data)
@@ -90,10 +96,14 @@ public enum JSONParser {
     }
 }
 
-@objc(BSWJSONParserCustomizations)
-public class JSONParserCustomizations: NSObject {
-    @objc public class func setDateParseStrategy(with dateFormatter: DateFormatter) {
-        JSONParser.jsonDecoder.dateDecodingStrategy = .formatted(dateFormatter)
-    }
+public protocol DateDecodingStrategyProvider {
+    static var dateDecodingStrategy: DateFormatter { get }
+}
+
+private var iso8601DateFormatter: DateFormatter {
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+    return formatter
 }
 
