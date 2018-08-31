@@ -54,7 +54,7 @@ public enum JSONParser {
             let response = VoidResponse.init() as! T
             return .success(response)
         }
-
+        
         if let provider = T.self as? DateDecodingStrategyProvider.Type {
             jsonDecoder.dateDecodingStrategy = .formatted(provider.dateDecodingStrategy)
         } else {
@@ -107,3 +107,8 @@ private var iso8601DateFormatter: DateFormatter {
     return formatter
 }
 
+extension Array: DateDecodingStrategyProvider where Element: DateDecodingStrategyProvider {
+    public static var dateDecodingStrategy: DateFormatter {
+        return Element.dateDecodingStrategy
+    }
+}
