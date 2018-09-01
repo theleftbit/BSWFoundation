@@ -2,7 +2,7 @@ platform :ios, '9.0'
 use_frameworks!
 inhibit_all_warnings!
 
-target 'BSWFoundationPlayground' do
+target 'BSWFoundationDemo' do
 
     pod 'BSWFoundation', :path => './BSWFoundation.podspec'
 
