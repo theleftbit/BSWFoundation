@@ -64,9 +64,13 @@ open class APIClient {
     }
 
     public func addTokenSignature(token: String) {
+        self.addSignature(Signature(name: "Authorization", value: "Bearer \(token)"))
+    }
+    
+    public func addSignature(_ signature: Signature) {
         self.router = Router(
             environment: router.environment,
-            signature: Signature(name: "Authorization", value: "Bearer \(token)")
+            signature: signature
         )
     }
 
@@ -75,6 +79,10 @@ open class APIClient {
             environment: router.environment,
             signature: nil
         )
+    }
+    
+    public var currentEnvironment: Environment {
+        return self.router.environment
     }
 }
 
@@ -88,7 +96,7 @@ extension APIClient {
         case encodingRequestFailed
         case multipartEncodingFailed(reason: MultipartFormFailureReason)
         case malformedJSONResponse(Swift.Error)
-        case failureStatusCode(Int)
+        case failureStatusCode(Int, Data?)
         case unknownError
     }
 
@@ -239,7 +247,8 @@ extension URLSession: APIClientNetworkFetcher {
         }
 
         guard (200..<300) ~= httpResponse.statusCode else {
-            deferred.fill(with: .failure(APIClient.Error.failureStatusCode(httpResponse.statusCode)))
+            let apiError = APIClient.Error.failureStatusCode(httpResponse.statusCode, data)
+            deferred.fill(with: .failure(apiError))
             return
         }
 

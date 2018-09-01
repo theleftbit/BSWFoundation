@@ -1,5 +1,5 @@
  
-![BitRise](https://www.bitrise.io/app/d8144e8dc4af6044/status.svg?token=iieYhPPhUWnpxWmgurFMiA&branch=master)
+![travis-ci](https://travis-ci.com/theleftbit/BSWFoundation.svg?branch=develop)
 
 
 # About

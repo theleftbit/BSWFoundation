@@ -48,11 +48,17 @@ public enum JSONParser {
         return dictionary["error"]
     }
 
-    static func parseData<T: Decodable>(_ data: Data) -> Task<T>.Result {
+    static public func parseData<T: Decodable>(_ data: Data) -> Task<T>.Result {
 
         guard T.self != VoidResponse.self else {
             let response = VoidResponse.init() as! T
             return .success(response)
+        }
+        
+        if let provider = T.self as? DateDecodingStrategyProvider.Type {
+            jsonDecoder.dateDecodingStrategy = .formatted(provider.dateDecodingStrategy)
+        } else {
+            jsonDecoder.dateDecodingStrategy = .formatted(iso8601DateFormatter)
         }
 
         let result: Task<T>.Result
@@ -87,5 +93,22 @@ public enum JSONParser {
         case malformedJSON
         case malformedSchema
         case unknownError
+    }
+}
+
+public protocol DateDecodingStrategyProvider {
+    static var dateDecodingStrategy: DateFormatter { get }
+}
+
+private var iso8601DateFormatter: DateFormatter {
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+    return formatter
+}
+
+extension Array: DateDecodingStrategyProvider where Element: DateDecodingStrategyProvider {
+    public static var dateDecodingStrategy: DateFormatter {
+        return Element.dateDecodingStrategy
     }
 }
