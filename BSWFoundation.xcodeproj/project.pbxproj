@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4384AD9657CF67836DF0A001 /* Pods_BSWFoundationPlayground_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B9F504808D79613F25EFC165 /* Pods_BSWFoundationPlayground_Tests.framework */; };
 		5E9A09E2EAD32799A3682712 /* Pods_BSWFoundationDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 65DC5A4F23B6842903F016A0 /* Pods_BSWFoundationDemo.framework */; };
 		E94060DFC00960A8E118F431 /* Pods_BSWFoundationDemo_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FB83B6F98EDEE21640089B27 /* Pods_BSWFoundationDemo_Tests.framework */; };
 		EB92EAE41EEAFE08008FE3E6 /* cannavaro.jpg in Resources */ = {isa = PBXBuildFile; fileRef = EB92EADC1EEAFDBF008FE3E6 /* cannavaro.jpg */; };
@@ -78,7 +77,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4384AD9657CF67836DF0A001 /* Pods_BSWFoundationPlayground_Tests.framework in Frameworks */,
 				E94060DFC00960A8E118F431 /* Pods_BSWFoundationDemo_Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
