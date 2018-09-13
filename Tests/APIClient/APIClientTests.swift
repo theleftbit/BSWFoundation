@@ -7,7 +7,7 @@ import BSWFoundation
 
 class APIClientTests: XCTestCase {
 
-    let sut = APIClient(environment: HTTPBin.Hosts.production)
+    var sut = APIClient(environment: HTTPBin.Hosts.production)
 
     func testGET() throws {
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
@@ -76,5 +76,37 @@ class APIClientTests: XCTestCase {
             XCTAssert(nsError.domain == NSURLErrorDomain)
             XCTAssert(nsError.code == NSURLErrorCancelled)
         }
+    }
+    
+    func _testUnauthorizedCallsRightMethod() {
+        let mockDelegate = MockAPIClientDelegate()
+        sut = APIClient.init(environment: HTTPBin.Hosts.production, signature: nil, networkFetcher: MockNetworkFetcher())
+        sut.delegate = mockDelegate
+        
+        let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
+            endpoint: HTTPBin.API.ip
+        )
+        let _ = sut.perform(ipRequest)
+        XCTAssert(mockDelegate.failedURL != nil)
+    }
+}
+
+import Deferred
+
+private class MockAPIClientDelegate: APIClientDelegate {
+    var failedURL: URL?
+    func apiClientDidReceiveUnauthorized(forRequest at: URL, apiClient: APIClient) {
+        failedURL = at
+    }
+}
+
+private class MockNetworkFetcher: APIClientNetworkFetcher {
+    
+    func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response> {
+            return Task(success: APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: URL(string: "apple.com")!, statusCode: 401, httpVersion: nil, headerFields: nil)!))
+    }
+    
+    func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {
+        fatalError()
     }
 }
