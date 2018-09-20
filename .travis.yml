@@ -4,5 +4,5 @@ cache: cocoapods
 git:
   depth: 3
 xcode_workspace: BSWFoundation.xcworkspace
-xcode_scheme: BSWFoundation
+xcode_scheme: BSWFoundationTests
 xcode_destination: platform=iOS Simulator,OS=12.0,name=iPhone 7
