@@ -6,9 +6,14 @@
 import Foundation
 
 public struct Request<ResponseType>{
+
+    public typealias Validator = (APIClient.Response) throws -> ()
+
     public let endpoint: Endpoint
-    public init(endpoint: Endpoint) {
+    public let validator: Validator
+    public init(endpoint: Endpoint, validator: @escaping Validator = { _ in }) {
         self.endpoint = endpoint
+        self.validator = validator
     }
 }
 

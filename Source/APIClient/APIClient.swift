@@ -42,6 +42,7 @@ open class APIClient {
     public func perform<T: Decodable>(_ request: Request<T>) -> Task<T> {
         return createURLRequest(endpoint: request.endpoint)
                 ≈> networkFetcher.fetchData
+                ≈> request.performUserValidator
                 ≈> validateResponse
                 ≈> parseResponse
     }
@@ -106,6 +107,7 @@ extension APIClient {
         case multipartEncodingFailed(reason: MultipartFormFailureReason)
         case malformedJSONResponse(Swift.Error)
         case failureStatusCode(Int, Data?)
+        case requestCanceled
         case unknownError
     }
 
@@ -120,8 +122,8 @@ extension APIClient {
     }
     
     public struct Response {
-        let data: Data
-        let httpResponse: HTTPURLResponse
+        public let data: Data
+        public let httpResponse: HTTPURLResponse
         
         public init(data: Data, httpResponse: HTTPURLResponse) {
             self.data = data
@@ -281,6 +283,15 @@ extension URLSession: APIClientNetworkFetcher {
         }
 
         deferred.fill(with: .success(APIClient.Response.init(data: data, httpResponse: httpResponse)))
+    }
+}
+
+private extension Request {
+    func performUserValidator(onResponse response: APIClient.Response) -> Task<APIClient.Response> {
+        return Task(onCancel: APIClient.Error.requestCanceled, execute: { () in
+            try self.validator(response)
+            return response
+        })
     }
 }
 

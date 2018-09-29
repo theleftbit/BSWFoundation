@@ -18,6 +18,20 @@ class APIClientTests: XCTestCase {
         let _ = try self.waitAndExtractValue(getTask, timeout: 3)
     }
 
+    func testGETWithCustomValidation() throws {
+        
+        let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
+            endpoint: HTTPBin.API.ip,
+            validator: { response in
+                if response.httpResponse.statusCode != 200 {
+                    throw ValidationError()
+                }
+        })
+        
+        let getTask = sut.perform(ipRequest)
+        let _ = try self.waitAndExtractValue(getTask, timeout: 3)
+    }
+
     func testGETCancel() throws {
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
@@ -110,3 +124,5 @@ private class MockNetworkFetcher: APIClientNetworkFetcher {
         fatalError()
     }
 }
+
+struct ValidationError: Swift.Error {}
