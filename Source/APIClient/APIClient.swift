@@ -55,9 +55,13 @@ open class APIClient {
         let uploadTask = multipartTask.andThen(upon: workerGCDQueue) {
             return self.networkFetcher.uploadFile(with: $0.0, fileURL: $0.1)
         }
-        let validateTask: Task<Data> = uploadTask.andThen(upon: workerGCDQueue) {
-            return self.validateResponse(response: $0)
-        }
+        let validateTask: Task<Data> = uploadTask
+            .andThen(upon: workerGCDQueue) {
+                return request.performUserValidator(onResponse: $0)
+            }
+            .andThen(upon: workerGCDQueue) {
+                return self.validateResponse(response: $0)
+            }
         let parseTask: Task<T> = validateTask.andThen(upon: workerGCDQueue) {
             return self.parseResponse(data: $0)
         }
