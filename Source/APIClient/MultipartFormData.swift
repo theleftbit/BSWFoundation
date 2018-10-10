@@ -57,7 +57,7 @@ extension APIClient {
             }
 
             static func randomBoundary() -> String {
-                return String(format: "alamofire.boundary.%08x%08x", arc4random(), arc4random())
+                return String(format: "bswfoundation.boundary.%08x%08x", arc4random(), arc4random())
             }
 
             static func boundaryData(forBoundaryType boundaryType: BoundaryType, boundary: String) -> Data {

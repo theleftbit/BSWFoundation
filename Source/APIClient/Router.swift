@@ -86,14 +86,14 @@ extension APIClient {
             }
             
             let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
-            let directoryURL = tempDirectoryURL.appendingPathComponent("com.BSWFoundation.APIClient/multipart.form.data")
+            let directoryURL = tempDirectoryURL.appendingPathComponent("\(ModuleName).APIClient/multipart.form.data")
             let fileURL = directoryURL.appendingPathComponent(UUID().uuidString)
             
             // Create directory inside serial queue to ensure two threads don't do this in parallel
             var fileManagerError: Swift.Error?
-            APIClient.FileManagerWrapper.shared.perform {
+            APIClient.FileManagerWrapper.shared.perform { fileManager in
                 do {
-                    try APIClient.FileManagerWrapper.shared.fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: nil)
+                    try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: nil)
                     try form.writeEncodedData(to: fileURL)
                     
                 } catch {
@@ -116,11 +116,13 @@ extension APIClient {
     class FileManagerWrapper {
         
         static let shared = FileManagerWrapper()
-        let fileManager = FileManager.default
-        let queue = DispatchQueue(label: "\(ModuleName).APIClient.filemanager")
+        private let fileManager = FileManager()
+        private let queue = DispatchQueue(label: "\(ModuleName).APIClient.filemanager")
         
-        func perform(_ block: @escaping () -> Void) {
-            queue.async(execute: block)
+        func perform(_ block: @escaping (FileManager) -> Void) {
+            queue.sync {
+                block(fileManager)
+            }
         }
     }
 }

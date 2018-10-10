@@ -154,9 +154,9 @@ private extension APIClient {
     @discardableResult
     func deleteFileAtPath(fileURL: URL) -> Task<()> {
         let deferred = Deferred<Task<()>.Result>()
-        FileManagerWrapper.shared.perform {
+        FileManagerWrapper.shared.perform { fileManager in
             do {
-                try FileManagerWrapper.shared.fileManager.removeItem(at: fileURL)
+                try fileManager.removeItem(at: fileURL)
                 deferred.succeed(with: ())
             } catch let error {
                 deferred.fail(with: error)
