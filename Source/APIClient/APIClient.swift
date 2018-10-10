@@ -146,7 +146,7 @@ private extension APIClient {
             }
         }
         workerGCDQueue.async(execute: workItem)
-        return Task(deferred, cancellation: { [weak workItem] in
+        return Task(deferred, uponCancel: { [weak workItem] in
             workItem?.cancel()
         })
     }
@@ -176,7 +176,7 @@ extension URLSession: APIClientNetworkFetcher {
         if #available(iOS 11.0, tvOS 11.0, watchOS 4.0, macOS 10.13, *) {
             return Task(deferred, progress: task.progress)
         } else {
-            return Task(deferred, cancellation: { [weak task] in
+            return Task(deferred, uponCancel: { [weak task] in
                 task?.cancel()
             })
         }
@@ -192,7 +192,7 @@ extension URLSession: APIClientNetworkFetcher {
         if #available(iOS 11.0, tvOS 11.0, watchOS 4.0, macOS 10.13, *) {
             return Task(deferred, progress: task.progress)
         } else {
-            return Task(deferred, cancellation: { [weak task] in
+            return Task(deferred, uponCancel: { [weak task] in
                 task?.cancel()
             })
         }
@@ -216,7 +216,7 @@ extension URLSession: APIClientNetworkFetcher {
 
 private extension Request {
     func performUserValidator(onResponse response: APIClient.Response) -> Task<APIClient.Response> {
-        return Task(onCancel: APIClient.Error.requestCanceled, execute: { () in
+        return Task.async(onCancel: APIClient.Error.requestCanceled, execute: { () in
             try self.validator(response)
             return response
         })
