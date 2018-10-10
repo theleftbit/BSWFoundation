@@ -85,14 +85,15 @@ extension APIClient {
                 }
             }
             
-            let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
-            let directoryURL = tempDirectoryURL.appendingPathComponent("\(ModuleName).APIClient/multipart.form.data")
-            let fileURL = directoryURL.appendingPathComponent(UUID().uuidString)
+            var fileURL: URL!
             
             // Create directory inside serial queue to ensure two threads don't do this in parallel
             var fileManagerError: Swift.Error?
             APIClient.FileManagerWrapper.shared.perform { fileManager in
                 do {
+                    let cachesPath = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!
+                    let directoryURL = cachesPath.appendingPathComponent("\(ModuleName).APIClient/multipart.form.data")
+                    fileURL = directoryURL.appendingPathComponent(UUID().uuidString)
                     try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: nil)
                     try form.writeEncodedData(to: fileURL)
                     
