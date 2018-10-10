@@ -61,7 +61,11 @@ class APIClientTests: XCTestCase {
         )
 
         let uploadTask = sut.perform(uploadRequest)
+        var progress: ProgressObserver! = ProgressObserver.init(progress: uploadTask.progress) { (progress) in
+            print(progress.fractionCompleted)
+        }
         let _ = try self.waitAndExtractValue(uploadTask, timeout: 10)
+        progress = nil
     }
 
     func testUploadCancel() {
