@@ -36,6 +36,7 @@ public enum HTTPMethod: String {
 public enum HTTPParameterEncoding {
     case url
     case json
+    case multipart
 }
 
 //  This is the default implementation for Endpoint 
@@ -75,22 +76,8 @@ public enum MimeType {
     }
 }
 
-
-public struct MultipartParameter {
-    public enum ParameterType {
-        case url(URL)
-        case data(Data)
-    }
-    
-    public let parameterKey: String
-    public let parameterValue: ParameterType
-    public let fileName: String
-    public let mimeType: MimeType
-    
-    public init(parameterKey: String, parameterValue: ParameterType, fileName: String, mimeType: MimeType) {
-        self.parameterKey = parameterKey
-        self.parameterValue = parameterValue
-        self.fileName = fileName
-        self.mimeType = mimeType
-    }
+public enum MultipartParameter {
+    case url(URL, fileName: String, mimeType: MimeType)
+    case data(Data, fileName: String, mimeType: MimeType)
+    case string(String)
 }

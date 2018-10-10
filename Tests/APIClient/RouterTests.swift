@@ -11,7 +11,7 @@ class RouterTests: XCTestCase {
 
     func testSimpleURLEncoding() throws {
         let sut = APIClient.Router(environment: Giphy.Hosts.production, signature: signature)
-        let urlRequest = try sut.urlRequest(forEndpoint: Giphy.API.search("hola"))
+        let urlRequest = try sut.urlRequest(forEndpoint: Giphy.API.search("hola")).0
         guard let url = urlRequest.url else {
             throw Error.objectUnwrappedFailed
         }
@@ -21,7 +21,7 @@ class RouterTests: XCTestCase {
 
     func testComplicatedURLEncoding() throws {
         let sut = APIClient.Router(environment: Giphy.Hosts.production, signature: signature)
-        let urlRequest = try sut.urlRequest(forEndpoint: Giphy.API.search("hola guapa"))
+        let urlRequest = try sut.urlRequest(forEndpoint: Giphy.API.search("hola guapa")).0
         guard let url = urlRequest.url else {
             throw Error.objectUnwrappedFailed
         }
@@ -34,7 +34,7 @@ class RouterTests: XCTestCase {
         let endpoint = HTTPBin.API.orderPizza
         typealias PizzaRequestParams = [String: [String]]
 
-        let urlRequest = try sut.urlRequest(forEndpoint: endpoint)
+        let urlRequest = try sut.urlRequest(forEndpoint: endpoint).0
         guard let url = urlRequest.url, let data = urlRequest.httpBody else {
             throw Error.objectUnwrappedFailed
         }

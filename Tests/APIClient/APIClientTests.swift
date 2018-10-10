@@ -57,14 +57,11 @@ class APIClientTests: XCTestCase {
         }
 
         let uploadRequest = BSWFoundation.Request<VoidResponse>(
-            endpoint: HTTPBin.API.upload
+            endpoint: HTTPBin.API.upload(url)
         )
 
-        let uploadTask = sut.performMultipartUpload(uploadRequest, parameters: [
-            MultipartParameter(parameterKey: "key", parameterValue: .url(url), fileName: "cannavaro.jpg", mimeType: .imageJPEG)
-            ])
-
-        let _ = try self.waitAndExtractValue(uploadTask, timeout: 5)
+        let uploadTask = sut.perform(uploadRequest)
+        let _ = try self.waitAndExtractValue(uploadTask, timeout: 10)
     }
 
     func testUploadCancel() {
@@ -74,12 +71,10 @@ class APIClientTests: XCTestCase {
         }
 
         let uploadRequest = BSWFoundation.Request<VoidResponse>(
-            endpoint: HTTPBin.API.upload
+            endpoint: HTTPBin.API.upload(url)
         )
 
-        let uploadTask = sut.performMultipartUpload(uploadRequest, parameters: [
-            MultipartParameter(parameterKey: "key", parameterValue: .url(url), fileName: "cannavaro.jpg", mimeType: .imageJPEG)
-            ])
+        let uploadTask = sut.perform(uploadRequest)
         uploadTask.cancel()
 
         do {
