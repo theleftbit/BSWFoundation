@@ -12,12 +12,14 @@ extension APIClient {
         let environment: Environment
         let signature: Signature?
 
-        func urlRequest(forEndpoint endpoint: Endpoint) throws -> URLRequest {
+        func urlRequest(forEndpoint endpoint: Endpoint) throws -> (URLRequest, URL?) {
             guard let URL = URL(string: environment.routeURL(endpoint.path)) else {
                 throw APIClient.Error.malformedURL
             }
 
             var urlRequest = URLRequest(url: URL)
+            var fileURL: URL?
+
             urlRequest.httpMethod = endpoint.method.rawValue
             urlRequest.allHTTPHeaderFields = endpoint.httpHeaderFields
             if let signature = self.signature {
@@ -43,9 +45,85 @@ extension APIClient {
                 } catch {
                     throw APIClient.Error.encodingRequestFailed
                 }
+            case .multipart:
+                guard let parameters = endpoint.parameters,
+                    !parameters.isEmpty,
+                    let multipartParameters = parameters as? [String: MultipartParameter]
+                    else { throw APIClient.Error.malformedParameters }
+
+                let tuple = try prepareMultipartRequest(urlRequest: urlRequest, multipartParameters: multipartParameters)
+                urlRequest = tuple.0
+                fileURL = tuple.1
             }
 
-            return urlRequest
+            return (urlRequest, fileURL)
+        }
+        
+        func prepareMultipartRequest(urlRequest: URLRequest, multipartParameters: [String: MultipartParameter]) throws -> (URLRequest, URL) {
+            let form = MultipartFormData()
+            multipartParameters.forEach { (key, param) in
+                switch param {
+                case .string(let string):
+                    form.append(
+                        string.data(using: .utf8)!,
+                        withName: key
+                    )
+                case .url(let url, let fileName, let mimeType):
+                    form.append(
+                        url,
+                        withName: key,
+                        fileName: fileName,
+                        mimeType: mimeType.rawType
+                    )
+                case .data(let data, let fileName, let mimeType):
+                    form.append(
+                        data,
+                        withName: key,
+                        fileName: fileName,
+                        mimeType: mimeType.rawType
+                    )
+                }
+            }
+            
+            var fileURL: URL!
+            
+            // Create directory inside serial queue to ensure two threads don't do this in parallel
+            var fileManagerError: Swift.Error?
+            APIClient.FileManagerWrapper.shared.perform { fileManager in
+                do {
+                    let cachesPath = fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first!
+                    let directoryURL = cachesPath.appendingPathComponent("\(ModuleName).APIClient/multipart.form.data")
+                    fileURL = directoryURL.appendingPathComponent(UUID().uuidString)
+                    try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: nil)
+                    try form.writeEncodedData(to: fileURL)
+                    
+                } catch {
+                    fileManagerError = error
+                }
+            }
+            
+            if let fileManagerError = fileManagerError {
+                throw fileManagerError
+            } else {
+                var urlRequestWithContentType = urlRequest
+                urlRequestWithContentType.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
+                return (urlRequestWithContentType, fileURL)
+            }
+        }
+    }
+}
+
+extension APIClient {
+    class FileManagerWrapper {
+        
+        static let shared = FileManagerWrapper()
+        private let fileManager = FileManager()
+        private let queue = DispatchQueue(label: "\(ModuleName).APIClient.filemanager")
+        
+        func perform(_ block: @escaping (FileManager) -> Void) {
+            queue.sync {
+                block(fileManager)
+            }
         }
     }
 }

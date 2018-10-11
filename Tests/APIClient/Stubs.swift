@@ -28,7 +28,7 @@ enum HTTPBin {
     enum API: Endpoint {
         case ip
         case orderPizza
-        case upload
+        case upload(URL)
 
         var path: String {
             switch self {
@@ -56,6 +56,8 @@ enum HTTPBin {
             switch self {
             case .orderPizza:
                 return .json
+            case .upload:
+                return .multipart
             default:
                 return .url
             }
@@ -63,6 +65,10 @@ enum HTTPBin {
 
         var parameters: [String : Any]? {
             switch self {
+            case .upload(let fileURL):
+                return [
+                    "key" : MultipartParameter.url(fileURL, fileName: UUID().uuidString, mimeType: .imageJPEG)
+                ]
             case .orderPizza:
                 return [
                     "topping": ["peperoni", "olives"]

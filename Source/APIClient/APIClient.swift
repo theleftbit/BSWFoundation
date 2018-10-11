@@ -22,8 +22,6 @@ open class APIClient {
     private var router: Router
     private let workerQueue: OperationQueue
     private let workerGCDQueue = DispatchQueue(label: "\(ModuleName).APIClient", qos: .userInitiated)
-    private let fileManagerQueue = DispatchQueue(label: "\(ModuleName).APIClient.filemanager")
-    private let fileManager = FileManager.default
     private let networkFetcher: APIClientNetworkFetcher
 
     public static func backgroundClient(environment: Environment, signature: Signature? = nil) -> APIClient {
@@ -41,44 +39,10 @@ open class APIClient {
 
     public func perform<T: Decodable>(_ request: Request<T>) -> Task<T> {
         return createURLRequest(endpoint: request.endpoint)
-                ≈> networkFetcher.fetchData
+                ≈> sendNetworkRequest
                 ≈> request.performUserValidator
                 ≈> validateResponse
                 ≈> parseResponse
-    }
-
-    public func performMultipartUpload<T: Decodable>(_ request: Request<T>, parameters: [MultipartParameter]) -> Task<T> {
-        let createURLTask = createURLRequest(endpoint: request.endpoint)
-        let multipartTask = createURLTask.andThen(upon: workerGCDQueue) {
-            return self.prepareMultipartRequest(urlRequest: $0, multipartParameters: parameters)
-        }
-        let uploadTask = multipartTask.andThen(upon: workerGCDQueue) {
-            return self.networkFetcher.uploadFile(with: $0.0, fileURL: $0.1)
-        }
-        let validateTask: Task<Data> = uploadTask
-            .andThen(upon: workerGCDQueue) {
-                return request.performUserValidator(onResponse: $0)
-            }
-            .andThen(upon: workerGCDQueue) {
-                return self.validateResponse(response: $0)
-            }
-        let parseTask: Task<T> = validateTask.andThen(upon: workerGCDQueue) {
-            return self.parseResponse(data: $0)
-        }
-
-        uploadTask.upon(workerGCDQueue) { _  in
-            guard let fileURL = multipartTask.peek()?.value?.1 else {
-                return
-            }
-
-            self.deleteFileAtPath(fileURL: fileURL)
-        }
-
-        return parseTask
-    }
-
-    public func addTokenSignature(token: String) {
-        self.addSignature(Signature(name: "Authorization", value: "Bearer \(token)"))
     }
     
     public func addSignature(_ signature: Signature) {
@@ -140,6 +104,18 @@ extension APIClient {
 
 private extension APIClient {
 
+    func sendNetworkRequest(request: URLRequest, fileURL: URL?) -> Task<APIClient.Response> {
+        if let fileURL = fileURL {
+            let task = self.networkFetcher.uploadFile(with: request, fileURL: fileURL)
+            task.upon(.any()) { (_) in
+                self.deleteFileAtPath(fileURL: fileURL)
+            }
+            return task
+        } else {
+            return self.networkFetcher.fetchData(with: request)
+        }
+    }
+
     func validateResponse(response: Response) -> Task<Data> {
         switch response.httpResponse.statusCode {
         case (200..<300):
@@ -159,11 +135,11 @@ private extension APIClient {
         return JSONParser.parseData(data)
     }
 
-    func createURLRequest(endpoint: Endpoint) -> Task<URLRequest> {
-        let deferred = Deferred<Task<URLRequest>.Result>()
+    func createURLRequest(endpoint: Endpoint) -> Task<(URLRequest, URL?)> {
+        let deferred = Deferred<Task<(URLRequest, URL?)>.Result>()
         let workItem = DispatchWorkItem {
             do {
-                let request: URLRequest = try self.router.urlRequest(forEndpoint: endpoint)
+                let request = try self.router.urlRequest(forEndpoint: endpoint)
                 deferred.fill(with: .success(request))
             } catch let error {
                 deferred.fill(with: .failure(error))
@@ -175,65 +151,12 @@ private extension APIClient {
         })
     }
 
-    func prepareMultipartRequest(urlRequest: URLRequest, multipartParameters: [MultipartParameter]) -> Task<(URLRequest, URL)> {
-        let deferred = Deferred<Task<(URLRequest, URL)>.Result>()
-        let workItem = DispatchWorkItem {
-            let form = MultipartFormData()
-            multipartParameters.forEach { param in
-                switch param.parameterValue {
-                case .url(let url):
-                    form.append(
-                        url,
-                        withName: param.parameterKey,
-                        fileName: param.fileName,
-                        mimeType: param.mimeType.rawType
-                    )
-                case .data(let data):
-                    form.append(
-                        data,
-                        withName: param.parameterKey,
-                        fileName: param.fileName,
-                        mimeType: param.mimeType.rawType
-                    )
-                }
-            }
-
-            let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
-            let directoryURL = tempDirectoryURL.appendingPathComponent("com.BSWFoundation.APIClient/multipart.form.data")
-            let fileURL = directoryURL.appendingPathComponent(UUID().uuidString)
-
-            // Create directory inside serial queue to ensure two threads don't do this in parallel
-            var fileManagerError: Swift.Error?
-            self.fileManagerQueue.sync {
-                do {
-                    try self.fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true, attributes: nil)
-                    try form.writeEncodedData(to: fileURL)
-
-                } catch {
-                    fileManagerError = error
-                }
-            }
-
-            if let fileManagerError = fileManagerError {
-                deferred.fail(with: fileManagerError)
-            } else {
-                var urlRequestWithContentType = urlRequest
-                urlRequestWithContentType.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-                deferred.succeed(with: (urlRequestWithContentType, fileURL))
-            }
-        }
-        workerGCDQueue.async(execute: workItem)
-        return Task(deferred, cancellation: { [weak workItem] in
-            workItem?.cancel()
-        })
-    }
-
     @discardableResult
     func deleteFileAtPath(fileURL: URL) -> Task<()> {
         let deferred = Deferred<Task<()>.Result>()
-        self.fileManagerQueue.sync {
+        FileManagerWrapper.shared.perform { fileManager in
             do {
-                try self.fileManager.removeItem(at: fileURL)
+                try fileManager.removeItem(at: fileURL)
                 deferred.succeed(with: ())
             } catch let error {
                 deferred.fail(with: error)
@@ -260,6 +183,7 @@ extension URLSession: APIClientNetworkFetcher {
     }
 
     public func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {
+        
         let deferred = Deferred<Task<APIClient.Response>.Result>()
         let task = self.uploadTask(with: urlRequest, fromFile: fileURL) { (data, response, error) in
             self.analyzeResponse(deferred: deferred, data: data, response: response, error: error)
