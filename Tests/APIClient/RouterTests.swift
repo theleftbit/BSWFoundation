@@ -17,6 +17,7 @@ class RouterTests: XCTestCase {
         }
         XCTAssert(url.absoluteString == "https://api.giphy.com/v1/gifs/search?q=hola")
         XCTAssert(urlRequest.allHTTPHeaderFields?["api_key"] == "hola")
+        XCTAssert(urlRequest.allHTTPHeaderFields?["Content-Type"] == "application/x-www-form-urlencoded")
     }
 
     func testComplicatedURLEncoding() throws {
