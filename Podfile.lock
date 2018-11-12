@@ -1,27 +1,35 @@
 PODS:
   - BNRDeferred (4.0.0-beta.2)
-  - BSWFoundation (2.1.0):
+  - BSWFoundation (2.2.1):
     - BNRDeferred (= 4.0.0-beta.2)
     - KeychainAccess (~> 3.1.0)
   - KeychainAccess (3.1.0)
 
 DEPENDENCIES:
+  - BNRDeferred (from `https://github.com/bignerdranch/Deferred.git`, branch `zwaldowski/and-then-what`)
   - BSWFoundation (from `./BSWFoundation.podspec`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
-    - BNRDeferred
     - KeychainAccess
 
 EXTERNAL SOURCES:
+  BNRDeferred:
+    :branch: zwaldowski/and-then-what
+    :git: https://github.com/bignerdranch/Deferred.git
   BSWFoundation:
     :path: "./BSWFoundation.podspec"
 
+CHECKOUT OPTIONS:
+  BNRDeferred:
+    :commit: 0af05b492251ed38a82cb74533f4da0ab3003786
+    :git: https://github.com/bignerdranch/Deferred.git
+
 SPEC CHECKSUMS:
-  BNRDeferred: dd84c2000231f02db2aa70afc61178958c556e49
-  BSWFoundation: 48c39d2df8ab71000164d9ea9b79fee97aca7067
+  BNRDeferred: 2ce09d8b03eb4eebd11d313eeff8f7776f8a9f27
+  BSWFoundation: 298a31ec6abc29a274d159665504fa036407e01b
   KeychainAccess: 94c5540b32eabf7bc32bfb976a268e8ea05fd6da
 
-PODFILE CHECKSUM: 987667a4853d4381149d88f12b9c3ce03d6dccd1
+PODFILE CHECKSUM: ce142890153d850d3af06eef135235a730991f67
 
 COCOAPODS: 1.5.3

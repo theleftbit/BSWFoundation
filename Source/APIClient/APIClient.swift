@@ -44,6 +44,11 @@ open class APIClient {
                 ≈> validateResponse
                 ≈> parseResponse
     }
+
+    public func performSimpleRequest(forEndpoint endpoint: Endpoint) -> Task<APIClient.Response> {
+        return createURLRequest(endpoint: endpoint)
+                ≈> sendNetworkRequest
+    }
     
     public func addSignature(_ signature: Signature) {
         self.router = Router(

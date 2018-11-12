@@ -35,6 +35,7 @@ extension APIClient {
                 guard let parameters = endpoint.parameters, !parameters.isEmpty, var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else { break }
                 let percentEncodedQuery = (urlComponents.percentEncodedQuery.map { $0 + "&" } ?? "") + URLEncoding.query(parameters)
                 urlComponents.percentEncodedQuery = percentEncodedQuery
+                urlRequest.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
                 urlRequest.url = urlComponents.url
             case .json:
                 guard let parameters = endpoint.parameters, !parameters.isEmpty else { break }
