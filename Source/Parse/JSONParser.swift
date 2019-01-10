@@ -17,7 +17,7 @@ public enum JSONParser {
         queue.addOperation {
             deferred.fill(with: parseData(data))
         }
-        return Task(future: Future(deferred))
+        return Task(Future(deferred))
     }
 
     public static func dataIsNull(_ data: Data) -> Bool {

@@ -10,26 +10,22 @@ public class ProgressObserver: NSObject {
     fileprivate let onUpdate: (Progress) -> Void
     fileprivate let progress: Progress
     
-    private static var kvoContext = false
+    private var observer: NSKeyValueObservation!
     
     public init(progress: Progress, onUpdate: @escaping (Progress) -> Void) {
         self.progress = progress
         self.onUpdate = onUpdate
         super.init()
-        progress.addObserver(self, forKeyPath: #keyPath(Progress.fractionCompleted), options: .new, context: &ProgressObserver.kvoContext)
+        self.observer = progress.observe(\.fractionCompleted) { [weak self] (progress, _) in
+            DispatchQueue.main.async {
+                guard let `self` = self else { return }
+                self.onUpdate(progress)
+            }
+        }
     }
     
     deinit {
-        progress.removeObserver(self, forKeyPath: #keyPath(Progress.fractionCompleted), context: &ProgressObserver.kvoContext)
-    }
-    
-    override public func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        guard context == &ProgressObserver.kvoContext, object as AnyObject === progress  else {
-            return super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
-        }
-        
-        DispatchQueue.main.async {
-            self.onUpdate(self.progress)
-        }
+        self.observer.invalidate()
+        self.observer = nil
     }
 }

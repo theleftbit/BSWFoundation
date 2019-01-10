@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
   s.source_files  = "Source/**/*.{swift,m,h}"
 
   # ――― Dependencies ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  s.dependency "BNRDeferred", "3.3.2"
+  s.dependency "BNRDeferred", "4.0.0-beta.3"
   s.dependency "KeychainAccess", "~> 3.1.0"
 
 end

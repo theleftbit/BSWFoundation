@@ -22,17 +22,17 @@ public func ≈> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> Task<U>.Result) -> T
 }
 
 public func ≈> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> U) -> Task<U> {
-    return lhs.andThen(upon: DispatchQueue.any()) { return Task(future: Future(value: .success(rhs($0)))) }
+    return lhs.andThen(upon: DispatchQueue.any()) { return Task(Future(value: .success(rhs($0)))) }
 }
 
 public func ≈> <T, U>(lhs: Future<T>, rhs: @escaping (T) -> Task<U>.Result) -> Task<U> {
-    return Task(future: lhs.map(upon: DispatchQueue.any()) { return rhs($0) })
+    return Task(lhs.map(upon: DispatchQueue.any()) { return rhs($0) })
 }
 
 public func ≈> <T, U>(lhs: Task<T>, rhs: @escaping (T) throws -> U) -> Task<U> {
     return lhs.andThen(upon: DispatchQueue.any()) {(input) throws -> Task<U> in
         let value = try rhs(input)
-        return Task(future: Future(value: .success(value)))
+        return Task(Future(value: .success(value)))
     }
 }
 
@@ -47,17 +47,17 @@ public func ==> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> Task<U>.Result) -> Ta
 }
 
 public func ==> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> U) -> Task<U> {
-    return lhs.andThen(upon: DispatchQueue.main) { return Task(future: Future(value: .success(rhs($0)))) }
+    return lhs.andThen(upon: DispatchQueue.main) { return Task(Future(value: .success(rhs($0)))) }
 }
 
 public func ==> <T, U>(lhs: Future<T>, rhs: @escaping (T) -> Task<U>.Result) -> Task<U> {
-    return Task(future: lhs.map(upon: DispatchQueue.main) { return rhs($0) })
+    return Task(lhs.map(upon: DispatchQueue.main) { return rhs($0) })
 }
 
 public func ==> <T, U>(lhs: Task<T>, rhs: @escaping (T) throws -> U) -> Task<U> {
     return lhs.andThen(upon: DispatchQueue.main) {(input) throws -> Task<U> in
         let value = try rhs(input)
-        return Task(future: Future(value: .success(value)))
+        return Task(Future(value: .success(value)))
     }
 }
 
@@ -78,7 +78,7 @@ public func both <T, U> (first: Task<T>, second: Task<U>) ->  Task<(T, U)> {
         deferred.fill(with: .success((firstValue, secondValue)))
     }
     
-    return Task(future: Future(deferred))
+    return Task(Future(deferred))
 }
 
 public func bothSerially <T, U> (first: Task<T>, second: @escaping (T) -> Task<U>) ->  Task<(T, U)> {
@@ -101,7 +101,7 @@ public func bothSerially <T, U> (first: Task<T>, second: @escaping (T) -> Task<U
         }
     }
     
-    return Task(future: Future(deferred))
+    return Task(Future(deferred))
 }
 
 extension Task {
@@ -127,12 +127,12 @@ extension Task {
             }
         }
         
-        return Task<SuccessValue>(future: future)
+        return Task<SuccessValue>(future)
     }
 }
 
-extension Task.Result {
-    public var value: SuccessValue? {
+extension TaskResult {
+    public var value: Value? {
         switch self {
         case .success(let value):
             return value
@@ -151,12 +151,12 @@ extension Task.Result {
     }
     
     /// Returns a new Result by mapping `Success`es’ values using `transform`, or re-wrapping `Failure`s’ errors.
-    public func map<OtherValue>(_ transform: (SuccessValue) -> OtherValue) -> Task<OtherValue>.Result {
+    public func map<OtherValue>(_ transform: (Value) -> OtherValue) -> Task<OtherValue>.Result {
         return flatMap { .success(transform($0)) }
     }
     
     /// Returns the result of applying `transform` to `Success`es’ values, or re-wrapping `Failure`’s errors.
-    public func flatMap<OtherValue>(_ transform: (SuccessValue) -> Task<OtherValue>.Result) -> Task<OtherValue>.Result {
+    public func flatMap<OtherValue>(_ transform: (Value) -> TaskResult<OtherValue>) -> Task<OtherValue>.Result {
         switch self {
         case .failure(let error):
             return .failure(error)
