@@ -80,4 +80,5 @@ public enum MultipartParameter {
     case url(URL, fileName: String, mimeType: MimeType)
     case data(Data, fileName: String, mimeType: MimeType)
     case string(String)
+    case bool(Bool)
 }

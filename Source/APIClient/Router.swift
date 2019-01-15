@@ -83,6 +83,8 @@ extension APIClient {
                         fileName: fileName,
                         mimeType: mimeType.rawType
                     )
+                case .bool(let bool):
+                    form.append(Data(bytes: bool ? [1] : [0]), withName: key)
                 }
             }
             
