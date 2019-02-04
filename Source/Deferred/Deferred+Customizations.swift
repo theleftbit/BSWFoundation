@@ -105,7 +105,7 @@ public func bothSerially <T, U> (first: Task<T>, second: @escaping (T) -> Task<U
 }
 
 extension Task {
-    public func toObjectiveC(completionHandler handler: @escaping (SuccessValue?, NSError?) -> Void) {
+    public func toObjectiveC(completionHandler handler: @escaping (Success?, NSError?) -> Void) {
         upon(.main) { (result) in
             switch result {
             case .success(let value):
@@ -116,23 +116,23 @@ extension Task {
         }
     }
     
-    public func recover(upon executor: Executor, start startNextTask: @escaping(Error) -> Task<SuccessValue>) -> Task<SuccessValue> {
+    public func recover(upon executor: Executor, start startNextTask: @escaping(Error) -> Task<Success>) -> Task<Success> {
         
-        let future: Future<Task<SuccessValue>.Result> = andThen(upon: executor) { (result) -> Task<SuccessValue> in
+        let future: Future<Task<Success>.Result> = andThen(upon: executor) { (result) -> Task<Success> in
             do {
-                let value = try result.extract()
-                return Task<SuccessValue>(success: value)
+                let value = try result.get()
+                return Task<Success>(success: value)
             } catch let error {
                 return startNextTask(error)
             }
         }
         
-        return Task<SuccessValue>(future)
+        return Task<Success>(future)
     }
 }
 
-extension TaskResult {
-    public var value: Value? {
+extension Task.Result {
+    public var value: Success? {
         switch self {
         case .success(let value):
             return value
@@ -151,12 +151,12 @@ extension TaskResult {
     }
     
     /// Returns a new Result by mapping `Success`es’ values using `transform`, or re-wrapping `Failure`s’ errors.
-    public func map<OtherValue>(_ transform: (Value) -> OtherValue) -> Task<OtherValue>.Result {
+    public func map<OtherValue>(_ transform: (Success) -> OtherValue) -> Task<OtherValue>.Result {
         return flatMap { .success(transform($0)) }
     }
     
     /// Returns the result of applying `transform` to `Success`es’ values, or re-wrapping `Failure`’s errors.
-    public func flatMap<OtherValue>(_ transform: (Value) -> TaskResult<OtherValue>) -> Task<OtherValue>.Result {
+    public func flatMap<OtherValue>(_ transform: (Success) -> Task<OtherValue>.Result) -> Task<OtherValue>.Result {
         switch self {
         case .failure(let error):
             return .failure(error)
