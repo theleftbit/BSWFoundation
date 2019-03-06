@@ -354,7 +354,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-BSWFoundationDemo/Pods-BSWFoundationDemo-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-BSWFoundationDemo/Pods-BSWFoundationDemo-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BNRDeferred/Deferred.framework",
 				"${BUILT_PRODUCTS_DIR}/BSWFoundation/BSWFoundation.framework",
 				"${BUILT_PRODUCTS_DIR}/KeychainAccess/KeychainAccess.framework",
@@ -369,7 +369,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BSWFoundationDemo/Pods-BSWFoundationDemo-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BSWFoundationDemo/Pods-BSWFoundationDemo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		BA89423ACC29D04E6520595F /* [CP] Embed Pods Frameworks */ = {
@@ -380,7 +380,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-BSWFoundationDemo-Tests/Pods-BSWFoundationDemo-Tests-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-BSWFoundationDemo-Tests/Pods-BSWFoundationDemo-Tests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BNRDeferred/Deferred.framework",
 				"${BUILT_PRODUCTS_DIR}/BSWFoundation/BSWFoundation.framework",
 				"${BUILT_PRODUCTS_DIR}/KeychainAccess/KeychainAccess.framework",
@@ -395,7 +395,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-BSWFoundationDemo-Tests/Pods-BSWFoundationDemo-Tests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-BSWFoundationDemo-Tests/Pods-BSWFoundationDemo-Tests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		CC2CC67F3AC3F01B89B20CE5 /* [CP] Check Pods Manifest.lock */ = {
