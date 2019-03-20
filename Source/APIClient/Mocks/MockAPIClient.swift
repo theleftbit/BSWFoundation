@@ -7,6 +7,7 @@ import Deferred
 
 public class MockNetworkFetcher: APIClientNetworkFetcher {
     
+    public init() {}
     public var mockedData: Data!
     public var mockedStatusCode: Int = 200
     
