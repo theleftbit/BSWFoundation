@@ -23,6 +23,6 @@ Pod::Spec.new do |s|
 
   # ――― Dependencies ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   s.dependency "BNRDeferred", "4.0.0-rc.1"
-  s.dependency "KeychainAccess", "~> 3.1.0"
+  s.dependency "KeychainAccess", "~> 3.2.0"
 
 end
