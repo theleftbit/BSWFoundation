@@ -50,6 +50,8 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
             locationManager.requestLocation()
         case .notDetermined:
             locationManager.requestWhenInUseAuthorization()
+        @unknown default:
+            return Future(value: nil)
         }
         
         let deferredLocation = Deferred<CLLocation?>()

@@ -79,6 +79,8 @@ public enum JSONParser {
             case .dataCorrupted(let context):
                 print("*ERROR* Data Corrupted \"\(context)\"")
                 result = .failure(Error.malformedJSON)
+            @unknown default:
+                result = .failure(Error.unknownError)
             }
         } catch {
             result = .failure(Error.unknownError)

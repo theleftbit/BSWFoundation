@@ -1,7 +1,7 @@
 PODS:
-  - BNRDeferred (4.0.0-rc.1)
-  - BSWFoundation (2.2.1):
-    - BNRDeferred (= 4.0.0-rc.1)
+  - BNRDeferred (4.0.0)
+  - BSWFoundation (2.3.0):
+    - BNRDeferred (~> 4.0.0)
     - KeychainAccess (~> 3.2.0)
   - KeychainAccess (3.2.0)
 
@@ -18,10 +18,10 @@ EXTERNAL SOURCES:
     :path: "./BSWFoundation.podspec"
 
 SPEC CHECKSUMS:
-  BNRDeferred: a97c5d95ed385e20fd1f960c9a644ee20809e20e
-  BSWFoundation: c49f4bd2cc7e95ceb3c5f910228e1630b7ddfcd9
+  BNRDeferred: 2dd593c7452ca3aad1a8106c38c84866e02dbc15
+  BSWFoundation: 674d6e624325f936691cad0242626d7f8817427a
   KeychainAccess: 3b1bf8a77eb4c6ea1ce9404c292e48f948954c6b
 
-PODFILE CHECKSUM: d30fb2f53d1e68893987818930207b0d6b84beda
+PODFILE CHECKSUM: 690d921cd122eb804208c8e4bb238c96b53b4db2
 
 COCOAPODS: 1.6.1

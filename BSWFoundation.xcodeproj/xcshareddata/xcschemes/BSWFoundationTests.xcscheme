@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1000"
+   LastUpgradeVersion = "1020"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -32,7 +32,7 @@
       <CodeCoverageTargets>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D87BAB1A8BA53000582D1DA84FE8B63D"
+            BlueprintIdentifier = "C03B7F24BEB5DA26CA77E7AACF1C6F5A"
             BuildableName = "BSWFoundation.framework"
             BlueprintName = "BSWFoundation"
             ReferencedContainer = "container:Pods/Pods.xcodeproj">
