@@ -12,7 +12,7 @@ public protocol APIClientNetworkFetcher {
 }
 
 public protocol APIClientDelegate: class {
-    func apiClientDidReceiveUnauthorized(forRequest at: URL, apiClient: APIClient)
+    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<APIClient.Signature>?
 }
 
 open class APIClient {
@@ -38,11 +38,15 @@ open class APIClient {
     }
 
     public func perform<T: Decodable>(_ request: Request<T>) -> Task<T> {
-        return createURLRequest(endpoint: request.endpoint)
+        let task: Task<T> =
+            createURLRequest(endpoint: request.endpoint)
                 ≈> sendNetworkRequest
                 ≈> request.performUserValidator
                 ≈> validateResponse
                 ≈> parseResponse
+        return task.recover(upon: workerGCDQueue) { (error) -> Task<T> in
+            return self.attemptToRecoverFrom(error: error, request: request)
+        }
     }
 
     public func performSimpleRequest(forEndpoint endpoint: Endpoint) -> Task<APIClient.Response> {
@@ -126,11 +130,6 @@ private extension APIClient {
         case (200..<300):
             return Task(success: response.data)
         default:
-            if response.httpResponse.statusCode == 401, let url = response.httpResponse.url {
-                dispatchToMainQueueSyncIfPossible {
-                    self.delegate?.apiClientDidReceiveUnauthorized(forRequest: url, apiClient: self)
-                }
-            }
             let apiError = APIClient.Error.failureStatusCode(response.httpResponse.statusCode, response.data)
             return Task(failure: apiError)
         }
@@ -138,6 +137,18 @@ private extension APIClient {
 
     func parseResponse<T: Decodable>(data: Data) -> Task<T> {
         return JSONParser.parseData(data)
+    }
+
+    func attemptToRecoverFrom<T: Decodable>(error: Swift.Error, request: Request<T>) -> Task<T> {
+        guard error.is401, let newSignatureTask = self.delegate?.apiClientDidReceiveUnauthorized(forRequest: request.endpoint.path, apiClient: self) else {
+            return Task(failure: error)
+        }
+        newSignatureTask.uponSuccess(on: workerGCDQueue) {
+            self.addSignature($0)
+        }
+        return newSignatureTask.andThen(upon: workerGCDQueue) { _ in
+            return self.perform(request)
+        }
     }
 
     func createURLRequest(endpoint: Endpoint) -> Task<(URLRequest, URL?)> {
@@ -240,5 +251,17 @@ private func dispatchToMainQueueSyncIfPossible(_ handler: @escaping VoidHandler)
         DispatchQueue.main.sync {
             handler()
         }
+    }
+}
+
+private extension Swift.Error {
+    var is401: Bool {
+        guard
+            let apiClientError = self as? APIClient.Error,
+            case .failureStatusCode(let statusCode, _) = apiClientError,
+            statusCode == 401 else {
+                return false
+        }
+        return true
     }
 }
