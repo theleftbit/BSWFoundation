@@ -91,15 +91,16 @@ class APIClientTests: XCTestCase {
         }
     }
     
-    func _testUnauthorizedCallsRightMethod() {
+    func testUnauthorizedCallsRightMethod() throws {
         let mockDelegate = MockAPIClientDelegate()
-        sut = APIClient.init(environment: HTTPBin.Hosts.production, signature: nil, networkFetcher: MockNetworkFetcher())
+        sut = APIClient(environment: HTTPBin.Hosts.production, signature: nil, networkFetcher: Network401Fetcher())
         sut.delegate = mockDelegate
         
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
-        let _ = sut.perform(ipRequest)
+        // We don't care about the error here
+        let _ = try? waitAndExtractValue(sut.perform(ipRequest))
         XCTAssert(mockDelegate.failedURL != nil)
     }
 }
@@ -113,10 +114,10 @@ private class MockAPIClientDelegate: APIClientDelegate {
     }
 }
 
-private class MockNetworkFetcher: APIClientNetworkFetcher {
+private class Network401Fetcher: APIClientNetworkFetcher {
     
     func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response> {
-            return Task(success: APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: URL(string: "apple.com")!, statusCode: 401, httpVersion: nil, headerFields: nil)!))
+        return Task(success: APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: URL(string: "apple.com")!, statusCode: 401, httpVersion: nil, headerFields: nil)!))
     }
     
     func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {
