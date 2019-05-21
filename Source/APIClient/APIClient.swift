@@ -242,18 +242,6 @@ private extension Request {
 public typealias HTTPHeaders = [String: String]
 public struct VoidResponse: Decodable {}
 
-private func dispatchToMainQueueSyncIfPossible(_ handler: @escaping VoidHandler) {
-    if Thread.current.isMainThread {
-        DispatchQueue.main.async {
-            handler()
-        }
-    } else {
-        DispatchQueue.main.sync {
-            handler()
-        }
-    }
-}
-
 private extension Swift.Error {
     var is401: Bool {
         guard
