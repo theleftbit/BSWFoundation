@@ -123,7 +123,7 @@ class APIClientTests: XCTestCase {
 import Deferred
 
 private class MockAPIClientDelegate: APIClientDelegate {
-    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<APIClient.Signature>? {
+    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>? {
         failedPath = atPath
         return nil
     }
@@ -143,8 +143,9 @@ private class Network401Fetcher: APIClientNetworkFetcher {
 }
 
 private class MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
-    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<APIClient.Signature>? {
-        return Task(success: APIClient.Signature(name: "JWT", value: "Daenerys Targaryen is the True Queen"))
+    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>? {
+        apiClient.addSignature(APIClient.Signature(name: "JWT", value: "Daenerys Targaryen is the True Queen"))
+        return Task(success: ())
     }
 }
 

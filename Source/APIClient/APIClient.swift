@@ -12,7 +12,7 @@ public protocol APIClientNetworkFetcher {
 }
 
 public protocol APIClientDelegate: class {
-    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<APIClient.Signature>?
+    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>?
 }
 
 open class APIClient {
@@ -167,9 +167,6 @@ private extension APIClient {
     func attemptToRecoverFrom<T: Decodable>(error: Swift.Error, request: Request<T>) -> Task<T> {
         guard (error.is401 || error.is403), let newSignatureTask = self.delegate?.apiClientDidReceiveUnauthorized(forRequest: request.endpoint.path, apiClient: self) else {
             return Task(failure: error)
-        }
-        newSignatureTask.uponSuccess(on: workerGCDQueue) {
-            self.addSignature($0)
         }
         return newSignatureTask.andThen(upon: workerGCDQueue) { _ in
             return self.perform(request)
