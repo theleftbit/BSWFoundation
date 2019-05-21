@@ -165,7 +165,7 @@ private extension APIClient {
     }
 
     func attemptToRecoverFrom<T: Decodable>(error: Swift.Error, request: Request<T>) -> Task<T> {
-        guard error.is401, let newSignatureTask = self.delegate?.apiClientDidReceiveUnauthorized(forRequest: request.endpoint.path, apiClient: self) else {
+        guard (error.is401 || error.is403), let newSignatureTask = self.delegate?.apiClientDidReceiveUnauthorized(forRequest: request.endpoint.path, apiClient: self) else {
             return Task(failure: error)
         }
         newSignatureTask.uponSuccess(on: workerGCDQueue) {
@@ -273,6 +273,16 @@ private extension Swift.Error {
             let apiClientError = self as? APIClient.Error,
             case .failureStatusCode(let statusCode, _) = apiClientError,
             statusCode == 401 else {
+                return false
+        }
+        return true
+    }
+
+    var is403: Bool {
+        guard
+            let apiClientError = self as? APIClient.Error,
+            case .failureStatusCode(let statusCode, _) = apiClientError,
+            statusCode == 403 else {
                 return false
         }
         return true
