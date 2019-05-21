@@ -84,31 +84,6 @@ extension APIClient {
         case failureStatusCode(Int, Data?)
         case requestCanceled
         case unknownError
-        
-        public var localizedDescription: String {
-            switch self {
-            case .serverError:
-                return "APIClient.Error.serverError"
-            case .malformedURL:
-                return "APIClient.Error.malformedURL"
-            case .malformedParameters:
-                return "APIClient.Error.malformedParameters"
-            case .malformedResponse:
-                return "APIClient.Error.malformedResponse"
-            case .encodingRequestFailed:
-                return "APIClient.Error.encodingRequestFailed"
-            case .multipartEncodingFailed(let reason):
-                return "APIClient.Error.multipartEncodingFailed \(reason)"
-            case .malformedJSONResponse(let error):
-                return "APIClient.Error.malformedJSONResponse \(error)"
-            case .failureStatusCode(let code, _):
-                return "APIClient.Error.failureStatusCode \(code)"
-            case .requestCanceled:
-                return "APIClient.Error.requestCanceled"
-            case .unknownError:
-                return "APIClient.Error.unknownError"
-            }
-        }
     }
 
     public struct Signature {
