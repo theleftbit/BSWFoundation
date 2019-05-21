@@ -21,7 +21,6 @@ open class APIClient {
     public weak var delegate: APIClientDelegate?
     private var router: Router
     private let workerQueue: OperationQueue
-    private let workerGCDQueue = DispatchQueue(label: "\(ModuleName).APIClient", qos: .userInitiated)
     private let networkFetcher: APIClientNetworkFetcher
 
     public static func backgroundClient(environment: Environment, signature: Signature? = nil) -> APIClient {
@@ -30,8 +29,7 @@ open class APIClient {
     }
 
     public init(environment: Environment, signature: Signature? = nil, networkFetcher: APIClientNetworkFetcher? = nil) {
-        let queue = queueForSubmodule("APIClient")
-        queue.underlyingQueue = workerGCDQueue
+        let queue = queueForSubmodule("APIClient", qualityOfService: .userInitiated)
         self.router = Router(environment: environment, signature: signature)
         self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: nil, delegateQueue: queue)
         self.workerQueue = queue
@@ -44,7 +42,7 @@ open class APIClient {
                 ≈> request.performUserValidator
                 ≈> validateResponse
                 ≈> parseResponse
-        return task.recover(upon: delegateQueue) { (error) -> Task<T> in
+        return task.fallback(upon: delegateQueue) { (error) in
             return self.attemptToRecoverFrom(error: error, request: request)
         }
     }
@@ -137,11 +135,11 @@ extension APIClient {
 // MARK: Private
 
 private extension APIClient {
-
+    
     func sendNetworkRequest(request: URLRequest, fileURL: URL?) -> Task<APIClient.Response> {
         if let fileURL = fileURL {
             let task = self.networkFetcher.uploadFile(with: request, fileURL: fileURL)
-            task.upon(.any()) { (_) in
+            task.upon(self.workerQueue) { (_) in
                 self.deleteFileAtPath(fileURL: fileURL)
             }
             return task
@@ -175,14 +173,14 @@ private extension APIClient {
             shouldRetryIfUnauthorized: false,
             validator: request.validator
         )
-        return newSignatureTask.andThen(upon: workerGCDQueue) { _ in
+        return newSignatureTask.andThen(upon: workerQueue) { _ in
             return self.perform(mutatedRequest)
         }
     }
 
     func createURLRequest(endpoint: Endpoint) -> Task<(URLRequest, URL?)> {
         let deferred = Deferred<Task<(URLRequest, URL?)>.Result>()
-        let workItem = DispatchWorkItem {
+        let operation = BlockOperation {
             do {
                 let request = try self.router.urlRequest(forEndpoint: endpoint)
                 deferred.fill(with: .success(request))
@@ -190,9 +188,9 @@ private extension APIClient {
                 deferred.fill(with: .failure(error))
             }
         }
-        workerGCDQueue.async(execute: workItem)
-        return Task(deferred, uponCancel: { [weak workItem] in
-            workItem?.cancel()
+        workerQueue.addOperation(operation)
+        return Task(deferred, uponCancel: { [weak operation] in
+            operation?.cancel()
         })
     }
 

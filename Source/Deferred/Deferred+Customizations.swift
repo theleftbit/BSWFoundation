@@ -115,20 +115,6 @@ extension Task {
             }
         }
     }
-    
-    public func recover(upon executor: Executor, start startNextTask: @escaping(Error) -> Task<Success>) -> Task<Success> {
-        
-        let future: Future<Task<Success>.Result> = andThen(upon: executor) { (result) -> Task<Success> in
-            do {
-                let value = try result.get()
-                return Task<Success>(success: value)
-            } catch let error {
-                return startNextTask(error)
-            }
-        }
-        
-        return Task<Success>(future)
-    }
 }
 
 extension Task.Result {
