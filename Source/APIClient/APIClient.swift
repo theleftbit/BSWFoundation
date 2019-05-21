@@ -44,7 +44,7 @@ open class APIClient {
                 ≈> request.performUserValidator
                 ≈> validateResponse
                 ≈> parseResponse
-        return task.recover(upon: workerGCDQueue) { (error) -> Task<T> in
+        return task.recover(upon: delegateQueue) { (error) -> Task<T> in
             return self.attemptToRecoverFrom(error: error, request: request)
         }
     }
