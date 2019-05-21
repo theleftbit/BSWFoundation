@@ -125,13 +125,13 @@ private extension APIClient {
         }
     }
 
-    func validateResponse(response: Response) -> Task<Data> {
+    func validateResponse(response: Response) -> Task<Data>.Result {
         switch response.httpResponse.statusCode {
         case (200..<300):
-            return Task(success: response.data)
+            return .success(response.data)
         default:
             let apiError = APIClient.Error.failureStatusCode(response.httpResponse.statusCode, response.data)
-            return Task(failure: apiError)
+            return .failure(apiError)
         }
     }
 
@@ -232,10 +232,10 @@ extension URLSession: APIClientNetworkFetcher {
 
 private extension Request {
     func performUserValidator(onResponse response: APIClient.Response) -> Task<APIClient.Response> {
-        return Task.async(onCancel: APIClient.Error.requestCanceled, execute: { () in
+        return Task.async(upon: .main, onCancel: APIClient.Error.requestCanceled) { () in
             try self.validator(response)
             return response
-        })
+        }
     }
 }
 
