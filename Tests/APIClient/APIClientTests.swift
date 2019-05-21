@@ -116,7 +116,30 @@ class APIClientTests: XCTestCase {
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
-        let _ = try waitAndExtractValue(sut.perform(ipRequest))
+        
+        var catchedError: Swift.Error?
+        let task = sut.perform(ipRequest)
+        let exp = self.expectation(description: "Extract from Future")
+        task.upon(.main) { (result) in
+            switch result {
+            case .failure(let error):
+                catchedError = error
+            case .success:
+                break
+            }
+            exp.fulfill()
+        }
+        self.waitForExpectations(timeout: 10) { (timeoutError) in
+            if let timeoutError = timeoutError {
+                catchedError = timeoutError
+            }
+        }
+
+        guard catchedError == nil else {
+            print(catchedError!.localizedDescription)
+            XCTFail()
+            return
+        }
     }
 }
 
