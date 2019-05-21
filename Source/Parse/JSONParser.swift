@@ -8,16 +8,19 @@ import Deferred
 
 public enum JSONParser {
     
-    private static let queue = queueForSubmodule("JSONParser")
+    private static let queue = queueForSubmodule("JSONParser", qualityOfService: .userInitiated)
     public static let jsonDecoder = JSONDecoder()
     public static let Options: JSONSerialization.ReadingOptions = [.allowFragments]
 
     public static func parseData<T: Decodable>(_ data: Data) -> Task<T> {
         let deferred = Deferred<Task<T>.Result>()
-        queue.addOperation {
+        let operation = BlockOperation {
             deferred.fill(with: parseData(data))
         }
-        return Task(Future(deferred))
+        queue.addOperation(operation)
+        return Task(Future(deferred), uponCancel: { [weak operation] in
+            operation?.cancel()
+        })
     }
 
     public static func dataIsNull(_ data: Data) -> Bool {

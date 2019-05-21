@@ -7,7 +7,11 @@ import BSWFoundation
 
 class APIClientTests: XCTestCase {
 
-    var sut = APIClient(environment: HTTPBin.Hosts.production)
+    var sut: APIClient!
+
+    override func setUp() {
+        sut = APIClient(environment: HTTPBin.Hosts.production)
+    }
 
     func testGET() throws {
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
@@ -61,7 +65,7 @@ class APIClientTests: XCTestCase {
         )
 
         let uploadTask = sut.perform(uploadRequest)
-        var progress: ProgressObserver! = ProgressObserver.init(progress: uploadTask.progress) { (progress) in
+        var progress: ProgressObserver! = ProgressObserver(progress: uploadTask.progress) { (progress) in
             print(progress.fractionCompleted)
         }
         let _ = try self.waitAndExtractValue(uploadTask, timeout: 10)
@@ -91,32 +95,72 @@ class APIClientTests: XCTestCase {
         }
     }
     
-    func _testUnauthorizedCallsRightMethod() {
+    func testUnauthorizedCallsRightMethod() throws {
         let mockDelegate = MockAPIClientDelegate()
-        sut = APIClient.init(environment: HTTPBin.Hosts.production, signature: nil, networkFetcher: MockNetworkFetcher())
+        sut = APIClient(environment: HTTPBin.Hosts.production, signature: nil, networkFetcher: Network401Fetcher())
         sut.delegate = mockDelegate
         
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
-        let _ = sut.perform(ipRequest)
-        XCTAssert(mockDelegate.failedURL != nil)
+        // We don't care about the error here
+        let _ = try? waitAndExtractValue(sut.perform(ipRequest))
+        XCTAssert(mockDelegate.failedPath != nil)
+    }
+
+    func testUnauthorizedRetriesAfterGeneratingNewCredentials() throws {
+        
+        class MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
+            func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>? {
+                apiClient.addSignature(APIClient.Signature(
+                    name: "JWT",
+                    value: "Daenerys Targaryen is the True Queen")
+                )
+                return Task(success: ())
+            }
+        }
+        
+        class SignatureCheckingNetworkFetcher: APIClientNetworkFetcher {
+            
+            func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response> {
+                guard let _ = urlRequest.allHTTPHeaderFields?["JWT"] else {
+                    return Task(success: APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!))
+                }
+                
+                return URLSession.shared.fetchData(with: urlRequest)
+            }
+            
+            func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {
+                fatalError()
+            }
+        }
+        
+        sut = APIClient(environment: HTTPBin.Hosts.production, signature: nil, networkFetcher: SignatureCheckingNetworkFetcher())
+        let mockDelegate = MockAPIClientDelegateThatGeneratesNewSignature()
+        sut.delegate = mockDelegate
+
+        let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
+            endpoint: HTTPBin.API.ip
+        )
+        let _ = try waitAndExtractValue(sut.perform(ipRequest))
     }
 }
 
 import Deferred
 
 private class MockAPIClientDelegate: APIClientDelegate {
-    var failedURL: URL?
-    func apiClientDidReceiveUnauthorized(forRequest at: URL, apiClient: APIClient) {
-        failedURL = at
+    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>? {
+        failedPath = atPath
+        return nil
     }
+    
+    var failedPath: String?
 }
 
-private class MockNetworkFetcher: APIClientNetworkFetcher {
+private class Network401Fetcher: APIClientNetworkFetcher {
     
     func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response> {
-            return Task(success: APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: URL(string: "apple.com")!, statusCode: 401, httpVersion: nil, headerFields: nil)!))
+        return Task(success: APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!))
     }
     
     func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {

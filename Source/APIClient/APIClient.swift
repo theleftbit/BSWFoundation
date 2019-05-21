@@ -12,7 +12,7 @@ public protocol APIClientNetworkFetcher {
 }
 
 public protocol APIClientDelegate: class {
-    func apiClientDidReceiveUnauthorized(forRequest at: URL, apiClient: APIClient)
+    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>?
 }
 
 open class APIClient {
@@ -21,7 +21,6 @@ open class APIClient {
     public weak var delegate: APIClientDelegate?
     private var router: Router
     private let workerQueue: OperationQueue
-    private let workerGCDQueue = DispatchQueue(label: "\(ModuleName).APIClient", qos: .userInitiated)
     private let networkFetcher: APIClientNetworkFetcher
 
     public static func backgroundClient(environment: Environment, signature: Signature? = nil) -> APIClient {
@@ -30,19 +29,22 @@ open class APIClient {
     }
 
     public init(environment: Environment, signature: Signature? = nil, networkFetcher: APIClientNetworkFetcher? = nil) {
-        let queue = queueForSubmodule("APIClient")
-        queue.underlyingQueue = workerGCDQueue
+        let queue = queueForSubmodule("APIClient", qualityOfService: .userInitiated)
         self.router = Router(environment: environment, signature: signature)
         self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: nil, delegateQueue: queue)
         self.workerQueue = queue
     }
 
     public func perform<T: Decodable>(_ request: Request<T>) -> Task<T> {
-        return createURLRequest(endpoint: request.endpoint)
+        let task: Task<T> =
+            createURLRequest(endpoint: request.endpoint)
                 ≈> sendNetworkRequest
                 ≈> request.performUserValidator
                 ≈> validateResponse
                 ≈> parseResponse
+        return task.fallback(upon: delegateQueue) { (error) in
+            return self.attemptToRecoverFrom(error: error, request: request)
+        }
     }
 
     public func performSimpleRequest(forEndpoint endpoint: Endpoint) -> Task<APIClient.Response> {
@@ -82,6 +84,31 @@ extension APIClient {
         case failureStatusCode(Int, Data?)
         case requestCanceled
         case unknownError
+        
+        public var localizedDescription: String {
+            switch self {
+            case .serverError:
+                return "APIClient.Error.serverError"
+            case .malformedURL:
+                return "APIClient.Error.malformedURL"
+            case .malformedParameters:
+                return "APIClient.Error.malformedParameters"
+            case .malformedResponse:
+                return "APIClient.Error.malformedResponse"
+            case .encodingRequestFailed:
+                return "APIClient.Error.encodingRequestFailed"
+            case .multipartEncodingFailed(let reason):
+                return "APIClient.Error.multipartEncodingFailed \(reason)"
+            case .malformedJSONResponse(let error):
+                return "APIClient.Error.malformedJSONResponse \(error)"
+            case .failureStatusCode(let code, _):
+                return "APIClient.Error.failureStatusCode \(code)"
+            case .requestCanceled:
+                return "APIClient.Error.requestCanceled"
+            case .unknownError:
+                return "APIClient.Error.unknownError"
+            }
+        }
     }
 
     public struct Signature {
@@ -108,11 +135,11 @@ extension APIClient {
 // MARK: Private
 
 private extension APIClient {
-
+    
     func sendNetworkRequest(request: URLRequest, fileURL: URL?) -> Task<APIClient.Response> {
         if let fileURL = fileURL {
             let task = self.networkFetcher.uploadFile(with: request, fileURL: fileURL)
-            task.upon(.any()) { (_) in
+            task.upon(self.workerQueue) { (_) in
                 self.deleteFileAtPath(fileURL: fileURL)
             }
             return task
@@ -121,18 +148,13 @@ private extension APIClient {
         }
     }
 
-    func validateResponse(response: Response) -> Task<Data> {
+    func validateResponse(response: Response) -> Task<Data>.Result {
         switch response.httpResponse.statusCode {
         case (200..<300):
-            return Task(success: response.data)
+            return .success(response.data)
         default:
-            if response.httpResponse.statusCode == 401, let url = response.httpResponse.url {
-                dispatchToMainQueueSyncIfPossible {
-                    self.delegate?.apiClientDidReceiveUnauthorized(forRequest: url, apiClient: self)
-                }
-            }
             let apiError = APIClient.Error.failureStatusCode(response.httpResponse.statusCode, response.data)
-            return Task(failure: apiError)
+            return .failure(apiError)
         }
     }
 
@@ -140,9 +162,25 @@ private extension APIClient {
         return JSONParser.parseData(data)
     }
 
+    func attemptToRecoverFrom<T: Decodable>(error: Swift.Error, request: Request<T>) -> Task<T> {
+        guard error.is401,
+            request.shouldRetryIfUnauthorized,
+            let newSignatureTask = self.delegate?.apiClientDidReceiveUnauthorized(forRequest: request.endpoint.path, apiClient: self) else {
+            return Task(failure: error)
+        }
+        let mutatedRequest = Request<T>(
+            endpoint: request.endpoint,
+            shouldRetryIfUnauthorized: false,
+            validator: request.validator
+        )
+        return newSignatureTask.andThen(upon: workerQueue) { _ in
+            return self.perform(mutatedRequest)
+        }
+    }
+
     func createURLRequest(endpoint: Endpoint) -> Task<(URLRequest, URL?)> {
         let deferred = Deferred<Task<(URLRequest, URL?)>.Result>()
-        let workItem = DispatchWorkItem {
+        let operation = BlockOperation {
             do {
                 let request = try self.router.urlRequest(forEndpoint: endpoint)
                 deferred.fill(with: .success(request))
@@ -150,9 +188,9 @@ private extension APIClient {
                 deferred.fill(with: .failure(error))
             }
         }
-        workerGCDQueue.async(execute: workItem)
-        return Task(deferred, uponCancel: { [weak workItem] in
-            workItem?.cancel()
+        workerQueue.addOperation(operation)
+        return Task(deferred, uponCancel: { [weak operation] in
+            operation?.cancel()
         })
     }
 
@@ -221,24 +259,24 @@ extension URLSession: APIClientNetworkFetcher {
 
 private extension Request {
     func performUserValidator(onResponse response: APIClient.Response) -> Task<APIClient.Response> {
-        return Task.async(onCancel: APIClient.Error.requestCanceled, execute: { () in
+        return Task.async(upon: .main, onCancel: APIClient.Error.requestCanceled) { () in
             try self.validator(response)
             return response
-        })
+        }
     }
 }
 
 public typealias HTTPHeaders = [String: String]
 public struct VoidResponse: Decodable {}
 
-private func dispatchToMainQueueSyncIfPossible(_ handler: @escaping VoidHandler) {
-    if Thread.current.isMainThread {
-        DispatchQueue.main.async {
-            handler()
+private extension Swift.Error {
+    var is401: Bool {
+        guard
+            let apiClientError = self as? APIClient.Error,
+            case .failureStatusCode(let statusCode, _) = apiClientError,
+            statusCode == 401 else {
+                return false
         }
-    } else {
-        DispatchQueue.main.sync {
-            handler()
-        }
+        return true
     }
 }

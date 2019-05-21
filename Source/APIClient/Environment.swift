@@ -10,10 +10,12 @@ public struct Request<ResponseType>{
     public typealias Validator = (APIClient.Response) throws -> ()
 
     public let endpoint: Endpoint
+    public let shouldRetryIfUnauthorized: Bool
     public let validator: Validator
-    public init(endpoint: Endpoint, validator: @escaping Validator = { _ in }) {
+    public init(endpoint: Endpoint, shouldRetryIfUnauthorized: Bool = true, validator: @escaping Validator = { _ in }) {
         self.endpoint = endpoint
         self.validator = validator
+        self.shouldRetryIfUnauthorized = shouldRetryIfUnauthorized
     }
 }
 
