@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name         = "BSWFoundation"
-  s.version      = "2.3.0"
+  s.version      = "2.4.0"
   s.summary      = "This framework creates the infrastructure that it's used throughout TheLeftBit's projects."
   s.homepage     = "https://github.com/TheLeftBit/BSWFoundation"
   s.license      = "MIT"
