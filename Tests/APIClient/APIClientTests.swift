@@ -65,7 +65,7 @@ class APIClientTests: XCTestCase {
         )
 
         let uploadTask = sut.perform(uploadRequest)
-        var progress: ProgressObserver! = ProgressObserver.init(progress: uploadTask.progress) { (progress) in
+        var progress: ProgressObserver! = ProgressObserver(progress: uploadTask.progress) { (progress) in
             print(progress.fractionCompleted)
         }
         let _ = try self.waitAndExtractValue(uploadTask, timeout: 10)
@@ -109,6 +109,32 @@ class APIClientTests: XCTestCase {
     }
 
     func testUnauthorizedRetriesAfterGeneratingNewCredentials() throws {
+        
+        class MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
+            func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>? {
+                apiClient.addSignature(APIClient.Signature(
+                    name: "JWT",
+                    value: "Daenerys Targaryen is the True Queen")
+                )
+                return Task(success: ())
+            }
+        }
+        
+        class SignatureCheckingNetworkFetcher: APIClientNetworkFetcher {
+            
+            func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response> {
+                guard let _ = urlRequest.allHTTPHeaderFields?["JWT"] else {
+                    return Task(success: APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!))
+                }
+                
+                return URLSession.shared.fetchData(with: urlRequest)
+            }
+            
+            func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {
+                fatalError()
+            }
+        }
+        
         sut = APIClient(environment: HTTPBin.Hosts.production, signature: nil, networkFetcher: SignatureCheckingNetworkFetcher())
         let mockDelegate = MockAPIClientDelegateThatGeneratesNewSignature()
         sut.delegate = mockDelegate
@@ -137,28 +163,6 @@ private class Network401Fetcher: APIClientNetworkFetcher {
         return Task(success: APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!))
     }
     
-    func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {
-        fatalError()
-    }
-}
-
-private class MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
-    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>? {
-        apiClient.addSignature(APIClient.Signature(name: "JWT", value: "Daenerys Targaryen is the True Queen"))
-        return Task(success: ())
-    }
-}
-
-private class SignatureCheckingNetworkFetcher: APIClientNetworkFetcher {
-    
-    func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response> {
-        guard let _ = urlRequest.allHTTPHeaderFields?["JWT"] else {
-            return Task(success: APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!))
-        }
-        
-        return URLSession.shared.fetchData(with: urlRequest)
-    }
-
     func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {
         fatalError()
     }

@@ -165,11 +165,18 @@ private extension APIClient {
     }
 
     func attemptToRecoverFrom<T: Decodable>(error: Swift.Error, request: Request<T>) -> Task<T> {
-        guard (error.is401 || error.is403), let newSignatureTask = self.delegate?.apiClientDidReceiveUnauthorized(forRequest: request.endpoint.path, apiClient: self) else {
+        guard (error.is401 || error.is403),
+            request.shouldRetryIfUnauthorized,
+            let newSignatureTask = self.delegate?.apiClientDidReceiveUnauthorized(forRequest: request.endpoint.path, apiClient: self) else {
             return Task(failure: error)
         }
+        let mutatedRequest = Request<T>(
+            endpoint: request.endpoint,
+            shouldRetryIfUnauthorized: false,
+            validator: request.validator
+        )
         return newSignatureTask.andThen(upon: workerGCDQueue) { _ in
-            return self.perform(request)
+            return self.perform(mutatedRequest)
         }
     }
 
