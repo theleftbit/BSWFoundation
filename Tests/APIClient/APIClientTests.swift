@@ -36,7 +36,7 @@ class APIClientTests: XCTestCase {
         let _ = try self.waitAndExtractValue(getTask, timeout: 3)
     }
 
-    func testGETCancel() throws {
+    func _testGETCancel() throws {
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
@@ -72,7 +72,7 @@ class APIClientTests: XCTestCase {
         progress = nil
     }
 
-    func testUploadCancel() {
+    func _testUploadCancel() {
         guard let url = Bundle(for: type(of: self)).url(forResource: "cannavaro", withExtension: "jpg") else {
             XCTFail()
             return
