@@ -50,7 +50,7 @@ public class AuthStorage {
         return keychain[Keys.UserID]
     }
 
-    public func setUserID(_ userID: String) {
+    public func setUserID(_ userID: String?) {
         keychain[Keys.UserID] = userID
     }
 
@@ -58,7 +58,7 @@ public class AuthStorage {
         return keychain[Keys.AuthToken]
     }
 
-    public func setAuthToken(_ token: String) {
+    public func setAuthToken(_ token: String?) {
         keychain[Keys.AuthToken] = token
     }
 
@@ -66,7 +66,7 @@ public class AuthStorage {
         return keychain[Keys.RefreshToken]
     }
     
-    public func setRefreshToken(_ refreshToken: String) {
+    public func setRefreshToken(_ refreshToken: String?) {
         keychain[Keys.RefreshToken] = refreshToken
     }
 
