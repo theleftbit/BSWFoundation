@@ -78,6 +78,13 @@ public class AuthStorage {
     }
 }
 
+public extension AuthStorage {
+    static func extractBodyFromJWT(_ jwtString: String) -> [String: Any]? {
+        guard let jwt = try? DecodedJWT(jwt: jwtString) else { return nil }
+        return jwt.body
+    }
+}
+
 private struct Keys {
     static let JWT = "JWT"
     static let AuthToken = "AuthToken"
