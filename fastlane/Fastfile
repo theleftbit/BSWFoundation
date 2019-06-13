@@ -1,18 +1,13 @@
 default_platform(:ios)
 
 before_all do |lane, options|
-  cocoapods(try_repo_update_on_error: true)
   setup_jenkins(derived_data_path: "./derivedData")
 end
 
 platform :ios do
   desc "Execute unit tests"
   lane :unit_tests do
-    run_tests(
-      workspace: "BSWFoundation.xcworkspace", 
-      scheme: "BSWFoundationTests",
-      devices: ["iPhone X"],
-      )
+    spm(command: "test")
   end
 end
 
