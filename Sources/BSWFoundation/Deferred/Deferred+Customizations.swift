@@ -153,3 +153,31 @@ extension Task.Result {
         }
     }    
 }
+
+import Combine
+
+@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+public extension Task {
+    var publisher: AnyPublisher<Success, Error> {
+        return Publishers.Future { (promise) in
+            self.upon(DispatchQueue.any()) { (result) in
+                switch result {
+                case .success(let value):
+                    promise(.success(value))
+                case .failure(let error):
+                    promise(.failure(error))
+                }
+            }
+        }.eraseToAnyPublisher()
+    }
+}
+public extension Task.Result {
+    var swiftResult: Swift.Result<Success, Error> {
+        switch self {
+        case .failure(let error):
+            return .failure(error)
+        case .success(let value):
+            return .success(value)
+        }
+    }
+}

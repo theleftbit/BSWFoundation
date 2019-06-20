@@ -4,15 +4,14 @@
 //
 
 import Foundation
-import Task
-import Deferred
+import Task; import Deferred
 
 public enum JSONParser {
     
     private static let queue = queueForSubmodule("JSONParser", qualityOfService: .userInitiated)
     public static let jsonDecoder = JSONDecoder()
     public static let Options: JSONSerialization.ReadingOptions = [.allowFragments]
-
+    
     public static func parseData<T: Decodable>(_ data: Data) -> Task<T> {
         let deferred = Deferred<Task<T>.Result>()
         let operation = BlockOperation {
@@ -99,6 +98,21 @@ public enum JSONParser {
         case malformedJSON
         case malformedSchema
         case unknownError
+    }
+}
+
+import Combine
+
+@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+public extension JSONParser {
+    
+    static func parseData<T: Decodable>(_ data: Data) -> AnyPublisher<T, Swift.Error> {
+        let task: Task<T> = self.parseData(data)
+        return task.publisher
+    }
+
+    static func parseData<T: Decodable>(_ data: Data) -> Swift.Result<T, Swift.Error> {
+        return parseData(data).swiftResult
     }
 }
 
