@@ -4,77 +4,54 @@
 //
 
 import Foundation
-import KeychainAccess
 
 public class AuthStorage {
 
-    public static let defaultStorage = AuthStorage()
-    fileprivate let keychain = Keychain(service: Bundle.main.bundleIdentifier!)
-    fileprivate var jwt: JWT? {
+    private var jwt: JWT? {
         get {
-            guard let jwtString = keychain[Keys.JWT] else { return nil}
+            guard let jwtString = jwtToken else { return nil}
             return try? decode(jwt: jwtString)
         }
     }
 
-    fileprivate let userDefaults = UserDefaults.standard
+    @UserDefaultsBacked(key: Keys.HasAppBeenExecuted, defaultValue: false)
+    private var appBeenExecuted: Bool!
 
-    init() {
-        guard !userDefaults.bool(forKey: Keys.HasAppBeenExecuted) else {
+    private init() {
+        guard !(appBeenExecuted) else {
             return
         }
 
         // Clear the keychain on app's first launch, so the user
         // has to log-in again after an app delete
         clearKeychain()
-        userDefaults.set(true, forKey: Keys.HasAppBeenExecuted)
-        userDefaults.synchronize()
+        appBeenExecuted = true
     }
 
-    public func jwtToken() -> String? {
-        let token = keychain[Keys.JWT]
-        return token
-    }
+    public static let defaultStorage = AuthStorage()
 
-    public func setJTWToken(_ authToken: String) throws {
-        _ = try decode(jwt: authToken)
-        keychain[Keys.JWT] = authToken
-    }
-
+    @KeychainBacked(key: Keys.JWT)
+    public var jwtToken: String?
+    
+    @KeychainBacked(key: Keys.UserID)
+    public var userID: String?
+    
+    @KeychainBacked(key: Keys.AuthToken)
+    public var authToken: String?
+    
+    @KeychainBacked(key: Keys.RefreshToken)
+    public var refreshToken: String?
+    
     public var tokenIsExpired: Bool {
         guard let jwt = self.jwt else { return false }
         return jwt.expired
     }
-
-    public func userID() -> String? {
-        return keychain[Keys.UserID]
-    }
-
-    public func setUserID(_ userID: String?) {
-        keychain[Keys.UserID] = userID
-    }
-
-    public func authToken() -> String? {
-        return keychain[Keys.AuthToken]
-    }
-
-    public func setAuthToken(_ token: String?) {
-        keychain[Keys.AuthToken] = token
-    }
-
-    public func refreshToken() -> String? {
-        return keychain[Keys.RefreshToken]
-    }
     
-    public func setRefreshToken(_ refreshToken: String?) {
-        keychain[Keys.RefreshToken] = refreshToken
-    }
-
     public func clearKeychain() {
-        keychain[Keys.JWT] = nil
-        keychain[Keys.AuthToken] = nil
-        keychain[Keys.UserID] = nil
-        keychain[Keys.RefreshToken] = nil
+        self.jwtToken = nil
+        self.authToken = nil
+        self.userID = nil
+        self.refreshToken = nil
     }
 }
 

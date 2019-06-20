@@ -7,14 +7,19 @@ import Foundation
 @propertyDelegate
 public class UserDefaultsBacked<T> {
     private let key: String
-    
-    public init(key: String) {
+    private let defaultValue: T?
+
+    public init(key: String, defaultValue: T? = nil) {
         self.key = key
+        self.defaultValue = defaultValue
     }
     
     public var value: T? {
         get {
-            return UserDefaults.standard.object(forKey: key) as? T
+            guard let value = UserDefaults.standard.object(forKey: key) as? T else {
+                return defaultValue
+            }
+            return value
         } set {
             UserDefaults.standard.set(newValue, forKey: key)
             UserDefaults.standard.synchronize()
