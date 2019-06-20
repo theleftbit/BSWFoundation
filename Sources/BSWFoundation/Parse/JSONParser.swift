@@ -106,9 +106,9 @@ import Combine
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension JSONParser {
     
-    static func parseData<T: Decodable>(_ data: Data) -> AnyPublisher<T, Swift.Error> {
+    static func parseData<T: Decodable>(_ data: Data) -> CombineTask<T> {
         let task: Task<T> = self.parseData(data)
-        return task.publisher
+        return task.future
     }
 
     static func parseData<T: Decodable>(_ data: Data) -> Swift.Result<T, Swift.Error> {

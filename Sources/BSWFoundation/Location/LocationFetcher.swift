@@ -5,8 +5,7 @@
 
 import Foundation
 import CoreLocation
-import Task
-import Deferred
+import Task; import Deferred
 
 #if os(iOS)
 

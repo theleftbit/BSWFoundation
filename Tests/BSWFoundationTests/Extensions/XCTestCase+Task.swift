@@ -6,6 +6,7 @@
 import XCTest
 import Task
 import Combine
+import BSWFoundation
 
 extension XCTestCase {
     func waitAndExtractValue<T>(_ task: Task<T>, timeout: TimeInterval = 1) throws -> T {
@@ -34,7 +35,7 @@ extension XCTestCase {
     }
     
     @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-    func waitAndExtractValue<T>(_ publisher: AnyPublisher<T, Swift.Error>, timeout: TimeInterval = 1) throws -> T {
+    func waitAndExtractValue<T>(_ publisher: CombineTask<T>, timeout: TimeInterval = 1) throws -> T {
         var catchedValue: T!
         var catchedError: Swift.Error!
         let exp = self.expectation(description: "Extract from publisher")

@@ -62,8 +62,8 @@ class JSONParserTests: XCTestCase {
     func testParsingUsingCombine() throws {
         let model = SampleModel(identity: "123456", name: "Hola", amount: 5678)
         let jsonData = try JSONEncoder().encode(model)
-        let publisher: AnyPublisher<SampleModel, Swift.Error> = JSONParser.parseData(jsonData)
-        let value = try self.waitAndExtractValue(publisher)
+        let publisher: CombineTask<SampleModel> = JSONParser.parseData(jsonData)
+        let _ = try self.waitAndExtractValue(publisher)
     }
 }
 
