@@ -5,7 +5,7 @@
 import Foundation
 import KeychainAccess
 
-@propertyDelegate
+@propertyWrapper
 public class KeychainBacked {
     private let key: String
     private let keychain = Keychain(service: Bundle.main.bundleIdentifier!)
@@ -14,7 +14,7 @@ public class KeychainBacked {
         self.key = key
     }
     
-    public var value: String? {
+    public var wrappedValue: String? {
         get {
             return keychain[key]
         } set {

@@ -4,7 +4,7 @@
 
 import Foundation
 
-@propertyDelegate
+@propertyWrapper
 public class UserDefaultsBacked<T> {
     private let key: String
     private let defaultValue: T?
@@ -14,7 +14,7 @@ public class UserDefaultsBacked<T> {
         self.defaultValue = defaultValue
     }
     
-    public var value: T? {
+    public var wrappedValue: T? {
         get {
             guard let value = UserDefaults.standard.object(forKey: key) as? T else {
                 return defaultValue
