@@ -8,19 +8,17 @@ import Task; import Deferred
 
 public enum JSONParser {
     
-    private static let queue = queueForSubmodule("JSONParser", qualityOfService: .userInitiated)
+    private static let queue = DispatchQueue(label: "com.bswfoundation.JSONParser")
     public static let jsonDecoder = JSONDecoder()
     public static let Options: JSONSerialization.ReadingOptions = [.allowFragments]
     
+    
     public static func parseData<T: Decodable>(_ data: Data) -> Task<T> {
-        let deferred = Deferred<Task<T>.Result>()
-        let operation = BlockOperation {
-            deferred.fill(with: parseData(data))
+        let task: Task<T> = Task.async(upon: queue, onCancel: Error.canceled) {
+            let result: Task<T>.Result = self.parseData(data)
+            return try result.extract()
         }
-        queue.addOperation(operation)
-        return Task(Future(deferred), uponCancel: { [weak operation] in
-            operation?.cancel()
-        })
+        return task
     }
 
     public static func dataIsNull(_ data: Data) -> Bool {
@@ -98,6 +96,7 @@ public enum JSONParser {
         case malformedJSON
         case malformedSchema
         case unknownError
+        case canceled
     }
 }
 

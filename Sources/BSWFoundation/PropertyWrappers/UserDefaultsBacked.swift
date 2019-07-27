@@ -29,6 +29,6 @@ public class UserDefaultsBacked<T> {
 
 public extension UserDefaultsBacked {
     func reset() {
-        value = nil
+        wrappedValue = nil
     }
 }

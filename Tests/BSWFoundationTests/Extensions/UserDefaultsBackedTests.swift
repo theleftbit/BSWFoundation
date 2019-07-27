@@ -7,7 +7,7 @@ class UserDefaultsBackedTests: XCTestCase {
         class Mock {
             @UserDefaultsBacked(key: "Hello") var someValue: Int?
             deinit {
-                $someValue.reset()
+                _someValue.reset()
             }
         }
         
@@ -27,7 +27,7 @@ class UserDefaultsBackedTests: XCTestCase {
         class Mock {
             @UserDefaultsBacked(key: "Hello") var someValue: Bool?
             deinit {
-                $someValue.reset()
+                _someValue.reset()
             }
         }
         
@@ -47,7 +47,7 @@ class UserDefaultsBackedTests: XCTestCase {
         class Mock {
             @UserDefaultsBacked(key: "Hello", defaultValue: "FuckMe") var someValue: String?
             deinit {
-                $someValue.reset()
+                _someValue.reset()
             }
         }
         

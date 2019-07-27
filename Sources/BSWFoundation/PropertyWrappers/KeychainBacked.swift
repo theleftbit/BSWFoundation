@@ -25,6 +25,6 @@ public class KeychainBacked {
 
 public extension KeychainBacked {
     func reset() {
-        value = nil
+        wrappedValue = nil
     }
 }
