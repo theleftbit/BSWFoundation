@@ -62,12 +62,6 @@ public enum JSONParser {
             jsonDecoder.dateDecodingStrategy = .formatted(iso8601DateFormatter)
         }
 
-        if let provider = T.self as? KeyDecodingStrategyProvider.Type {
-            jsonDecoder.keyDecodingStrategy = provider.keyDecodingStrategy
-        } else {
-            jsonDecoder.keyDecodingStrategy = .useDefaultKeys
-        }
-
         let result: Task<T>.Result
         do {
             let output: T = try jsonDecoder.decode(T.self, from: data)
@@ -123,10 +117,6 @@ public extension JSONParser {
 
 public protocol DateDecodingStrategyProvider {
     static var dateDecodingStrategy: DateFormatter { get }
-}
-
-public protocol KeyDecodingStrategyProvider {
-    static var keyDecodingStrategy: JSONDecoder.KeyDecodingStrategy { get }
 }
 
 private var iso8601DateFormatter: DateFormatter {
