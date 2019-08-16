@@ -58,12 +58,13 @@ class JSONParserTests: XCTestCase {
         print(value)
     }
 
-    @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     func testParsingUsingCombine() throws {
-        let model = SampleModel(identity: "123456", name: "Hola", amount: 5678)
-        let jsonData = try JSONEncoder().encode(model)
-        let publisher: CombineTask<SampleModel> = JSONParser.parseData(jsonData)
-        let _ = try self.waitAndExtractValue(publisher)
+        if #available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
+            let model = SampleModel(identity: "123456", name: "Hola", amount: 5678)
+            let jsonData = try JSONEncoder().encode(model)
+            let publisher: CombineTask<SampleModel> = JSONParser.parseData(jsonData)
+            let _ = try self.waitAndExtractValue(publisher)
+        }
     }
 }
 

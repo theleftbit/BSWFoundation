@@ -22,6 +22,5 @@ let package = Package(
         .testTarget(
             name: "BSWFoundationTests",
             dependencies: ["BSWFoundation"]),
-    ],
-    swiftLanguageVersions: [.v5, .version("5.1")]
+    ]
 )
