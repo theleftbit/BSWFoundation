@@ -9,8 +9,8 @@ import Combine
 
 class JSONParserTests: XCTestCase {
 
-    struct SampleModel: Identifiable, Codable {
-        let identity: Identity
+    struct SampleModel: Codable {
+        let identity: String
         let name: String
         let amount: Double
 
