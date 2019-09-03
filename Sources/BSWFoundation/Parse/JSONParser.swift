@@ -100,7 +100,7 @@ public enum JSONParser {
     }
 }
 
-import Combine
+#if canImport(Combine)
 
 @available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension JSONParser {
@@ -114,6 +114,8 @@ public extension JSONParser {
         return parseData(data).swiftResult
     }
 }
+
+#endif
 
 public protocol DateDecodingStrategyProvider {
     static var dateDecodingStrategy: DateFormatter { get }

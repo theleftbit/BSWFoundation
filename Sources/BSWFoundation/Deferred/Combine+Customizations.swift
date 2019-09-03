@@ -2,6 +2,7 @@
 //  Created by Pierluigi Cifani on 27/07/2019.
 //
 
+#if canImport(Combine)
 import Combine
 import Task
 import Foundation
@@ -27,3 +28,4 @@ public extension Task {
         return future.eraseToAnyPublisher()
     }
 }
+#endif
