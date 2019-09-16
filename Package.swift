@@ -13,12 +13,11 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/theleftbit/Deferred.git", .branch("master")),
-        .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "3.2.0"),
     ],
     targets: [
         .target(
             name: "BSWFoundation",
-            dependencies: ["Deferred", "KeychainAccess"]),
+            dependencies: ["Deferred"]),
         .testTarget(
             name: "BSWFoundationTests",
             dependencies: ["BSWFoundation"]),
