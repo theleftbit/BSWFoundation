@@ -3,6 +3,7 @@
 //
 
 import Foundation
+import KeychainAccess
 
 @propertyWrapper
 public class KeychainBacked {
