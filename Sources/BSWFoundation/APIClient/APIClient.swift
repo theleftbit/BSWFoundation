@@ -23,17 +23,20 @@ open class APIClient {
     private var router: Router
     private let workerQueue: OperationQueue
     private let networkFetcher: APIClientNetworkFetcher
-
+    private let sessionDelegate: SessionDelegate
+    
     public static func backgroundClient(environment: Environment, signature: Signature? = nil) -> APIClient {
         let session = URLSession(configuration: .background(withIdentifier: "\(Bundle.main.displayName)-APIClient"))
         return APIClient(environment: environment, signature: signature, networkFetcher: session)
     }
 
     public init(environment: Environment, signature: Signature? = nil, networkFetcher: APIClientNetworkFetcher? = nil) {
+        let sessionDelegate = SessionDelegate(environment: environment)
         let queue = queueForSubmodule("APIClient", qualityOfService: .userInitiated)
         self.router = Router(environment: environment, signature: signature)
-        self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: nil, delegateQueue: queue)
+        self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: sessionDelegate, delegateQueue: queue)
         self.workerQueue = queue
+        self.sessionDelegate = sessionDelegate
     }
 
     public func perform<T: Decodable>(_ request: Request<T>) -> Task<T> {
@@ -182,6 +185,25 @@ private extension APIClient {
             }
         }
         return Task(deferred)
+    }
+
+    /// Proxy object to do all our URLSessionDelegate work
+    class SessionDelegate: NSObject, URLSessionDelegate {
+        
+        let environment: Environment
+        
+        init(environment: Environment) {
+            self.environment = environment
+            super.init()
+        }
+        
+        public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+            if self.environment.shouldAllowInsecureConnections {
+                completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+            } else {
+                completionHandler(.performDefaultHandling, nil)
+            }
+        }
     }
 }
 
