@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "BSWFoundation",
+    platforms: [
+        .iOS(.v11),
+    ],
     products: [
         .library(
             name: "BSWFoundation",
