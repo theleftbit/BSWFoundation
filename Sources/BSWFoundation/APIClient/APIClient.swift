@@ -18,8 +18,9 @@ public protocol APIClientDelegate: class {
 
 open class APIClient {
 
-    var delegateQueue = DispatchQueue.main
-    public weak var delegate: APIClientDelegate?
+    open weak var delegate: APIClientDelegate?
+    open var loggingConfiguration = LoggingConfiguration.default
+    open var delegateQueue = DispatchQueue.main
     private var router: Router
     private let workerQueue: OperationQueue
     private let networkFetcher: APIClientNetworkFetcher
@@ -90,6 +91,19 @@ extension APIClient {
         case unknownError
     }
 
+    public struct LoggingConfiguration {
+        
+        public let requestBehaviour: Behavior
+        public let responseBehaviour: Behavior
+        
+        public static var `default` = LoggingConfiguration(requestBehaviour: .none, responseBehaviour: .onlyFailing)
+        public enum Behavior {
+            case none
+            case all
+            case onlyFailing
+        }
+    }
+    
     public struct Signature {
         let name: String
         let value: String
@@ -116,6 +130,7 @@ extension APIClient {
 private extension APIClient {
     
     func sendNetworkRequest(request: URLRequest, fileURL: URL?) -> Task<APIClient.Response> {
+        defer { logRequest(request: request) }
         if let fileURL = fileURL {
             let task = self.networkFetcher.uploadFile(with: request, fileURL: fileURL)
             task.upon(self.workerQueue) { (_) in
@@ -128,6 +143,7 @@ private extension APIClient {
     }
 
     func validateResponse(response: Response) -> Task<Data>.Result {
+        defer { logResponse(response)}
         switch response.httpResponse.statusCode {
         case (200..<300):
             return .success(response.data)
@@ -203,6 +219,46 @@ private extension APIClient {
             } else {
                 completionHandler(.performDefaultHandling, nil)
             }
+        }
+    }
+}
+
+import os.log
+
+//MARK: Logging
+
+private extension APIClient {
+    private func logRequest(request: URLRequest) {
+        switch loggingConfiguration.requestBehaviour {
+        case .all:
+            let customLog = OSLog(subsystem: submoduleName("APIClient"), category: "APIClient.Request")
+            let httpMethod = request.httpMethod ?? "GET"
+            let path = request.url?.path ?? ""
+            os_log("Method: %{public}@ Path: %{public}@", log: customLog, type: .debug, httpMethod, path)
+        default:
+            break
+        }
+    }
+    
+    private func logResponse(_ response: Response) {
+        let isError = !(200..<300).contains(response.httpResponse.statusCode)
+        let shouldLogThis: Bool = {
+            switch loggingConfiguration.responseBehaviour {
+            case .all:
+                return true
+            case .none:
+                return false
+            case .onlyFailing:
+                return isError
+            }
+        }()
+        guard shouldLogThis else { return }
+        let customLog = OSLog(subsystem: submoduleName("APIClient"), category: "APIClient.Response")
+        let statusCode = NSNumber(value: response.httpResponse.statusCode)
+        let path = response.httpResponse.url?.path ?? ""
+        os_log("StatusCode: %{public}@ Path: %{public}@", log: customLog, type: .debug, statusCode, path)
+        if isError, let errorString = String(data: response.data, encoding: .utf8) {
+            os_log("Error Message: %{public}@", log: customLog, type: .error, errorString)
         }
     }
 }
