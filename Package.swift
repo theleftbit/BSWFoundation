@@ -7,6 +7,9 @@ let package = Package(
     name: "BSWFoundation",
     platforms: [
         .iOS(.v11),
+        .tvOS(.v11),
+        .macOS(.v10_12),
+        .watchOS(.v4),
     ],
     products: [
         .library(
