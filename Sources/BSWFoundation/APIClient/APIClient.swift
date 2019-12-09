@@ -235,6 +235,9 @@ private extension APIClient {
             let httpMethod = request.httpMethod ?? "GET"
             let path = request.url?.path ?? ""
             os_log("Method: %{public}@ Path: %{public}@", log: customLog, type: .debug, httpMethod, path)
+            if let data = request.httpBody, let prettyString = String(data: data, encoding: .utf8) {
+                os_log("Body: %{public}@", log: customLog, type: .debug, prettyString)
+            }
         default:
             break
         }
