@@ -96,6 +96,11 @@ extension APIClient {
         public let requestBehaviour: Behavior
         public let responseBehaviour: Behavior
         
+        public init(requestBehaviour: Behavior, responseBehaviour: Behavior) {
+            self.requestBehaviour = requestBehaviour
+            self.responseBehaviour = responseBehaviour
+        }
+        
         public static var `default` = LoggingConfiguration(requestBehaviour: .none, responseBehaviour: .onlyFailing)
         public enum Behavior {
             case none
