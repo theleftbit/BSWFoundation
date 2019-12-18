@@ -1,4 +1,6 @@
 
+#if canImport(UIKit)
+
 import XCTest
 import BSWFoundation
 
@@ -7,3 +9,5 @@ class UIApplicationTests: XCTestCase {
         XCTAssert(UIApplication.shared.isRunningTests)
     }
 }
+
+#endif
