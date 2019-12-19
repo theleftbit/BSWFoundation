@@ -20,7 +20,7 @@ public protocol Endpoint {
     var method: HTTPMethod { get }
     
     /// Optional parameters for the request
-    var parameters: [String: Any]? { get }
+    var parameters: ParameterKind? { get }
     
     /// How the parameters should be encoded
     var parameterEncoding: HTTPParameterEncoding { get }
@@ -45,7 +45,7 @@ extension Endpoint {
         return .GET
     }
     
-    public var parameters: [String: Any]? {
+    public var parameters: ParameterKind? {
         return nil
     }
     
@@ -80,4 +80,23 @@ public enum MultipartParameter {
     case url(URL, fileName: String, mimeType: MimeType)
     case data(Data, fileName: String, mimeType: MimeType)
     case string(String)
+}
+
+public enum ParameterKind {
+    case array([Any])
+    case dict([String: Any])
+    
+    var isEmpty: Bool {
+        switch self {
+        case .array(let array): return array.isEmpty
+        case .dict(let dictionary): return dictionary.isEmpty
+        }
+    }
+    
+    var content: Any {
+        switch self {
+        case .array(let array): return array
+        case .dict(let dictionary): return dictionary
+        }
+    }
 }
