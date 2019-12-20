@@ -32,7 +32,7 @@ extension APIClient {
                 guard let url = urlRequest.url else {
                     throw APIClient.Error.encodingRequestFailed
                 }
-                guard let parameters = endpoint.parameters, !parameters.isEmpty, var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else { break }
+                guard case let .dict(parameters) = endpoint.parameters, !parameters.isEmpty, var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else { break }
                 let percentEncodedQuery = (urlComponents.percentEncodedQuery.map { $0 + "&" } ?? "") + URLEncoding.query(parameters)
                 urlComponents.percentEncodedQuery = percentEncodedQuery
                 urlRequest.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
@@ -40,14 +40,14 @@ extension APIClient {
             case .json:
                 guard let parameters = endpoint.parameters, !parameters.isEmpty else { break }
                 do {
-                    let data = try JSONSerialization.data(withJSONObject: parameters, options: [])
+                    let data = try JSONSerialization.data(withJSONObject: parameters.content, options: [])
                     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
                     urlRequest.httpBody = data
                 } catch {
                     throw APIClient.Error.encodingRequestFailed
                 }
             case .multipart:
-                guard let parameters = endpoint.parameters,
+                guard case let .dict(parameters) = endpoint.parameters,
                     !parameters.isEmpty,
                     let multipartParameters = parameters as? [String: MultipartParameter]
                     else { throw APIClient.Error.malformedParameters }
