@@ -40,7 +40,7 @@ extension APIClient {
             case .json:
                 guard let parameters = endpoint.parameters, !parameters.isEmpty else { break }
                 do {
-                    let data = try JSONSerialization.data(withJSONObject: parameters, options: [])
+                    let data = try JSONSerialization.data(withJSONObject: parameters, options: [.sortedKeys])
                     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
                     urlRequest.httpBody = data
                 } catch {
