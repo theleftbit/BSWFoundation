@@ -59,4 +59,33 @@ class UserDefaultsBackedTests: XCTestCase {
         }
         XCTAssert(value == "FuckMe")
     }
+    
+    func testItStoresCodable() {
+        struct SomeData: Codable {
+            let id: String
+        }
+        class Mock {
+            
+            @CodableUserDefaultsBacked(key: "Hello")
+            var someValue: SomeData?
+            
+            init() {
+                someValue = .init(id: "it's me")
+            }
+            deinit {
+                _someValue.reset()
+            }
+        }
+        
+        var sut: Mock! = Mock()
+        XCTAssertNotNil(sut.someValue)
+        
+        guard let data = UserDefaults.standard.data(forKey: "Hello") else {
+            XCTFail()
+            return
+        }
+        XCTAssertNotNil(data)
+        sut = nil
+        XCTAssertNil(UserDefaults.standard.data(forKey: "Hello"))
+    }
 }
