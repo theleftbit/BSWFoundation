@@ -32,3 +32,36 @@ public extension UserDefaultsBacked {
         wrappedValue = nil
     }
 }
+
+
+@propertyWrapper
+public class CodableUserDefaultsBacked<T: Codable> {
+    private let key: String
+    private let defaultValue: T?
+
+    public init(key: String, defaultValue: T? = nil) {
+        self.key = key
+        self.defaultValue = defaultValue
+    }
+    
+    public var wrappedValue: T? {
+        get {
+            guard let data = UserDefaults.standard.data(forKey: key) else {
+                return defaultValue
+            }
+            return try? JSONDecoder().decode(T.self, from: data)
+        } set {
+            guard let data = try? JSONEncoder().encode(newValue) else {
+                return
+            }
+            UserDefaults.standard.set(data, forKey: key)
+            UserDefaults.standard.synchronize()
+        }
+    }
+}
+
+public extension CodableUserDefaultsBacked {
+    func reset() {
+        UserDefaults.standard.removeObject(forKey: key)
+    }
+}
