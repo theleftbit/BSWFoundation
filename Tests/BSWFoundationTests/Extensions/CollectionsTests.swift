@@ -45,4 +45,14 @@ class CollectionTests: XCTestCase {
         XCTAssertNotNil(dict[3])
         XCTAssertNil(dict[42])
     }
+    
+    func testSelectableArray() {
+        let values = [0,1,2,3]
+        var array = SelectableArray<Int>(options: values)
+        array.selectedIndex = 2
+        XCTAssert(array.selectedElement == 2)
+        array.enumerated().forEach { (offset, _) in
+            XCTAssert(array[offset] == values[offset])
+        }
+    }
 }
