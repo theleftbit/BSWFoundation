@@ -67,3 +67,53 @@ public extension Dictionary {
         }
     }
 }
+
+public struct SelectableArray<T>: Collection {
+    private var selectedIndex: Int?
+    public let options: [T]
+
+    public enum SelectableArrayError: Swift.Error {
+        case outOfBoundsIndex
+    }
+    
+    public init(options: [T]) {
+        self.options = options
+        self.selectedIndex = nil
+    }
+
+    public static func empty() -> SelectableArray<T> {
+        return .init(options: [])
+    }
+    
+    @discardableResult
+    public mutating func select(atIndex: Int) throws -> T {
+        guard atIndex < options.count else {
+            throw SelectableArrayError.outOfBoundsIndex
+        }
+        selectedIndex = atIndex
+        return options[atIndex]
+    }
+
+    public var selectedElement: T? {
+        guard let selectedIndex = selectedIndex else { return nil }
+        return options[selectedIndex]
+    }
+    
+    // MARK: Collection
+    
+    public typealias Index = Array<T>.Index
+    public typealias Element = Array<T>.Element
+    public var startIndex: Index { return options.startIndex }
+    public var endIndex: Index { return options.endIndex }
+    
+    // Required subscript, based on a dictionary index
+    public subscript(index: Index) -> Iterator.Element {
+        get { return options[index] }
+    }
+
+    // Method that returns the next index when iterating
+    public func index(after i: Index) -> Index {
+        return options.index(after: i)
+    }
+
+}
