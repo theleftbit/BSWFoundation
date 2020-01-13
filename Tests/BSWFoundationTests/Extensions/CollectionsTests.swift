@@ -46,10 +46,10 @@ class CollectionTests: XCTestCase {
         XCTAssertNil(dict[42])
     }
     
-    func testSelectableArray() {
+    func testSelectableArray() throws {
         let values = [0,1,2,3]
         var array = SelectableArray<Int>(options: values)
-        array.selectedIndex = 2
+        try array.select(atIndex: 2)
         XCTAssert(array.selectedElement == 2)
         array.enumerated().forEach { (offset, _) in
             XCTAssert(array[offset] == values[offset])
