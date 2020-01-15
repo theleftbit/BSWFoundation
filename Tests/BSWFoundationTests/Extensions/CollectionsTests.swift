@@ -54,5 +54,7 @@ class CollectionTests: XCTestCase {
         array.enumerated().forEach { (offset, _) in
             XCTAssert(array[offset] == values[offset])
         }
+        array.appendingOption(4, andSelectIt: true)
+        XCTAssert(array.selectedElement == 4)
     }
 }
