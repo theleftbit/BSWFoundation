@@ -70,7 +70,7 @@ public extension Dictionary {
 
 public struct SelectableArray<T>: Collection {
     private var selectedIndex: Int?
-    public let options: [T]
+    public var options: [T]
 
     public enum SelectableArrayError: Swift.Error {
         case outOfBoundsIndex
@@ -92,6 +92,13 @@ public struct SelectableArray<T>: Collection {
         }
         selectedIndex = atIndex
         return options[atIndex]
+    }
+
+    public mutating func appendingOption(_ option: T, andSelectIt: Bool = false) {
+        options.append(option)
+        if andSelectIt {
+            selectedIndex = (options.count - 1)
+        }
     }
 
     public var selectedElement: T? {
