@@ -69,8 +69,8 @@ public extension Dictionary {
 }
 
 public struct SelectableArray<T>: Collection {
-    private var selectedIndex: Int?
-    public var options: [T]
+    public private(set) var selectedIndex: Int?
+    public private(set) var options: [T]
 
     public enum SelectableArrayError: Swift.Error {
         case outOfBoundsIndex
