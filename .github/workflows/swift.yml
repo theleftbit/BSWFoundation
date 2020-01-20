@@ -4,9 +4,7 @@ on: push
 
 jobs:
  build:
-  runs-on: macos-latest
+  runs-on: self-hosted
   steps:
-  - name: Build with code signing
-    uses: maierj/fastlane-action@v0.10.0
-    with:
-     lane: unit_tests
+  - name: Test
+    run: fastlane unit_tests 
