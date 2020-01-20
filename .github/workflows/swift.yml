@@ -1,3 +1,14 @@
-uses: maierj/fastlane-action@v1.2.0
-with:
-  lane: 'beta'
+name: SPM
+
+ on: [push]
+
+ jobs:
+   build:
+
+     runs-on: macOS-latest
+
+     steps:
+     - uses: maierj/fastlane-action@v1.2.0
+     - name: Test
+     - with:
+       lane: 'unit_tests'
