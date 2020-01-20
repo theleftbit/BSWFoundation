@@ -9,5 +9,4 @@ jobs:
   - name: Build with code signing
     uses: maierj/fastlane-action@v0.10.0
     with:
-     lane: build
-     subdirectory: flutter_app/ios
+     lane: unit_tests
