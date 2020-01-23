@@ -44,9 +44,8 @@ class RouterTests: XCTestCase {
 
         guard
             let jsonParam = try JSONSerialization.jsonObject(with: data, options: []) as? PizzaRequestParams,
-            case let .dict(params) = endpoint.parameters,
-            let endpointParams = params as? PizzaRequestParams else {
-            throw Error.objectUnwrappedFailed
+            let endpointParams = endpoint.parameters as? PizzaRequestParams else  {
+                throw Error.objectUnwrappedFailed
         }
         XCTAssert(jsonParam == endpointParams)
     }

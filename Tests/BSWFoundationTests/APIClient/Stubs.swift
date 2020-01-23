@@ -64,18 +64,16 @@ enum HTTPBin {
             }
         }
 
-        var parameters: ParameterKind? {
+        var parameters: Any? {
             switch self {
             case .upload(let data):
-                let dict = [
+                return [
                     "key" : MultipartParameter.data(data, fileName: UUID().uuidString, mimeType: .imageJPEG)
                 ]
-                return .dict(dict)
             case .orderPizza:
-                let dict = [
+                return [
                     "topping": ["peperoni", "olives"]
                 ]
-                return .dict(dict)
             default:
                 return nil
             }
@@ -141,13 +139,12 @@ enum Giphy {
             return .url
         }
 
-        var parameters: ParameterKind? {
+        var parameters: Any? {
             switch self {
             case .search(let term):
-                let dict = [
+                return [
                     "q": term
                 ]
-                return .dict(dict)
             default:
                 return nil
             }
