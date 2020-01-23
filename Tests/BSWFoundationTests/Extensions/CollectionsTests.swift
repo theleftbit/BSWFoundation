@@ -54,7 +54,14 @@ class CollectionTests: XCTestCase {
         array.enumerated().forEach { (offset, _) in
             XCTAssert(array[offset] == values[offset])
         }
-        array.appendingOption(4, andSelectIt: true)
+        array.appendOption(4, andSelectIt: true)
         XCTAssert(array.selectedElement == 4)
+    }
+    
+    func testSelectableArrayImmutable() throws {
+        let values = [0,1,2,3]
+        let array = SelectableArray<Int>(options: values)
+        let newArray = array.appendingOption(4, andSelectIt: true)
+        XCTAssert(newArray.selectedElement == 4)
     }
 }
