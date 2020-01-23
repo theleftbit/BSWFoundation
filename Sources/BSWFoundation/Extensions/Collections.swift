@@ -94,11 +94,19 @@ public struct SelectableArray<T>: Collection {
         return options[atIndex]
     }
 
-    public mutating func appendingOption(_ option: T, andSelectIt: Bool = false) {
+    public mutating func appendOption(_ option: T, andSelectIt: Bool = false) {
         options.append(option)
         if andSelectIt {
             selectedIndex = (options.count - 1)
         }
+    }
+
+    public func appendingOption(_ option: T, andSelectIt: Bool = false) -> SelectableArray<T> {
+        var array = SelectableArray(options: options + [option])
+        if andSelectIt {
+            array.selectedIndex = (array.options.count - 1)
+        }
+        return array
     }
 
     public var selectedElement: T? {
