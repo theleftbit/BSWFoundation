@@ -64,7 +64,7 @@ enum HTTPBin {
             }
         }
 
-        var parameters: [String : Any]? {
+        var parameters: Any? {
             switch self {
             case .upload(let data):
                 return [
@@ -139,7 +139,7 @@ enum Giphy {
             return .url
         }
 
-        var parameters: [String : Any]? {
+        var parameters: Any? {
             switch self {
             case .search(let term):
                 return [

@@ -20,7 +20,7 @@ public protocol Endpoint {
     var method: HTTPMethod { get }
     
     /// Optional parameters for the request
-    var parameters: [String: Any]? { get }
+    var parameters: Any? { get }
     
     /// How the parameters should be encoded
     var parameterEncoding: HTTPParameterEncoding { get }
@@ -45,7 +45,7 @@ extension Endpoint {
         return .GET
     }
     
-    public var parameters: [String: Any]? {
+    public var parameters: Any? {
         return nil
     }
     
