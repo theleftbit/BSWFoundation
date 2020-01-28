@@ -1,0 +1,8 @@
+name: Documentation
+on: [push]
+jobs:
+  docs:
+    runs-on: linux
+    steps:
+    - name: Swift Doc
+      uses: SwiftDocOrg/swift-doc@0.0.1
