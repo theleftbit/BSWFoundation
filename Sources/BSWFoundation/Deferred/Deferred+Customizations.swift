@@ -9,61 +9,7 @@ import Deferred
 
 //MARK: Public
 
-precedencegroup Additive {
-    associativity: left
-}
-
-infix operator ≈> : Additive
-
-public func ≈> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> Task<U>) -> Task<U> {
-    return lhs.andThen(upon: DispatchQueue.any(), start: rhs)
-}
-
-public func ≈> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> Task<U>.Result) -> Task<U> {
-    return lhs.andThen(upon: DispatchQueue.any()) { Task(Future(value: rhs($0))) }
-}
-
-public func ≈> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> U) -> Task<U> {
-    return lhs.andThen(upon: DispatchQueue.any()) { return Task(Future(value: .success(rhs($0)))) }
-}
-
-public func ≈> <T, U>(lhs: Future<T>, rhs: @escaping (T) -> Task<U>.Result) -> Task<U> {
-    return Task(lhs.map(upon: DispatchQueue.any()) { return rhs($0) })
-}
-
-public func ≈> <T, U>(lhs: Task<T>, rhs: @escaping (T) throws -> U) -> Task<U> {
-    return lhs.andThen(upon: DispatchQueue.any()) {(input) throws -> Task<U> in
-        let value = try rhs(input)
-        return Task(Future(value: .success(value)))
-    }
-}
-
-infix operator ==> : Additive
-
-public func ==> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> Task<U>) -> Task<U> {
-    return lhs.andThen(upon: DispatchQueue.main, start: rhs)
-}
-
-public func ==> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> Task<U>.Result) -> Task<U> {
-    return lhs.andThen(upon: DispatchQueue.main) { Task(Future(value: rhs($0))) }
-}
-
-public func ==> <T, U>(lhs: Task<T>, rhs: @escaping (T) -> U) -> Task<U> {
-    return lhs.andThen(upon: DispatchQueue.main) { return Task(Future(value: .success(rhs($0)))) }
-}
-
-public func ==> <T, U>(lhs: Future<T>, rhs: @escaping (T) -> Task<U>.Result) -> Task<U> {
-    return Task(lhs.map(upon: DispatchQueue.main) { return rhs($0) })
-}
-
-public func ==> <T, U>(lhs: Task<T>, rhs: @escaping (T) throws -> U) -> Task<U> {
-    return lhs.andThen(upon: DispatchQueue.main) {(input) throws -> Task<U> in
-        let value = try rhs(input)
-        return Task(Future(value: .success(value)))
-    }
-}
-
-public func both <T, U> (first: Task<T>, second: Task<U>) ->  Task<(T, U)> {
+public func both<T, U>(first: Task<T>, second: Task<U>) ->  Task<(T, U)> {
     
     let deferred = Deferred<Task<(T, U)>.Result>()
     first.and(second).upon { (tuple) in
@@ -83,7 +29,7 @@ public func both <T, U> (first: Task<T>, second: Task<U>) ->  Task<(T, U)> {
     return Task(Future(deferred))
 }
 
-public func bothSerially <T, U> (first: Task<T>, second: @escaping (T) -> Task<U>) ->  Task<(T, U)> {
+public func bothSerially<T, U>(first: Task<T>, second: @escaping (T) -> Task<U>) ->  Task<(T, U)> {
     
     let deferred = Deferred<Task<(T, U)>.Result>()
     
