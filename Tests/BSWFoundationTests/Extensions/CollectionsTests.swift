@@ -64,4 +64,17 @@ class CollectionTests: XCTestCase {
         let newArray = array.appendingOption(4, andSelectIt: true)
         XCTAssert(newArray.selectedElement == 4)
     }
+
+    func testSelectableArrayEquatable() throws {
+        let array1 = SelectableArray<Int>(options: [0,1,2,3])
+        let array2 = SelectableArray<Int>(options: [4,1,2,3])
+        XCTAssert(array1 != array2)
+    }
+    
+    func testSelectableArrayEquatable2() throws {
+        var array1 = SelectableArray<Int>(options: [0,1,2,3])
+        try array1.select(atIndex: 0)
+        let array2 = SelectableArray<Int>(options: [0,1,2,3])
+        XCTAssert(array1 != array2)
+    }
 }

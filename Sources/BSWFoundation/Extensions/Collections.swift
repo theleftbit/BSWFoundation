@@ -130,5 +130,8 @@ public struct SelectableArray<T>: Collection {
     public func index(after i: Index) -> Index {
         return options.index(after: i)
     }
+}
 
+extension SelectableArray: Equatable where T: Equatable {
+    
 }
