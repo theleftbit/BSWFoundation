@@ -119,3 +119,20 @@ public extension Task.Result {
         }
     }
 }
+
+#if canImport(UIKit)
+
+import UIKit
+
+public extension UIApplication {
+    func keepAppAliveUntilTaskCompletes<T>(_ task: Task<T>) {
+        let backgroundTask = self.beginBackgroundTask {
+            task.cancel()
+        }
+        task.upon(.main) { (_) in
+            self.endBackgroundTask(backgroundTask)
+        }
+    }
+}
+
+#endif

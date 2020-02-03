@@ -6,6 +6,9 @@
 import Foundation
 import Task
 import Deferred
+#if canImport(UIKit)
+import UIKit
+#endif
 
 public protocol APIClientNetworkFetcher {
     func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response>
@@ -279,29 +282,20 @@ extension URLSession: APIClientNetworkFetcher {
             self.analyzeResponse(deferred: deferred, data: data, response: response, error: error)
         }
         task.resume()
-        if #available(iOS 11.0, tvOS 11.0, watchOS 4.0, macOS 10.13, *) {
-            return Task(deferred, progress: task.progress)
-        } else {
-            return Task(deferred, uponCancel: { [weak task] in
-                task?.cancel()
-            })
-        }
+        return Task(deferred, progress: task.progress)
     }
 
     public func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {
-        
         let deferred = Deferred<Task<APIClient.Response>.Result>()
-        let task = self.uploadTask(with: urlRequest, fromFile: fileURL) { (data, response, error) in
+        let urlSessionTask = self.uploadTask(with: urlRequest, fromFile: fileURL) { (data, response, error) in
             self.analyzeResponse(deferred: deferred, data: data, response: response, error: error)
         }
-        task.resume()
-        if #available(iOS 11.0, tvOS 11.0, watchOS 4.0, macOS 10.13, *) {
-            return Task(deferred, progress: task.progress)
-        } else {
-            return Task(deferred, uponCancel: { [weak task] in
-                task?.cancel()
-            })
-        }
+        urlSessionTask.resume()
+        let task = Task(deferred, progress: urlSessionTask.progress)
+        #if os(iOS)
+        UIApplication.shared.keepAppAliveUntilTaskCompletes(task)
+        #endif
+        return task
     }
 
     private func analyzeResponse(deferred: Deferred<Task<APIClient.Response>.Result>, data: Data?, response: URLResponse?, error: Error?) {
