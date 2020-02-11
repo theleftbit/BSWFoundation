@@ -21,7 +21,11 @@ public class UserDefaultsBacked<T> {
             }
             return value
         } set {
-            UserDefaults.standard.set(newValue, forKey: key)
+            if let value = newValue {
+                UserDefaults.standard.set(newValue, forKey: key)
+            } else {
+                UserDefaults.standard.removeObject(forKey: key)
+            }
             UserDefaults.standard.synchronize()
         }
     }
@@ -29,7 +33,7 @@ public class UserDefaultsBacked<T> {
 
 public extension UserDefaultsBacked {
     func reset() {
-        wrappedValue = nil
+        UserDefaults.standard.removeObject(forKey: key)
     }
 }
 
