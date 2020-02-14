@@ -17,7 +17,14 @@ private struct FailableDecodable<Base : Decodable> : Decodable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        self.base = try? container.decode(Base.self)
+        self.base = {
+            do {
+                return try container.decode(Base.self)
+            } catch let error {
+                print(error)
+                return nil
+            }
+        }()
     }
 }
 
