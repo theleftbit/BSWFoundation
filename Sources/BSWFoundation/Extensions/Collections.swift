@@ -86,12 +86,13 @@ public struct SelectableArray<T>: Collection {
     }
     
     @discardableResult
-    public mutating func select(atIndex: Int) throws -> T {
-        guard atIndex < options.count else {
-            throw SelectableArrayError.outOfBoundsIndex
-        }
+    public mutating func select(atIndex: Int) -> T {
         selectedIndex = atIndex
         return options[atIndex]
+    }
+    
+    public mutating func removeSelection() {
+        selectedIndex = nil
     }
 
     public mutating func appendOption(_ option: T, andSelectIt: Bool = false) {
