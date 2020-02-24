@@ -76,9 +76,9 @@ public struct SelectableArray<T>: Collection {
         case outOfBoundsIndex
     }
     
-    public init(options: [T]) {
+    public init(options: [T], selectedIndex: Int? = nil) {
         self.options = options
-        self.selectedIndex = nil
+        self.selectedIndex = selectedIndex
     }
 
     public static func empty() -> SelectableArray<T> {
