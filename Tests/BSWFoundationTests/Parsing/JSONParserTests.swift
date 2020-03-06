@@ -44,7 +44,7 @@ class JSONParserTests: XCTestCase {
         }
 
         let sampleString = """
-        {\n  \"id\" : \"123456\",\n  \"name\" : \"Hola\",\n  \"amount\" : 5678\n}
+        {\"id\":\"123456\",\"name\":\"Hola\",\"amount\":5678}
         """
         XCTAssert(string == sampleString)
     }
