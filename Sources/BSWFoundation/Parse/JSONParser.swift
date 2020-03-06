@@ -34,7 +34,7 @@ public enum JSONParser {
 
     public static func parseDataAsJSONPrettyPrint(_ data: Data) -> String? {
         guard let json = try? JSONSerialization.jsonObject(with: data, options: JSONParser.Options) else { return nil }
-        guard let prettyPrintedData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted) else { return nil }
+        guard let prettyPrintedData = try? JSONSerialization.data(withJSONObject: json, options: .init()) else { return nil }
         return String(data: prettyPrintedData, encoding: .utf8)
     }
 
