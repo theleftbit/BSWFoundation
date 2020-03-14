@@ -4,7 +4,9 @@
 
 import XCTest
 import Combine
-import BSWFoundation
+
+@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+public typealias CombineTask<T> = Combine.Future<T, Swift.Error>
 
 public extension XCTestCase {
     

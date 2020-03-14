@@ -1,4 +1,3 @@
-
 #if canImport(XCTest)
 
 import Task
@@ -23,7 +22,7 @@ public extension XCTestCase {
                 catchedError = timeoutError
             }
         }
-        
+
         if let error = catchedError {
             throw error
         }

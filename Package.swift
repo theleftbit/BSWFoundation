@@ -31,7 +31,7 @@ let package = Package(
             name: "BSWFoundation",
             dependencies: ["Deferred", "KeychainAccess"]
         ),
-        .target(name: "BSWTestCase", dependencies: ["SnapshotTesting", "BSWFoundation", "Deferred"]),
+        .target(name: "BSWTestCase", dependencies: ["SnapshotTesting"]),
         .testTarget(
             name: "BSWFoundationTests",
             dependencies: ["BSWFoundation", "BSWTestCase"]
