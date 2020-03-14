@@ -4,6 +4,7 @@
 
 import XCTest
 import BSWFoundation
+import BSWTestCase
 
 class APIClientTests: XCTestCase {
 
