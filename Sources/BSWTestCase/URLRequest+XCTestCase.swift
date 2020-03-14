@@ -6,8 +6,8 @@ import Foundation
 import XCTest
 
 public extension XCTestCase {
-    func verify(urlRequest: URLRequest) {
-        assertSnapshot(matching: urlRequest, as: .curl)
+    func verify(urlRequest: URLRequest, file: StaticString = #file, testName: String = #function) {
+        assertSnapshot(matching: urlRequest, as: .curl, file: file, testName: testName)
     }
 }
 
