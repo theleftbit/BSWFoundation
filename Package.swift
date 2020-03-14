@@ -18,7 +18,6 @@ let package = Package(
         ),
         .library(
             name: "BSWTestCase",
-            type: .dynamic,
             targets: ["BSWTestCase"]
         ),
     ],
