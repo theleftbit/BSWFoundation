@@ -14,11 +14,8 @@ let package = Package(
     products: [
         .library(
             name: "BSWFoundation",
+            type: .dynamic,
             targets: ["BSWFoundation"]
-        ),
-        .library(
-            name: "BSWTestCase",
-            targets: ["BSWTestCase"]
         ),
     ],
     dependencies: [
@@ -31,10 +28,9 @@ let package = Package(
             name: "BSWFoundation",
             dependencies: ["Deferred", "KeychainAccess"]
         ),
-        .target(name: "BSWTestCase", dependencies: ["SnapshotTesting", "BSWFoundation", "Deferred"]),
         .testTarget(
             name: "BSWFoundationTests",
-            dependencies: ["BSWFoundation", "BSWTestCase"]
+            dependencies: ["BSWFoundation"]
         ),
     ]
 )
