@@ -16,25 +16,19 @@ let package = Package(
             name: "BSWFoundation",
             targets: ["BSWFoundation"]
         ),
-        .library(
-            name: "BSWTestCase",
-            targets: ["BSWTestCase"]
-        ),
     ],
     dependencies: [
         .package(url: "https://github.com/bignerdranch/Deferred.git", from: "4.1.0"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "3.2.0"),
-        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing.git", .exact("1.7.2")),
     ],
     targets: [
         .target(
             name: "BSWFoundation",
             dependencies: ["Deferred", "KeychainAccess"]
         ),
-        .target(name: "BSWTestCase", dependencies: ["SnapshotTesting", "BSWFoundation", "Deferred"]),
         .testTarget(
             name: "BSWFoundationTests",
-            dependencies: ["BSWFoundation", "BSWTestCase"]
+            dependencies: ["BSWFoundation"]
         ),
     ]
 )
