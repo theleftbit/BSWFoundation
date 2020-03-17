@@ -14,6 +14,7 @@ let package = Package(
     products: [
         .library(
             name: "BSWFoundation",
+            type: .dynamic,
             targets: ["BSWFoundation"]
         ),
     ],
