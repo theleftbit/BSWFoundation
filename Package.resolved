@@ -5,9 +5,9 @@
         "package": "Deferred",
         "repositoryURL": "https://github.com/theleftbit/Deferred.git",
         "state": {
-          "branch": "dynamic-spm",
-          "revision": "c78716504c70b0b35736e10bb72aa800341efbdd",
-          "version": null
+          "branch": null,
+          "revision": "736f09b1792609e5e5f494a5dfd3dc8abc6ebdeb",
+          "version": "4.2.0"
         }
       },
       {
