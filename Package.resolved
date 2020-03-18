@@ -3,11 +3,11 @@
     "pins": [
       {
         "package": "Deferred",
-        "repositoryURL": "https://github.com/bignerdranch/Deferred.git",
+        "repositoryURL": "https://github.com/theleftbit/Deferred.git",
         "state": {
-          "branch": null,
-          "revision": "96ad3f6dd1ddaffe1830dbb3b1cb783a87d6e952",
-          "version": "4.1.0"
+          "branch": "dynamic-spm",
+          "revision": "c78716504c70b0b35736e10bb72aa800341efbdd",
+          "version": null
         }
       },
       {
