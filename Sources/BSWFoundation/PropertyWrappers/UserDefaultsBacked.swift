@@ -21,7 +21,7 @@ public class UserDefaultsBacked<T> {
             }
             return value
         } set {
-            if let value = newValue {
+            if newValue != nil {
                 UserDefaults.standard.set(newValue, forKey: key)
             } else {
                 UserDefaults.standard.removeObject(forKey: key)
