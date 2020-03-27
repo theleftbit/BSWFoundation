@@ -52,7 +52,7 @@ extension Endpoint {
         return nil
     }
     
-    public var encodableParameters: Codable? {
+    public var encodableParameters: Encodable? {
         return nil
     }
     
