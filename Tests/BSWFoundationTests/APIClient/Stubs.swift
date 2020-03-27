@@ -28,7 +28,7 @@ enum HTTPBin {
 
     enum API: Endpoint {
         case ip
-        case orderPizza
+        case orderPizza(useCodable: Bool)
         case upload(Data)
 
         var path: String {
@@ -63,6 +63,16 @@ enum HTTPBin {
                 return .url
             }
         }
+        
+        var encodableParameters: Encodable? {
+            switch self {
+            case .orderPizza(let useCodable):
+                guard useCodable else { return nil }
+                return Pizza(topping: ["peperoni", "olives"])
+            default:
+                return nil
+            }
+        }
 
         var parameters: [String : Any]? {
             switch self {
@@ -70,7 +80,8 @@ enum HTTPBin {
                 return [
                     "key" : MultipartParameter.data(data, fileName: UUID().uuidString, mimeType: .imageJPEG)
                 ]
-            case .orderPizza:
+            case .orderPizza(let useCodable):
+                guard !useCodable else { return nil }
                 return [
                     "topping": ["peperoni", "olives"]
                 ]
@@ -149,6 +160,10 @@ enum Giphy {
                 return nil
             }
         }
+        
+        var encodableParameters: Encodable? {
+            nil
+        }
     }
 
     enum Responses {
@@ -191,4 +206,8 @@ enum Giphy {
             public let data: [GIF]
         }
     }
+}
+
+struct Pizza: Codable {
+    let topping: [String]
 }

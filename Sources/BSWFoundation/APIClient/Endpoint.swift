@@ -22,6 +22,9 @@ public protocol Endpoint {
     /// Optional parameters for the request
     var parameters: [String: Any]? { get }
     
+    /// Optional encodable parameters for the request
+    var encodableParameters: Encodable? { get }
+    
     /// How the parameters should be encoded
     var parameterEncoding: HTTPParameterEncoding { get }
     
@@ -46,6 +49,10 @@ extension Endpoint {
     }
     
     public var parameters: [String: Any]? {
+        return nil
+    }
+    
+    public var encodableParameters: Codable? {
         return nil
     }
     

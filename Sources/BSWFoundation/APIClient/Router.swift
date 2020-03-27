@@ -38,14 +38,19 @@ extension APIClient {
                 urlRequest.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
                 urlRequest.url = urlComponents.url
             case .json:
-                guard let parameters = endpoint.parameters, !parameters.isEmpty else { break }
-                do {
-                    let data = try JSONSerialization.data(withJSONObject: parameters, options: [.sortedKeys])
-                    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                    urlRequest.httpBody = data
-                } catch {
-                    throw APIClient.Error.encodingRequestFailed
-                }
+                let dataSeralization: Data? = try {
+                    if let encodableParameters = endpoint.encodableParameters {
+                        return try encodableParameters.toJSONData()
+                    } else if let parameters = endpoint.parameters, !parameters.isEmpty {
+                        return try JSONSerialization.data(withJSONObject: parameters, options: [.sortedKeys])
+                    } else {
+                        return nil
+                    }
+                }()
+                guard let data = dataSeralization else { break }
+                urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                urlRequest.httpBody = data
+                
             case .multipart:
                 guard let parameters = endpoint.parameters,
                     !parameters.isEmpty,
@@ -173,4 +178,8 @@ private enum URLEncoding {
         allowedCharacterSet.remove(charactersIn: "\(generalDelimitersToEncode)\(subDelimitersToEncode)")
         return string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) ?? string
     }
+}
+
+extension Encodable {
+    func toJSONData() throws -> Data { try JSONEncoder().encode(self) }
 }

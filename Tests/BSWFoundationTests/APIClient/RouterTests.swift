@@ -32,7 +32,7 @@ class RouterTests: XCTestCase {
 
     func testJSONEncoding() throws {
         let sut = APIClient.Router(environment: HTTPBin.Hosts.production, signature: signature)
-        let endpoint = HTTPBin.API.orderPizza
+        let endpoint = HTTPBin.API.orderPizza(useCodable: false)
         typealias PizzaRequestParams = [String: [String]]
 
         let urlRequest = try sut.urlRequest(forEndpoint: endpoint).0
@@ -48,5 +48,26 @@ class RouterTests: XCTestCase {
             throw Error.objectUnwrappedFailed
         }
         XCTAssert(jsonParam == endpointParams)
+    }
+    
+    func testJSONCodableEncoding() throws {
+        
+        let sut = APIClient.Router(environment: HTTPBin.Hosts.production, signature: signature)
+        let endpoint = HTTPBin.API.orderPizza(useCodable: true)
+        typealias PizzaRequestParams = [String: [String]]
+
+        let urlRequest = try sut.urlRequest(forEndpoint: endpoint).0
+        guard let url = urlRequest.url, let data = urlRequest.httpBody else {
+            throw Error.objectUnwrappedFailed
+        }
+
+        XCTAssert(url.absoluteString == "https://httpbin.org/forms/post")
+
+        guard
+            let jsonParam = try JSONSerialization.jsonObject(with: data, options: []) as? PizzaRequestParams,
+            let endpointParams = endpoint.encodableParameters as? Pizza else {
+            throw Error.objectUnwrappedFailed
+        }
+        XCTAssert(jsonParam["topping"] == endpointParams.topping)
     }
 }
