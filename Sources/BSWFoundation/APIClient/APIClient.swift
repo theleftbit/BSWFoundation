@@ -82,7 +82,6 @@ open class APIClient {
 extension APIClient {
 
     public enum Error: Swift.Error {
-        case serverError
         case malformedURL
         case malformedParameters
         case malformedResponse
