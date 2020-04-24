@@ -20,7 +20,7 @@ extension APIClient.Error: LocalizedError {
                 if let data = data, let prettyError = JSONParser.parseDataAsJSONPrettyPrint(data) {
                     return "FailureStatusCode: \(statusCode), Message: \(prettyError)"
                 } else {
-                    return "FailureStatusCode Status Code: \(statusCode)"
+                    return "FailureStatusCode: \(statusCode)"
                 }
             case .requestCanceled:
                 return "requestCanceled"
