@@ -17,6 +17,11 @@ public protocol APIClientNetworkFetcher {
 
 public protocol APIClientDelegate: class {
     func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>?
+    func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient)
+}
+
+public extension APIClientDelegate {
+    func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) { }
 }
 
 open class APIClient {
@@ -157,6 +162,13 @@ private extension APIClient {
             return .init(success: response.data)
         default:
             let apiError = APIClient.Error.failureStatusCode(response.httpResponse.statusCode, response.data)
+            
+            if let path = response.httpResponse.url?.path {
+                delegateQueue.async {
+                    self.delegate?.apiClientDidReceiveError(apiError, forRequest: path, apiClient: self)
+                }
+            }
+
             return .init(failure: apiError)
         }
     }
