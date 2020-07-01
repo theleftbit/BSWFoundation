@@ -1,6 +1,5 @@
  
-![travis-ci](https://travis-ci.com/theleftbit/BSWFoundation.svg?branch=develop)
-
+![Swift](https://github.com/theleftbit/BSWFoundation/workflows/Swift/badge.svg)
 
 # About
 
