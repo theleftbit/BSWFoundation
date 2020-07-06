@@ -11,6 +11,12 @@ public struct FailableCodableArray<Element : Decodable> : Decodable {
     }
 }
 
+extension FailableCodableArray: DateDecodingStrategyProvider where Element: DateDecodingStrategyProvider {
+    public static var dateDecodingStrategy: DateFormatter {
+        return Element.dateDecodingStrategy
+    }
+}
+
 private struct FailableDecodable<Base : Decodable> : Decodable {
 
     let base: Base?
