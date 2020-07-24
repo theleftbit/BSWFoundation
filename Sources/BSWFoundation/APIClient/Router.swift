@@ -11,7 +11,8 @@ extension APIClient {
     struct Router {
         let environment: Environment
         let signature: Signature?
-
+        var userAgent: UserAgent = .name
+        
         func urlRequest(forEndpoint endpoint: Endpoint) throws -> (URLRequest, URL?) {
             guard let URL = URL(string: environment.routeURL(endpoint.path)) else {
                 throw APIClient.Error.malformedURL
@@ -25,7 +26,13 @@ extension APIClient {
             if let signature = self.signature {
                 urlRequest.setValue(signature.value, forHTTPHeaderField: signature.name)
             }
-            urlRequest.setValue(Bundle.main.displayName, forHTTPHeaderField: "User-Agent")
+            let userAgentValue: String = {
+                switch userAgent {
+                case .name: return Bundle.main.displayName
+                case .appInfo: return "iOS 13.5 - Build \(Bundle.main.appBuild) - \(Bundle.main.appVersion)"
+                }
+            }()
+            urlRequest.setValue(userAgentValue, forHTTPHeaderField: userAgent.key)
 
             switch endpoint.parameterEncoding {
             case .url:
