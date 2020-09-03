@@ -33,6 +33,7 @@ open class APIClient {
     private let workerQueue: OperationQueue
     private let networkFetcher: APIClientNetworkFetcher
     private let sessionDelegate: SessionDelegate
+    open var mapError: (Swift.Error) -> (Swift.Error) = { $0 }
     
     public static func backgroundClient(environment: Environment, signature: Signature? = nil) -> APIClient {
         let session = URLSession(configuration: .background(withIdentifier: "\(Bundle.main.displayName)-APIClient"))
@@ -51,10 +52,11 @@ open class APIClient {
     public func perform<T: Decodable>(_ request: Request<T>) -> Task<T> {
         let task: Task<T> =
             createURLRequest(endpoint: request.endpoint)
-                .andThen(upon: workerQueue) { self.sendNetworkRequest($0) }
-                .andThen(upon: workerQueue) { request.performUserValidator(onResponse: $0) }
-                .andThen(upon: workerQueue) { self.validateResponse($0) }
-                .andThen(upon: workerQueue) { self.parseResponseData($0) }
+            .andThen(upon: workerQueue) { self.sendNetworkRequest($0) }
+            .andThen(upon: workerQueue) { request.performUserValidator(onResponse: $0) }
+            .andThen(upon: workerQueue) { self.validateResponse($0) }
+            .andThen(upon: workerQueue) { self.parseResponseData($0) }
+            .recover(upon: workerQueue) { throw self.mapError($0) }
         return task.fallback(upon: delegateQueue) { (error) in
             return self.attemptToRecoverFrom(error: error, request: request)
         }
