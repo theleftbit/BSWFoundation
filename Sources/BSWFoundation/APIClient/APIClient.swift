@@ -73,10 +73,6 @@ open class APIClient {
             signature: signature
         )
     }
-    
-    public func setUserAgentKind(_ ua: UserAgentKind) {
-        self.router.userAgentKind = ua
-    }
 
     public func removeTokenSignature() {
         self.router = Router(
@@ -129,14 +125,6 @@ extension APIClient {
         public init(name: String, value: String) {
             self.name = name
             self.value = value
-        }
-    }
-    
-    public enum UserAgentKind {
-        case name, appInfo
-        
-        var key: String {
-            return "User-Agent"
         }
     }
     

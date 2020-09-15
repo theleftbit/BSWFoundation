@@ -11,7 +11,6 @@ extension APIClient {
     struct Router {
         let environment: Environment
         let signature: Signature?
-        var userAgentKind: UserAgentKind = .name
         
         func urlRequest(forEndpoint endpoint: Endpoint) throws -> (URLRequest, URL?) {
             guard let URL = URL(string: environment.routeURL(endpoint.path)) else {
@@ -26,13 +25,8 @@ extension APIClient {
             if let signature = self.signature {
                 urlRequest.setValue(signature.value, forHTTPHeaderField: signature.name)
             }
-            let userAgentValue: String = {
-                switch userAgentKind {
-                case .name: return Bundle.main.displayName
-                case .appInfo: return "\(Bundle.main.osName) - Build \(Bundle.main.appBuild) - \(Bundle.main.appVersion)"
-                }
-            }()
-            urlRequest.setValue(userAgentValue, forHTTPHeaderField: userAgentKind.key)
+            let userAgentValue = "\(Bundle.main.osName) - \(Bundle.main.displayName) \(Bundle.main.appVersion) (\(Bundle.main.appBuild))"
+            urlRequest.setValue(userAgentValue.cleanForUserAgent, forHTTPHeaderField: "User-Agent")
 
             switch endpoint.parameterEncoding {
             case .url:
@@ -179,5 +173,14 @@ private enum URLEncoding {
         var allowedCharacterSet = CharacterSet.urlQueryAllowed
         allowedCharacterSet.remove(charactersIn: "\(generalDelimitersToEncode)\(subDelimitersToEncode)")
         return string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) ?? string
+    }
+}
+
+private extension String {
+    var cleanForUserAgent: String {
+        var allowed = CharacterSet()
+        allowed.formUnion(.urlPathAllowed)
+        allowed.formUnion(.whitespaces)
+        return String(unicodeScalars.filter { allowed.contains($0) })
     }
 }

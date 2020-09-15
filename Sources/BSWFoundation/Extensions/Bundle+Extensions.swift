@@ -13,11 +13,11 @@ extension Bundle {
     }
     
     var appVersion: String {
-        return object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String ?? "0"
+        return (infoDictionary?["CFBundleShortVersionString"] as? String) ?? ""
     }
     
     var appBuild: String {
-        return object(forInfoDictionaryKey: kCFBundleInfoDictionaryVersionKey as String) as? String ?? "1"
+        return (infoDictionary?["CFBundleVersion"] as? String) ?? ""
     }
 
     public var osName: String {
