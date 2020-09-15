@@ -29,10 +29,10 @@ extension APIClient {
             let userAgentValue: String = {
                 switch userAgentKind {
                 case .name: return Bundle.main.displayName
-                case .appInfo: return "\(Bundle.main.osName) - Build \(Bundle.main.appBuild) - \(Bundle.main.appVersion)"
+                case .appInfo: return "\(Bundle.main.osName) - \(Bundle.main.displayName) \(Bundle.main.appVersion) (\(Bundle.main.appBuild))"
                 }
             }()
-            urlRequest.setValue(userAgentValue, forHTTPHeaderField: userAgentKind.key)
+            urlRequest.setValue(userAgentValue.cleanForUserAgent, forHTTPHeaderField: userAgentKind.key)
 
             switch endpoint.parameterEncoding {
             case .url:
@@ -179,5 +179,14 @@ private enum URLEncoding {
         var allowedCharacterSet = CharacterSet.urlQueryAllowed
         allowedCharacterSet.remove(charactersIn: "\(generalDelimitersToEncode)\(subDelimitersToEncode)")
         return string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) ?? string
+    }
+}
+
+private extension String {
+    var cleanForUserAgent: String {
+        var allowed = CharacterSet()
+        allowed.formUnion(.urlPathAllowed)
+        allowed.formUnion(.whitespaces)
+        return String(unicodeScalars.filter { allowed.contains($0) })
     }
 }
