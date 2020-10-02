@@ -53,8 +53,9 @@ open class APIClient {
     public func perform<T: Decodable>(_ request: Request<T>) -> Task<T> {
         let task: Task<T> =
             createURLRequest(endpoint: request.endpoint)
+            .andThen(upon: workerQueue) { self.customizeNetworkRequest(networkRequest: $0) }
             .andThen(upon: workerQueue) { self.sendNetworkRequest($0) }
-            .andThen(upon: workerQueue) { request.performUserValidator(onResponse: $0) }
+            .andThen(upon: workerQueue) { request.performUserValidator(onResponse: $0, queue: self.delegateQueue) }
             .andThen(upon: workerQueue) { self.validateResponse($0) }
             .andThen(upon: workerQueue) { self.parseResponseData($0) }
             .recover(upon: workerQueue) { throw self.mapError($0) }
@@ -121,17 +122,23 @@ extension APIClient {
 private extension APIClient {
     
     typealias NetworkRequest = (request: URLRequest, fileURL: URL?)
+    
+    func customizeNetworkRequest(networkRequest: NetworkRequest) -> Task<NetworkRequest> {
+        return Task.async(upon: self.delegateQueue, onCancel: APIClient.Error.requestCanceled) { () in
+            return (self.customizeRequest(networkRequest.request), networkRequest.fileURL)
+        }
+    }
+    
     func sendNetworkRequest(_ networkRequest: NetworkRequest) -> Task<APIClient.Response> {
         defer { logRequest(request: networkRequest.request) }
-        let finalRequest = self.customizeRequest(networkRequest.request)
         if let fileURL = networkRequest.fileURL {
-            let task = self.networkFetcher.uploadFile(with: finalRequest, fileURL: fileURL)
+            let task = self.networkFetcher.uploadFile(with: networkRequest.request, fileURL: fileURL)
             task.upon(self.workerQueue) { (_) in
                 self.deleteFileAtPath(fileURL: fileURL)
             }
             return task
         } else {
-            return self.networkFetcher.fetchData(with: finalRequest)
+            return self.networkFetcher.fetchData(with: networkRequest.request)
         }
     }
 
@@ -306,8 +313,8 @@ extension URLSession: APIClientNetworkFetcher {
 }
 
 private extension Request {
-    func performUserValidator(onResponse response: APIClient.Response) -> Task<APIClient.Response> {
-        return Task.async(upon: .main, onCancel: APIClient.Error.requestCanceled) { () in
+    func performUserValidator(onResponse response: APIClient.Response, queue: DispatchQueue) -> Task<APIClient.Response> {
+        return Task.async(upon: queue, onCancel: APIClient.Error.requestCanceled) { () in
             try self.validator(response)
             return response
         }
