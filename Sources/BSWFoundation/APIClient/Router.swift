@@ -10,7 +10,6 @@ import Foundation
 extension APIClient {
     struct Router {
         let environment: Environment
-        let signature: Signature?
         
         func urlRequest(forEndpoint endpoint: Endpoint) throws -> (URLRequest, URL?) {
             guard let URL = URL(string: environment.routeURL(endpoint.path)) else {
@@ -22,9 +21,6 @@ extension APIClient {
 
             urlRequest.httpMethod = endpoint.method.rawValue
             urlRequest.allHTTPHeaderFields = endpoint.httpHeaderFields
-            if let signature = self.signature {
-                urlRequest.setValue(signature.value, forHTTPHeaderField: signature.name)
-            }
             let userAgentValue = "\(Bundle.main.osName) - \(Bundle.main.displayName) \(Bundle.main.appVersion) (\(Bundle.main.appBuild))"
             urlRequest.setValue(userAgentValue.cleanForUserAgent, forHTTPHeaderField: "User-Agent")
 

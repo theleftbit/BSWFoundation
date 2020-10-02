@@ -34,16 +34,17 @@ open class APIClient {
     private let networkFetcher: APIClientNetworkFetcher
     private let sessionDelegate: SessionDelegate
     open var mapError: (Swift.Error) -> (Swift.Error) = { $0 }
-    
-    public static func backgroundClient(environment: Environment, signature: Signature? = nil) -> APIClient {
+    open var customizeRequest: (URLRequest) -> (URLRequest) = { $0 }
+
+    public static func backgroundClient(environment: Environment) -> APIClient {
         let session = URLSession(configuration: .background(withIdentifier: "\(Bundle.main.displayName)-APIClient"))
-        return APIClient(environment: environment, signature: signature, networkFetcher: session)
+        return APIClient(environment: environment, networkFetcher: session)
     }
 
-    public init(environment: Environment, signature: Signature? = nil, networkFetcher: APIClientNetworkFetcher? = nil) {
+    public init(environment: Environment, networkFetcher: APIClientNetworkFetcher? = nil) {
         let sessionDelegate = SessionDelegate(environment: environment)
         let queue = queueForSubmodule("APIClient", qualityOfService: .userInitiated)
-        self.router = Router(environment: environment, signature: signature)
+        self.router = Router(environment: environment)
         self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: sessionDelegate, delegateQueue: queue)
         self.workerQueue = queue
         self.sessionDelegate = sessionDelegate
@@ -52,8 +53,9 @@ open class APIClient {
     public func perform<T: Decodable>(_ request: Request<T>) -> Task<T> {
         let task: Task<T> =
             createURLRequest(endpoint: request.endpoint)
+            .andThen(upon: workerQueue) { self.customizeNetworkRequest(networkRequest: $0) }
             .andThen(upon: workerQueue) { self.sendNetworkRequest($0) }
-            .andThen(upon: workerQueue) { request.performUserValidator(onResponse: $0) }
+            .andThen(upon: workerQueue) { request.performUserValidator(onResponse: $0, queue: self.delegateQueue) }
             .andThen(upon: workerQueue) { self.validateResponse($0) }
             .andThen(upon: workerQueue) { self.parseResponseData($0) }
             .recover(upon: workerQueue) { throw self.mapError($0) }
@@ -66,21 +68,7 @@ open class APIClient {
         return createURLRequest(endpoint: endpoint)
             .andThen(upon: workerQueue) { self.sendNetworkRequest($0) }
     }
-    
-    public func addSignature(_ signature: Signature) {
-        self.router = Router(
-            environment: router.environment,
-            signature: signature
-        )
-    }
-
-    public func removeTokenSignature() {
-        self.router = Router(
-            environment: router.environment,
-            signature: nil
-        )
-    }
-    
+        
     public var currentEnvironment: Environment {
         return self.router.environment
     }
@@ -117,17 +105,7 @@ extension APIClient {
             case onlyFailing
         }
     }
-    
-    public struct Signature {
-        let name: String
-        let value: String
-
-        public init(name: String, value: String) {
-            self.name = name
-            self.value = value
-        }
-    }
-    
+        
     public struct Response {
         public let data: Data
         public let httpResponse: HTTPURLResponse
@@ -144,6 +122,13 @@ extension APIClient {
 private extension APIClient {
     
     typealias NetworkRequest = (request: URLRequest, fileURL: URL?)
+    
+    func customizeNetworkRequest(networkRequest: NetworkRequest) -> Task<NetworkRequest> {
+        return Task.async(upon: self.delegateQueue, onCancel: APIClient.Error.requestCanceled) { () in
+            return (self.customizeRequest(networkRequest.request), networkRequest.fileURL)
+        }
+    }
+    
     func sendNetworkRequest(_ networkRequest: NetworkRequest) -> Task<APIClient.Response> {
         defer { logRequest(request: networkRequest.request) }
         if let fileURL = networkRequest.fileURL {
@@ -328,8 +313,8 @@ extension URLSession: APIClientNetworkFetcher {
 }
 
 private extension Request {
-    func performUserValidator(onResponse response: APIClient.Response) -> Task<APIClient.Response> {
-        return Task.async(upon: .main, onCancel: APIClient.Error.requestCanceled) { () in
+    func performUserValidator(onResponse response: APIClient.Response, queue: DispatchQueue) -> Task<APIClient.Response> {
+        return Task.async(upon: queue, onCancel: APIClient.Error.requestCanceled) { () in
             try self.validator(response)
             return response
         }

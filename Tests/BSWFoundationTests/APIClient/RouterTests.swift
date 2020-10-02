@@ -7,31 +7,27 @@ import XCTest
 
 class RouterTests: XCTestCase {
 
-    private let signature = APIClient.Signature(name: "api_key", value: "hola")
-
     func testSimpleURLEncoding() throws {
-        let sut = APIClient.Router(environment: Giphy.Hosts.production, signature: signature)
+        let sut = APIClient.Router(environment: Giphy.Hosts.production)
         let urlRequest = try sut.urlRequest(forEndpoint: Giphy.API.search("hola")).0
         guard let url = urlRequest.url else {
             throw Error.objectUnwrappedFailed
         }
         XCTAssert(url.absoluteString == "https://api.giphy.com/v1/gifs/search?q=hola")
-        XCTAssert(urlRequest.allHTTPHeaderFields?["api_key"] == "hola")
         XCTAssert(urlRequest.allHTTPHeaderFields?["Content-Type"] == "application/x-www-form-urlencoded")
     }
 
     func testComplicatedURLEncoding() throws {
-        let sut = APIClient.Router(environment: Giphy.Hosts.production, signature: signature)
+        let sut = APIClient.Router(environment: Giphy.Hosts.production)
         let urlRequest = try sut.urlRequest(forEndpoint: Giphy.API.search("hola guapa")).0
         guard let url = urlRequest.url else {
             throw Error.objectUnwrappedFailed
         }
         XCTAssert(url.absoluteString == "https://api.giphy.com/v1/gifs/search?q=hola%20guapa")
-        XCTAssert(urlRequest.allHTTPHeaderFields?["api_key"] == "hola")
     }
 
     func testJSONEncoding() throws {
-        let sut = APIClient.Router(environment: HTTPBin.Hosts.production, signature: signature)
+        let sut = APIClient.Router(environment: HTTPBin.Hosts.production)
         let endpoint = HTTPBin.API.orderPizza
         typealias PizzaRequestParams = [String: [String]]
 
