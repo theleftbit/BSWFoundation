@@ -87,7 +87,7 @@ class APIClientTests: XCTestCase {
     
     func testUnauthorizedCallsRightMethod() throws {
         let mockDelegate = MockAPIClientDelegate()
-        sut = APIClient(environment: HTTPBin.Hosts.production, signature: nil, networkFetcher: Network401Fetcher())
+        sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: Network401Fetcher())
         sut.delegate = mockDelegate
         
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
@@ -102,10 +102,11 @@ class APIClientTests: XCTestCase {
         
         class MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
             func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>? {
-                apiClient.addSignature(APIClient.Signature(
-                    name: "JWT",
-                    value: "Daenerys Targaryen is the True Queen")
-                )
+                apiClient.customizeRequest = { urlRequest in
+                    var mutableRequest = urlRequest
+                    mutableRequest.setValue("Daenerys Targaryen is the True Queen", forHTTPHeaderField: "JWT")
+                    return mutableRequest
+                }
                 return Task(success: ())
             }
         }
@@ -125,7 +126,7 @@ class APIClientTests: XCTestCase {
             }
         }
         
-        sut = APIClient(environment: HTTPBin.Hosts.production, signature: nil, networkFetcher: SignatureCheckingNetworkFetcher())
+        sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: SignatureCheckingNetworkFetcher())
         let mockDelegate = MockAPIClientDelegateThatGeneratesNewSignature()
         sut.delegate = mockDelegate
 
@@ -133,6 +134,28 @@ class APIClientTests: XCTestCase {
             endpoint: HTTPBin.API.ip
         )
         let _ = try waitAndExtractValue(sut.perform(ipRequest))
+    }
+    
+    func testCustomizeRequests() throws {
+        let mockNetworkFetcher = MockNetworkFetcher()
+        mockNetworkFetcher.mockedData = Data()
+        sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: mockNetworkFetcher)
+        sut.customizeRequest = {
+            var mutableURLRequest = $0
+            mutableURLRequest.setValue("hello", forHTTPHeaderField: "Signature")
+            return mutableURLRequest
+        }
+        
+        let ipRequest = BSWFoundation.Request<VoidResponse>(
+            endpoint: HTTPBin.API.ip
+        )
+
+        let _ = try waitAndExtractValue(sut.perform(ipRequest))
+        
+        guard let capturedURLRequest = mockNetworkFetcher.capturedURLRequest else {
+            throw ValidationError()
+        }
+        XCTAssert(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
     }
 }
 
