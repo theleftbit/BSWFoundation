@@ -65,8 +65,13 @@ open class APIClient {
     }
 
     public func performSimpleRequest(forEndpoint endpoint: Endpoint) -> Task<APIClient.Response> {
-        return createURLRequest(endpoint: endpoint)
-            .andThen(upon: workerQueue) { self.sendNetworkRequest($0) }
+        createURLRequest(endpoint: endpoint)
+            .andThen(upon: workerQueue) {
+                self.customizeNetworkRequest(networkRequest: $0)
+            }
+            .andThen(upon: workerQueue) {
+                self.sendNetworkRequest($0)
+            }
     }
         
     public var currentEnvironment: Environment {

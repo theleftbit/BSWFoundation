@@ -157,6 +157,24 @@ class APIClientTests: XCTestCase {
         }
         XCTAssert(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
     }
+    
+    func testCustomizeSimpleRequests() throws {
+        let mockNetworkFetcher = MockNetworkFetcher()
+        mockNetworkFetcher.mockedData = Data()
+        sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: mockNetworkFetcher)
+        sut.customizeRequest = {
+            var mutableURLRequest = $0
+            mutableURLRequest.setValue("hello", forHTTPHeaderField: "Signature")
+            return mutableURLRequest
+        }
+        
+        let _ = try waitAndExtractValue(sut.performSimpleRequest(forEndpoint: HTTPBin.API.ip))
+        
+        guard let capturedURLRequest = mockNetworkFetcher.capturedURLRequest else {
+            throw ValidationError()
+        }
+        XCTAssert(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
+    }
 }
 
 private func generateRandomData() -> Data {
