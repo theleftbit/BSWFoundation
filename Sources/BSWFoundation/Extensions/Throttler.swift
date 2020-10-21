@@ -7,7 +7,7 @@ import Foundation
 
 public class Throttler {
     
-    public let queue: DispatchQueue
+    private let queue: DispatchQueue
     private var job = DispatchWorkItem(block: {})
     private let maxInterval: Double
     
