@@ -7,17 +7,20 @@ import Foundation
 
 public class Throttler {
     
-    private let queue: DispatchQueue = DispatchQueue.global(qos: .default)
+    public var queue: DispatchQueue = DispatchQueue.global(qos: .default)
     
-    private var job: DispatchWorkItem = DispatchWorkItem(block: {})
-    private var previousRun: Date = Date.distantPast
-    private var maxInterval: Double
+    private var job = DispatchWorkItem(block: {})
+    private var previousRun: Date!
+    private let maxInterval: Double
     
     public init(seconds: Double) {
         self.maxInterval = seconds
     }
     
     public func throttle(block: @escaping () -> ()) {
+        if previousRun == nil {
+            self.previousRun = Date()
+        }
         job.cancel()
         job = DispatchWorkItem(){ [weak self] in
             self?.previousRun = Date()
