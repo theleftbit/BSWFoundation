@@ -22,10 +22,7 @@ extension Bundle {
 
     public var osName: String {
         let version = ProcessInfo.processInfo.operatingSystemVersion
-        #if os(iOS)
-        return "iOS \(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
-        #else
-        return "macOS \(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
-        #endif
+        let osName = ProcessInfo.processInfo.isCatalystOriIOSAppOnMac ? "macOS" : "iOS"
+        return "\(osName) \(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
     }
 }
