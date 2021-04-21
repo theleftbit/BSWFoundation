@@ -1,4 +1,4 @@
-// swift-tools-version:5.2
+// swift-tools-version:5.4
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -14,12 +14,11 @@ let package = Package(
     products: [
         .library(
             name: "BSWFoundation",
-            type: .dynamic,
             targets: ["BSWFoundation"]
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/theleftbit/Deferred.git", from: "4.2.0"),
+        .package(url: "https://github.com/bignerdranch/Deferred.git", from: "4.1.0"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.0"),
     ],
     targets: [

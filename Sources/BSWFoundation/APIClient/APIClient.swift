@@ -15,7 +15,7 @@ public protocol APIClientNetworkFetcher {
     func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response>
 }
 
-public protocol APIClientDelegate: class {
+public protocol APIClientDelegate: AnyObject {
     func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>?
     func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient)
 }
