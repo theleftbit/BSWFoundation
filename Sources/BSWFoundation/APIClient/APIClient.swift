@@ -295,9 +295,10 @@ extension URLSession: APIClientNetworkFetcher {
         }
         urlSessionTask.resume()
         let task = Task(deferred, progress: urlSessionTask.progress)
-        #if os(iOS)
-        UIApplication.shared.keepAppAliveUntilTaskCompletes(task)
-        #endif
+#if os(iOS)
+        let app = UIApplication.value(forKey: "sharedApplication") as? UIApplication
+        app?.keepAppAliveUntilTaskCompletes(task)
+#endif
         return task
     }
 
