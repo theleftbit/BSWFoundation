@@ -27,6 +27,8 @@ public protocol Endpoint {
     
     /// The HTTP headers to be sent
     var httpHeaderFields: HTTPHeaders? { get }
+    
+    var cacheResponse: Bool { get }
 }
 
 public enum HTTPMethod: String {
@@ -56,6 +58,8 @@ extension Endpoint {
     public var httpHeaderFields: HTTPHeaders? {
         return nil
     }
+    
+    public var cacheResponse: Bool { false }
 }
 
 

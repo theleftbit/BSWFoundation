@@ -15,8 +15,8 @@ extension APIClient {
             guard let URL = URL(string: environment.routeURL(endpoint.path)) else {
                 throw APIClient.Error.malformedURL
             }
-
-            var urlRequest = URLRequest(url: URL)
+            
+            var urlRequest = URLRequest(url: URL, cachePolicy: endpoint.cacheResponse ? .returnCacheDataElseLoad : .reloadIgnoringLocalCacheData)
             var fileURL: URL?
 
             urlRequest.httpMethod = endpoint.method.rawValue
