@@ -113,12 +113,12 @@ class APIClientTests: XCTestCase {
         
         class SignatureCheckingNetworkFetcher: APIClientNetworkFetcher {
             
-            func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response> {
+        func fetchData(with urlRequest: URLRequest, urlCache: URLCache?) -> Task<APIClient.Response> {
                 guard let _ = urlRequest.allHTTPHeaderFields?["JWT"] else {
                     return Task(success: APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!))
                 }
                 
-                return URLSession.shared.fetchData(with: urlRequest)
+            return URLSession.shared.fetchData(with: urlRequest, urlCache: nil)
             }
             
             func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {
@@ -196,7 +196,7 @@ private class MockAPIClientDelegate: APIClientDelegate {
 
 private class Network401Fetcher: APIClientNetworkFetcher {
     
-    func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response> {
+func fetchData(with urlRequest: URLRequest, urlCache: URLCache?) -> Task<APIClient.Response> {
         return Task(success: APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!))
     }
     
