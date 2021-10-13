@@ -41,11 +41,13 @@ open class APIClient {
         return APIClient(environment: environment, networkFetcher: session)
     }
 
-    public init(environment: Environment, networkFetcher: APIClientNetworkFetcher? = nil) {
+    public init(environment: Environment, networkFetcher: APIClientNetworkFetcher? = nil, enableURLCache: Bool = false) {
         let sessionDelegate = SessionDelegate(environment: environment)
         let queue = queueForSubmodule("APIClient", qualityOfService: .userInitiated)
         self.router = Router(environment: environment)
-        self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: sessionDelegate, delegateQueue: queue)
+        let urlSessionConfiguration = URLSessionConfiguration.default
+        urlSessionConfiguration.urlCache = enableURLCache ? URLCache.shared : nil
+        self.networkFetcher = networkFetcher ?? URLSession(configuration: urlSessionConfiguration, delegate: sessionDelegate, delegateQueue: queue)
         self.workerQueue = queue
         self.sessionDelegate = sessionDelegate
     }
