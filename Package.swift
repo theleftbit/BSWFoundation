@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "BSWFoundation",
     platforms: [
-        .iOS(.v11),
+        .iOS(.v14),
         .tvOS(.v11),
         .macOS(.v10_13),
         .watchOS(.v4),
