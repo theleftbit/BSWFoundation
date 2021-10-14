@@ -37,17 +37,21 @@ open class APIClient {
     open var customizeRequest: (URLRequest) -> (URLRequest) = { $0 }
 
     public static func backgroundClient(environment: Environment) -> APIClient {
-        let session = URLSession(configuration: .background(withIdentifier: "\(Bundle.main.displayName)-APIClient"))
+        let session = URLSession(configuration: .background(withIdentifier: environment.apiClientName))
         return APIClient(environment: environment, networkFetcher: session)
     }
 
-    public init(environment: Environment, networkFetcher: APIClientNetworkFetcher? = nil, enableURLCache: Bool = false) {
-        let sessionDelegate = SessionDelegate(environment: environment)
-        let queue = queueForSubmodule("APIClient", qualityOfService: .userInitiated)
-        self.router = Router(environment: environment)
+    public static func urlSessionNetworkFetcher(enableURLCache: Bool = false, sessionDelegate: URLSessionDelegate? = nil, queue: OperationQueue = .main) -> APIClientNetworkFetcher {
         let urlSessionConfiguration = URLSessionConfiguration.default
         urlSessionConfiguration.urlCache = enableURLCache ? URLCache.shared : nil
-        self.networkFetcher = networkFetcher ?? URLSession(configuration: urlSessionConfiguration, delegate: sessionDelegate, delegateQueue: queue)
+        return URLSession(configuration: urlSessionConfiguration, delegate: sessionDelegate, delegateQueue: queue)
+    }
+    
+    public init(environment: Environment, networkFetcher: APIClientNetworkFetcher? = nil) {
+        let sessionDelegate = SessionDelegate(environment: environment)
+        let queue = queueForSubmodule(environment.apiClientName, qualityOfService: .userInitiated)
+        self.router = Router(environment: environment)
+        self.networkFetcher = networkFetcher ?? APIClient.urlSessionNetworkFetcher(sessionDelegate: sessionDelegate, queue: queue)
         self.workerQueue = queue
         self.sessionDelegate = sessionDelegate
     }
@@ -340,5 +344,12 @@ private extension Swift.Error {
                 return false
         }
         return true
+    }
+}
+
+private extension Environment {
+    var apiClientName: String {
+        let host = self.baseURL.host ?? ""
+        return "\(host).APIClient"
     }
 }
