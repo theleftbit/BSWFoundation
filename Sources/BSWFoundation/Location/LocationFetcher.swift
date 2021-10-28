@@ -39,7 +39,7 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
             return Future(currentRequest)
         }
 
-        switch CLLocationManager.authorizationStatus() {
+        switch locationManager.authorizationStatus {
         case .restricted:
             fallthrough
         case .denied:
