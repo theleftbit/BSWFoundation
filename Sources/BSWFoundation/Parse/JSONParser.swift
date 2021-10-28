@@ -13,11 +13,21 @@ public enum JSONParser {
     public static let Options: JSONSerialization.ReadingOptions = [.allowFragments]
     
     public static func parseData<T: Decodable>(_ data: Data) -> Task<T> {
-        let task: Task<T> = Task.async(upon: queue, onCancel: Error.canceled) {
-            let result: Task<T>.Result = self.parseData(data)
-            return try result.extract()
+        Task.fromSwiftConcurrency { try await self.parseData(data) }
+    }
+
+    public static func parseData<T: Decodable>(_ data: Data) async throws -> T {
+        try await withCheckedThrowingContinuation { continuation in
+            queue.async {
+                let result: Swift.Result<T, Error> = self.parseData(data)
+                switch result {
+                case .success(let value):
+                    continuation.resume(returning: value)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
         }
-        return task
     }
 
     public static func dataIsNull(_ data: Data) -> Bool {
@@ -55,24 +65,11 @@ public enum JSONParser {
         return dictionary["error"]
     }
 
-    static public func parseData<T: Decodable>(_ data: Data) -> Task<T>.Result {
+    static public func parseData<T: Decodable>(_ data: Data) -> Swift.Result<T, Error> {
 
         guard T.self != VoidResponse.self else {
             let response = VoidResponse.init() as! T
             return .success(response)
-        }
-        
-        /// Turns out that on iOS 12,  parsing basic types using
-        /// Swift's `Decodable` is failing for some unknown
-        /// reasons. To lazy to file a radar...
-        /// So here we're instead using the good and trusted
-        /// `NSJSONSerialization` class
-        if T.self == Bool.self || T.self == Int.self || T.self == String.self {
-            if let output = try? JSONSerialization.jsonObject(with: data, options: JSONParser.Options) as? T {
-                return .success(output)
-            } else {
-                return .failure(Error.malformedJSON)
-            }
         }
         
         if let provider = T.self as? DateDecodingStrategyProvider.Type {
@@ -81,7 +78,7 @@ public enum JSONParser {
             jsonDecoder.dateDecodingStrategy = .formatted(iso8601DateFormatter)
         }
 
-        let result: Task<T>.Result
+        let result: Swift.Result<T, Error>
         do {
             let output: T = try jsonDecoder.decode(T.self, from: data)
             result = .success(output)
@@ -121,23 +118,6 @@ public enum JSONParser {
         case canceled
     }
 }
-
-#if canImport(Combine)
-
-@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-public extension JSONParser {
-    
-    static func parseData<T: Decodable>(_ data: Data) -> CombineTask<T> {
-        let task: Task<T> = self.parseData(data)
-        return task.future
-    }
-
-    static func parseData<T: Decodable>(_ data: Data) -> Swift.Result<T, Swift.Error> {
-        return parseData(data).swiftResult
-    }
-}
-
-#endif
 
 public protocol DateDecodingStrategyProvider {
     static var dateDecodingStrategy: DateFormatter { get }

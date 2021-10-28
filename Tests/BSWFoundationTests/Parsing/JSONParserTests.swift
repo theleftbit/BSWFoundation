@@ -26,6 +26,13 @@ class JSONParserTests: XCTestCase {
         let _ = try self.waitAndExtractValue(task)
     }
 
+    func testParsing_forSwiftConcurency() async throws {
+        let model = SampleModel(identity: "123456", name: "Hola", amount: 5678)
+        let jsonData = try JSONEncoder().encode(model)
+        let parsedModel: SampleModel = try await JSONParser.parseData(jsonData)
+        XCTAssert(model.identity == parsedModel.identity)
+    }
+
     func testArrayParsing() throws {
         let model1 = SampleModel(identity: "123456", name: "Hola", amount: 5678)
         let model2 = SampleModel(identity: "987642", name: "🍻", amount: 0986)
@@ -56,14 +63,6 @@ class JSONParserTests: XCTestCase {
         let task: Task<VoidResponse> = JSONParser.parseData(jsonData)
         let value = try self.waitAndExtractValue(task)
         print(value)
-    }
-
-    func testParsingUsingCombine() throws {
-        guard #available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) else { return }
-        let model = SampleModel(identity: "123456", name: "Hola", amount: 5678)
-        let jsonData = try JSONEncoder().encode(model)
-        let publisher: CombineTask<SampleModel> = JSONParser.parseData(jsonData)
-        let _ = try self.waitAndExtractValue(publisher)
     }
 }
 

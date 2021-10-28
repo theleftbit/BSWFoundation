@@ -63,6 +63,20 @@ extension Task {
             }
         }
     }
+    
+    public typealias SwiftConcurrencySignature = () async throws -> Success
+    public static func fromSwiftConcurrency(_ closure: @escaping SwiftConcurrencySignature) -> Task<Success> {
+        let deferred = Deferred<Task<Success>.Result>()
+        _Concurrency.Task {
+            do {
+                let object: Success = try await closure()
+                deferred.fill(with: .success(object))
+            } catch {
+                deferred.fill(with: .failure(error))
+            }
+        }
+        return Task(deferred)
+    }
 }
 
 extension Task.Result {
