@@ -79,6 +79,18 @@ extension Task {
     }
 }
 
+extension Future {
+    public typealias SwiftConcurrencySignature = () async -> Value?
+    public static func fromSwiftConcurrency(_ closure: @escaping SwiftConcurrencySignature) -> Future<Value?> {
+        let deferred = Deferred<Value?>()
+        _Concurrency.Task {
+            let object: Value? = await closure()
+            deferred.fill(with: object)
+        }
+        return Future<Value?>(deferred)
+    }
+}
+
 extension Task.Result {
     public var value: Success? {
         switch self {
