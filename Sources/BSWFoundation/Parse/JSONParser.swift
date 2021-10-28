@@ -4,17 +4,12 @@
 //
 
 import Foundation
-import Task; import Deferred
 
 public enum JSONParser {
     
     private static let queue = DispatchQueue(label: "com.bswfoundation.JSONParser")
     public static let jsonDecoder = JSONDecoder()
     public static let Options: JSONSerialization.ReadingOptions = [.allowFragments]
-    
-    public static func parseData<T: Decodable>(_ data: Data) -> Task<T> {
-        Task.fromSwiftConcurrency { try await self.parseData(data) }
-    }
 
     public static func parseData<T: Decodable>(_ data: Data) async throws -> T {
         try await withCheckedThrowingContinuation { continuation in
@@ -133,5 +128,15 @@ private var iso8601DateFormatter: DateFormatter {
 extension Array: DateDecodingStrategyProvider where Element: DateDecodingStrategyProvider {
     public static var dateDecodingStrategy: DateFormatter {
         return Element.dateDecodingStrategy
+    }
+}
+
+import Task
+
+/// Legacy implementation using Deferred
+
+extension JSONParser {
+    public static func parseData<T: Decodable>(_ data: Data) -> Task<T> {
+        Task.fromSwiftConcurrency { try await self.parseData(data) }
     }
 }
