@@ -7,22 +7,22 @@ import Foundation
 
 public enum JSONParser {
     
-    private static let queue = DispatchQueue(label: "com.bswfoundation.JSONParser")
     public static let jsonDecoder = JSONDecoder()
     public static let Options: JSONSerialization.ReadingOptions = [.allowFragments]
 
     public static func parseData<T: Decodable>(_ data: Data) async throws -> T {
-        try await withCheckedThrowingContinuation { continuation in
-            queue.async {
+        let task: _Concurrency.Task<T, Swift.Error> = _Concurrency.Task {
+            do {
                 let result: Swift.Result<T, Error> = self.parseData(data)
                 switch result {
                 case .success(let value):
-                    continuation.resume(returning: value)
+                    return value
                 case .failure(let error):
-                    continuation.resume(throwing: error)
+                    throw error
                 }
             }
         }
+        return try await task.value
     }
 
     public static func dataIsNull(_ data: Data) -> Bool {
