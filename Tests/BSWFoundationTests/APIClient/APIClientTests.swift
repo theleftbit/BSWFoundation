@@ -64,6 +64,7 @@ class APIClientTests: XCTestCase {
             print(progress.fractionCompleted)
         }
         let _ = try self.waitAndExtractValue(uploadTask, timeout: 10)
+        if let _ = progress {} /// This if-let is to to shut up the compiler
         progress = nil
     }
 
@@ -101,29 +102,30 @@ class APIClientTests: XCTestCase {
     func testUnauthorizedRetriesAfterGeneratingNewCredentials() throws {
         
         class MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
-            func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>? {
+            func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool {
                 apiClient.customizeRequest = { urlRequest in
                     var mutableRequest = urlRequest
                     mutableRequest.setValue("Daenerys Targaryen is the True Queen", forHTTPHeaderField: "JWT")
                     return mutableRequest
                 }
-                return Task(success: ())
+                return true
             }
         }
         
         class SignatureCheckingNetworkFetcher: APIClientNetworkFetcher {
             
-            func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response> {
+            public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
                 guard let _ = urlRequest.allHTTPHeaderFields?["JWT"] else {
-                    return Task(success: APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!))
+                    return APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!)
                 }
                 
-                return URLSession.shared.fetchData(with: urlRequest)
+                return try await URLSession.shared.fetchData(with: urlRequest)
             }
             
-            func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {
+            public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
                 fatalError()
             }
+
         }
         
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: SignatureCheckingNetworkFetcher())
@@ -186,21 +188,20 @@ private func generateRandomData() -> Data {
 import Task
 
 private class MockAPIClientDelegate: APIClientDelegate {
-    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>? {
+    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool {
         failedPath = atPath
-        return nil
+        return false
     }
-    
     var failedPath: String?
 }
 
 private class Network401Fetcher: APIClientNetworkFetcher {
     
-    func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response> {
-        return Task(success: APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!))
+    public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
+        return APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!)
     }
     
-    func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {
+    public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
         fatalError()
     }
 }

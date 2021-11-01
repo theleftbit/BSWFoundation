@@ -4,19 +4,17 @@
 //
 
 import Foundation
-import Task
-import Deferred
 #if canImport(UIKit)
 import UIKit
 #endif
 
 public protocol APIClientNetworkFetcher {
-    func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response>
-    func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response>
+    func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response
+    func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response
 }
 
 public protocol APIClientDelegate: AnyObject {
-    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) -> Task<()>?
+    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool
     func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient)
 }
 
@@ -30,7 +28,6 @@ open class APIClient {
     open var loggingConfiguration = LoggingConfiguration.default
     open var delegateQueue = DispatchQueue.main
     private var router: Router
-    private let workerQueue: OperationQueue
     private let networkFetcher: APIClientNetworkFetcher
     private let sessionDelegate: SessionDelegate
     open var mapError: (Swift.Error) -> (Swift.Error) = { $0 }
@@ -43,37 +40,37 @@ open class APIClient {
 
     public init(environment: Environment, networkFetcher: APIClientNetworkFetcher? = nil) {
         let sessionDelegate = SessionDelegate(environment: environment)
-        let queue = queueForSubmodule("APIClient", qualityOfService: .userInitiated)
         self.router = Router(environment: environment)
-        self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: sessionDelegate, delegateQueue: queue)
-        self.workerQueue = queue
+        self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: sessionDelegate, delegateQueue: queueForSubmodule("APIClient", qualityOfService: .userInitiated))
         self.sessionDelegate = sessionDelegate
     }
 
-    public func perform<T: Decodable>(_ request: Request<T>) -> Task<T> {
-        let task: Task<T> =
-            createURLRequest(endpoint: request.endpoint)
-            .andThen(upon: workerQueue) { self.customizeNetworkRequest(networkRequest: $0) }
-            .andThen(upon: workerQueue) { self.sendNetworkRequest($0) }
-            .andThen(upon: workerQueue) { request.performUserValidator(onResponse: $0, queue: self.delegateQueue) }
-            .andThen(upon: workerQueue) { self.validateResponse($0) }
-            .andThen(upon: workerQueue) { self.parseResponseData($0) }
-            .recover(upon: workerQueue) { throw self.mapError($0) }
-        return task.fallback(upon: delegateQueue) { (error) in
-            return self.attemptToRecoverFrom(error: error, request: request)
+    public func perform<T: Decodable>(_ request: Request<T>) async throws -> T {
+        let task = _Concurrency.Task { () -> T in
+            let urlRequest              = try self.router.urlRequest(forEndpoint: request.endpoint)
+            let customizedURLRequest    = try await customizeNetworkRequest(networkRequest: urlRequest)
+            let response                = try await sendNetworkRequest(customizedURLRequest)
+            let userValidatedResponse   = try await request.performUserValidator(onResponse: response, queue: self.delegateQueue)
+            let validatedResponse       = try await validateResponse(userValidatedResponse)
+            return try await parseResponseData(validatedResponse)
+        }
+        do {
+            return try await task.value
+        } catch {
+            do {
+                return try await attemptToRecoverFrom(error: error, request: request)
+            } catch {
+                throw self.mapError(error)
+            }
         }
     }
 
-    public func performSimpleRequest(forEndpoint endpoint: Endpoint) -> Task<APIClient.Response> {
-        createURLRequest(endpoint: endpoint)
-            .andThen(upon: workerQueue) {
-                self.customizeNetworkRequest(networkRequest: $0)
-            }
-            .andThen(upon: workerQueue) {
-                self.sendNetworkRequest($0)
-            }
+    public func performSimpleRequest(forEndpoint endpoint: Endpoint) async throws -> APIClient.Response {
+        let request             = try self.router.urlRequest(forEndpoint: endpoint)
+        let customizedRequest   = try await customizeNetworkRequest(networkRequest: request)
+        return try await sendNetworkRequest(customizedRequest)
     }
-        
+
     public var currentEnvironment: Environment {
         return self.router.environment
     }
@@ -127,31 +124,32 @@ extension APIClient {
 private extension APIClient {
     
     typealias NetworkRequest = (request: URLRequest, fileURL: URL?)
-    
-    func customizeNetworkRequest(networkRequest: NetworkRequest) -> Task<NetworkRequest> {
-        return Task.async(upon: self.delegateQueue, onCancel: APIClient.Error.requestCanceled) { () in
-            return (self.customizeRequest(networkRequest.request), networkRequest.fileURL)
-        }
-    }
-    
-    func sendNetworkRequest(_ networkRequest: NetworkRequest) -> Task<APIClient.Response> {
-        defer { logRequest(request: networkRequest.request) }
-        if let fileURL = networkRequest.fileURL {
-            let task = self.networkFetcher.uploadFile(with: networkRequest.request, fileURL: fileURL)
-            task.upon(self.workerQueue) { (_) in
-                self.deleteFileAtPath(fileURL: fileURL)
+
+    func customizeNetworkRequest(networkRequest: NetworkRequest) async throws -> NetworkRequest {
+        try await withCheckedThrowingContinuation { continuation in
+            self.delegateQueue.async {
+                let result = (self.customizeRequest(networkRequest.request), networkRequest.fileURL)
+                continuation.resume(returning: result)
             }
-            return task
-        } else {
-            return self.networkFetcher.fetchData(with: networkRequest.request)
         }
     }
 
-    func validateResponse(_ response: Response) -> Task<Data> {
+    func sendNetworkRequest(_ networkRequest: NetworkRequest) async throws -> APIClient.Response {
+        defer { logRequest(request: networkRequest.request) }
+        if let fileURL = networkRequest.fileURL {
+            let response = try await self.networkFetcher.uploadFile(with: networkRequest.request, fileURL: fileURL)
+            try await self.deleteFileAtPath(fileURL: fileURL)
+            return response
+        } else {
+            return try await self.networkFetcher.fetchData(with: networkRequest.request)
+        }
+    }
+
+    func validateResponse(_ response: Response) async throws -> Data {
         defer { logResponse(response)}
         switch response.httpResponse.statusCode {
         case (200..<300):
-            return .init(success: response.data)
+            return response.data
         default:
             let apiError = APIClient.Error.failureStatusCode(response.httpResponse.statusCode, response.data)
             
@@ -161,58 +159,44 @@ private extension APIClient {
                 }
             }
 
-            return .init(failure: apiError)
+            throw apiError
         }
     }
 
-    func parseResponseData<T: Decodable>(_ data: Data) -> Task<T> {
-        return JSONParser.parseData(data)
+    func parseResponseData<T: Decodable>(_ data: Data) async throws -> T {
+        return try await JSONParser.parseData(data)
     }
 
-    func attemptToRecoverFrom<T: Decodable>(error: Swift.Error, request: Request<T>) -> Task<T> {
+    func attemptToRecoverFrom<T: Decodable>(error: Swift.Error, request: Request<T>) async throws -> T {
         guard error.is401,
             request.shouldRetryIfUnauthorized,
-            let newSignatureTask = self.delegate?.apiClientDidReceiveUnauthorized(forRequest: request.endpoint.path, apiClient: self) else {
-            return Task(failure: error)
+            let delegate = self.delegate else {
+            throw error
+        }
+        let didUpdateSignature = try await delegate.apiClientDidReceiveUnauthorized(forRequest: request.endpoint.path, apiClient: self)
+        guard didUpdateSignature else {
+            throw error
         }
         let mutatedRequest = Request<T>(
             endpoint: request.endpoint,
             shouldRetryIfUnauthorized: false,
             validator: request.validator
         )
-        return newSignatureTask.andThen(upon: workerQueue) { _ in
-            return self.perform(mutatedRequest)
-        }
+        return try await perform(mutatedRequest)
     }
 
-    func createURLRequest(endpoint: Endpoint) -> Task<(URLRequest, URL?)> {
-        let deferred = Deferred<Task<(URLRequest, URL?)>.Result>()
-        let operation = BlockOperation {
-            do {
-                let request = try self.router.urlRequest(forEndpoint: endpoint)
-                deferred.fill(with: .success(request))
-            } catch let error {
-                deferred.fill(with: .failure(error))
+    func deleteFileAtPath(fileURL: URL) async throws -> Void {
+        let void: Void = try await withCheckedThrowingContinuation { continuation in
+            FileManagerWrapper.shared.perform { fileManager in
+                do {
+                    try fileManager.removeItem(at: fileURL)
+                    continuation.resume(returning: ())
+                } catch let error {
+                    continuation.resume(throwing: error)
+                }
             }
         }
-        workerQueue.addOperation(operation)
-        return Task(deferred, uponCancel: { [weak operation] in
-            operation?.cancel()
-        })
-    }
-
-    @discardableResult
-    func deleteFileAtPath(fileURL: URL) -> Task<()> {
-        let deferred = Deferred<Task<()>.Result>()
-        FileManagerWrapper.shared.perform { fileManager in
-            do {
-                try fileManager.removeItem(at: fileURL)
-                deferred.succeed(with: ())
-            } catch let error {
-                deferred.fail(with: error)
-            }
-        }
-        return Task(deferred)
+        return void /// as of Xcode 13.2, this stupid variable was required
     }
 
     /// Proxy object to do all our URLSessionDelegate work
@@ -279,49 +263,54 @@ private extension APIClient {
 }
 
 extension URLSession: APIClientNetworkFetcher {
-    public func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response> {
-        let deferred = Deferred<Task<APIClient.Response>.Result>()
-        let task = self.dataTask(with: urlRequest) { (data, response, error) in
-            self.analyzeResponse(deferred: deferred, data: data, response: response, error: error)
+
+    @available(iOS, deprecated: 15.0, message: "Use the built-in API instead")
+    public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
+        try await withCheckedThrowingContinuation { continuation in
+            let task = self.dataTask(with: urlRequest) { data, response, error in
+                if let error = error {
+                    return continuation.resume(throwing: error)
+                }
+
+                guard let httpResponse = response as? HTTPURLResponse, let data = data else {
+                    return continuation.resume(throwing: APIClient.Error.malformedResponse)
+                }
+                return continuation.resume(returning: .init(data: data, httpResponse: httpResponse))
+            }
+
+            task.resume()
         }
-        task.resume()
-        return Task(deferred, progress: task.progress)
     }
+    
+    @available(iOS, deprecated: 15.0, message: "Use the built-in API instead")
+    public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
+        try await withCheckedThrowingContinuation { continuation in
+            let urlSessionTask = self.uploadTask(with: urlRequest, fromFile: fileURL) { (data, response, error) in
+                if let error = error {
+                    return continuation.resume(throwing: error)
+                }
 
-    public func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {
-        let deferred = Deferred<Task<APIClient.Response>.Result>()
-        let urlSessionTask = self.uploadTask(with: urlRequest, fromFile: fileURL) { (data, response, error) in
-            self.analyzeResponse(deferred: deferred, data: data, response: response, error: error)
+                guard let httpResponse = response as? HTTPURLResponse, let data = data else {
+                    return continuation.resume(throwing: APIClient.Error.malformedResponse)
+                }
+                return continuation.resume(returning: .init(data: data, httpResponse: httpResponse))
+            }
+            urlSessionTask.resume()
         }
-        urlSessionTask.resume()
-        let task = Task(deferred, progress: urlSessionTask.progress)
-        #if os(iOS)
-        UIApplication.shared.keepAppAliveUntilTaskCompletes(task)
-        #endif
-        return task
-    }
-
-    private func analyzeResponse(deferred: Deferred<Task<APIClient.Response>.Result>, data: Data?, response: URLResponse?, error: Error?) {
-        guard error == nil else {
-            deferred.fill(with: .failure(error!))
-            return
-        }
-
-        guard let httpResponse = response as? HTTPURLResponse,
-            let data = data else {
-                deferred.fill(with: .failure(APIClient.Error.malformedResponse))
-                return
-        }
-
-        deferred.fill(with: .success(APIClient.Response.init(data: data, httpResponse: httpResponse)))
     }
 }
 
 private extension Request {
-    func performUserValidator(onResponse response: APIClient.Response, queue: DispatchQueue) -> Task<APIClient.Response> {
-        return Task.async(upon: queue, onCancel: APIClient.Error.requestCanceled) { () in
-            try self.validator(response)
-            return response
+    func performUserValidator(onResponse response: APIClient.Response, queue: DispatchQueue) async throws -> APIClient.Response {
+        try await withCheckedThrowingContinuation { continuation in
+            queue.async {
+                do {
+                    let _ = try self.validator(response)
+                    continuation.resume(returning: response)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
         }
     }
 }
@@ -338,5 +327,17 @@ private extension Swift.Error {
                 return false
         }
         return true
+    }
+}
+
+import Task
+/// Legacy implementation using Deferred
+extension APIClient {
+    public func perform<T: Decodable>(_ request: Request<T>) -> Task<T> {
+        Task.fromSwiftConcurrency({ try await self.perform(request) })
+    }
+
+    public func performSimpleRequest(forEndpoint endpoint: Endpoint) -> Task<APIClient.Response> {
+        Task.fromSwiftConcurrency({ try await self.performSimpleRequest(forEndpoint: endpoint )})
     }
 }

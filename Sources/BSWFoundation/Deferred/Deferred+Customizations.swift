@@ -67,7 +67,7 @@ extension Task {
     public typealias SwiftConcurrencySignature = () async throws -> Success
     public static func fromSwiftConcurrency(_ closure: @escaping SwiftConcurrencySignature) -> Task<Success> {
         let deferred = Deferred<Task<Success>.Result>()
-        _Concurrency.Task {
+        let swiftTask = _Concurrency.Task {
             do {
                 let object: Success = try await closure()
                 deferred.fill(with: .success(object))
@@ -75,7 +75,9 @@ extension Task {
                 deferred.fill(with: .failure(error))
             }
         }
-        return Task(deferred)
+        return Task(deferred, uponCancel: {
+            swiftTask.cancel()
+        })
     }
 }
 
@@ -158,6 +160,15 @@ public extension UIApplication {
         task.upon(.main) { (_) in
             self.endBackgroundTask(backgroundTask)
         }
+    }
+
+    #warning("This makes no sense")
+    func keepAppAliveUntilTaskCompletes<T, E: Swift.Error>(_ task: _Concurrency.Task<T, E>) async {
+        let backgroundTask = self.beginBackgroundTask {
+            task.cancel()
+        }
+        let _ = try? await task.value
+        self.endBackgroundTask(backgroundTask)
     }
 }
 
