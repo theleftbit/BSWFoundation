@@ -135,6 +135,7 @@ private extension APIClient {
     }
 
     func sendNetworkRequest(_ networkRequest: NetworkRequest) async throws -> APIClient.Response {
+        try _Concurrency.Task.checkCancellation()
         defer { logRequest(request: networkRequest.request) }
         if let fileURL = networkRequest.fileURL {
             let response = try await self.networkFetcher.uploadFile(with: networkRequest.request, fileURL: fileURL)
