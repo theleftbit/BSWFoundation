@@ -6,8 +6,6 @@
 import Foundation
 import CoreLocation
 
-#if os(iOS)
-
 public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
     
     public enum LocationErrors: Swift.Error {
@@ -94,13 +92,17 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
     
         guard status != .notDetermined else { return }
         
-        if status == .authorizedAlways || status == .authorizedWhenInUse {
+        let isStatusAuthorized: Bool = {
+            #if os(macOS)
+            return (status == .authorizedAlways)
+            #else
+            return (status == .authorizedAlways || status == .authorizedWhenInUse)
+            #endif
+        }()
+        if isStatusAuthorized {
             manager.requestLocation()
         } else {
             completeCurrentRequest()
         }
     }
-
 }
-
-#endif

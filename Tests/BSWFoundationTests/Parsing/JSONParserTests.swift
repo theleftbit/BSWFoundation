@@ -29,7 +29,7 @@ class JSONParserTests: XCTestCase {
     func testParsing_forSwiftConcurency() async throws {
         let model = SampleModel(identity: "123456", name: "Hola", amount: 5678)
         let jsonData = try JSONEncoder().encode(model)
-        let parsedModel: SampleModel = try await JSONParser.parseData(jsonData)
+        let parsedModel: SampleModel = try JSONParser.parseData(jsonData)
         XCTAssert(model.identity == parsedModel.identity)
     }
 

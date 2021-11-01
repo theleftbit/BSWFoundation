@@ -3,10 +3,8 @@
 //  Created by Pierluigi Cifani on 20/04/16.
 //
 
-import Task
+import Task; import Deferred
 import Foundation
-import Deferred
-import CoreLocation
 
 //MARK: Legacy APIs using Deferred
 
@@ -19,6 +17,8 @@ extension APIClient {
         Task.fromSwiftConcurrency { try await self.performSimpleRequest(forEndpoint: endpoint )}
     }
 }
+
+import CoreLocation
 
 public extension LocationFetcher {
     func fetchCurrentLocation(_ useCachedLocationIfAvailable: Bool = true) -> Task<CLLocation> {
