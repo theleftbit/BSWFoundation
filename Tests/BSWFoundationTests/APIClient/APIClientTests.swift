@@ -22,6 +22,14 @@ class APIClientTests: XCTestCase {
         let _ = try self.waitAndExtractValue(getTask, timeout: 3)
     }
 
+    func testGET_async_await() async throws {
+        let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
+            endpoint: HTTPBin.API.ip
+        )
+
+        let _ = try await sut.perform(ipRequest)
+    }
+
     func testGETWithCustomValidation() throws {
         
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
@@ -37,7 +45,6 @@ class APIClientTests: XCTestCase {
     }
 
     func testGETCancel() throws {
-        XCTExpectFailure()
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
@@ -74,7 +81,6 @@ class APIClientTests: XCTestCase {
     }
 
     func testUploadCancel() {
-        XCTExpectFailure()
         let uploadRequest = BSWFoundation.Request<VoidResponse>(
             endpoint: HTTPBin.API.upload(generateRandomData())
         )

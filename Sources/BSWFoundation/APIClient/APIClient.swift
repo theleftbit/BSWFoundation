@@ -46,16 +46,13 @@ open class APIClient {
     }
 
     public func perform<T: Decodable>(_ request: Request<T>) async throws -> T {
-        let task = _Concurrency.Task { () -> T in
+        do {
             let urlRequest              = try self.router.urlRequest(forEndpoint: request.endpoint)
             let customizedURLRequest    = try await customizeNetworkRequest(networkRequest: urlRequest)
             let response                = try await sendNetworkRequest(customizedURLRequest)
             let userValidatedResponse   = try await request.performUserValidator(onResponse: response, queue: self.delegateQueue)
             let validatedResponse       = try await validateResponse(userValidatedResponse)
             return try await parseResponseData(validatedResponse)
-        }
-        do {
-            return try await task.value
         } catch {
             do {
                 return try await attemptToRecoverFrom(error: error, request: request)
