@@ -15,7 +15,7 @@ public protocol APIClientNetworkFetcher {
 
 public protocol APIClientDelegate: AnyObject {
     func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool
-    func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient)
+    func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) async
 }
 
 public extension APIClientDelegate {
@@ -26,7 +26,6 @@ open class APIClient {
 
     open weak var delegate: APIClientDelegate?
     open var loggingConfiguration = LoggingConfiguration.default
-    open var delegateQueue = DispatchQueue.main
     private var router: Router
     private let networkFetcher: APIClientNetworkFetcher
     private let sessionDelegate: SessionDelegate
@@ -41,17 +40,17 @@ open class APIClient {
     public init(environment: Environment, networkFetcher: APIClientNetworkFetcher? = nil) {
         let sessionDelegate = SessionDelegate(environment: environment)
         self.router = Router(environment: environment)
-        self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: sessionDelegate, delegateQueue: queueForSubmodule("APIClient", qualityOfService: .userInitiated))
+        self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: sessionDelegate, delegateQueue: .main)
         self.sessionDelegate = sessionDelegate
     }
 
     public func perform<T: Decodable>(_ request: Request<T>) async throws -> T {
         do {
-            let urlRequest              = try self.router.urlRequest(forEndpoint: request.endpoint)
-            let customizedURLRequest    = try await customizeNetworkRequest(networkRequest: urlRequest)
-            let response                = try await sendNetworkRequest(customizedURLRequest)
-            let userValidatedResponse   = try await request.performUserValidator(onResponse: response, queue: self.delegateQueue)
-            let validatedResponse       = try await validateResponse(userValidatedResponse)
+            let urlRequest = try router.urlRequest(forEndpoint: request.endpoint)
+            let customizedURLRequest = (customizeRequest(urlRequest.0), urlRequest.1)
+            let response = try await sendNetworkRequest(customizedURLRequest)
+            try request.validator(response)
+            let validatedResponse = try await validateResponse(response)
             return try await parseResponseData(validatedResponse)
         } catch {
             do {
@@ -64,7 +63,7 @@ open class APIClient {
 
     public func performSimpleRequest(forEndpoint endpoint: Endpoint) async throws -> APIClient.Response {
         let request             = try self.router.urlRequest(forEndpoint: endpoint)
-        let customizedRequest   = try await customizeNetworkRequest(networkRequest: request)
+        let customizedRequest   = (self.customizeRequest(request.0), request.1)
         return try await sendNetworkRequest(customizedRequest)
     }
 
@@ -122,15 +121,6 @@ private extension APIClient {
     
     typealias NetworkRequest = (request: URLRequest, fileURL: URL?)
 
-    func customizeNetworkRequest(networkRequest: NetworkRequest) async throws -> NetworkRequest {
-        try await withCheckedThrowingContinuation { continuation in
-            self.delegateQueue.async {
-                let result = (self.customizeRequest(networkRequest.request), networkRequest.fileURL)
-                continuation.resume(returning: result)
-            }
-        }
-    }
-
     func sendNetworkRequest(_ networkRequest: NetworkRequest) async throws -> APIClient.Response {
         try _Concurrency.Task.checkCancellation()
         defer { logRequest(request: networkRequest.request) }
@@ -152,9 +142,7 @@ private extension APIClient {
             let apiError = APIClient.Error.failureStatusCode(response.httpResponse.statusCode, response.data)
             
             if let path = response.httpResponse.url?.path {
-                delegateQueue.async {
-                    self.delegate?.apiClientDidReceiveError(apiError, forRequest: path, apiClient: self)
-                }
+                await self.delegate?.apiClientDidReceiveError(apiError, forRequest: path, apiClient: self)
             }
 
             throw apiError
@@ -308,21 +296,6 @@ extension URLSession: APIClientNetworkFetcher {
                     return continuation.resume(returning: .init(data: data, httpResponse: httpResponse))
                 }
                 urlSessionTask.resume()
-            }
-        }
-    }
-}
-
-private extension Request {
-    func performUserValidator(onResponse response: APIClient.Response, queue: DispatchQueue) async throws -> APIClient.Response {
-        try await withCheckedThrowingContinuation { continuation in
-            queue.async {
-                do {
-                    let _ = try self.validator(response)
-                    continuation.resume(returning: response)
-                } catch {
-                    continuation.resume(throwing: error)
-                }
             }
         }
     }
