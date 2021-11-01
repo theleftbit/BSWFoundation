@@ -5,7 +5,6 @@
 
 import Foundation
 import CoreLocation
-import Task; import Deferred
 
 #if os(iOS)
 
@@ -33,13 +32,7 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
         locationManager.delegate = self
         locationManager.desiredAccuracy = desiredAccuracy
     }
-    
-    public func fetchCurrentLocation(_ useCachedLocationIfAvailable: Bool = true) -> Task<CLLocation> {
-        return Task.fromSwiftConcurrency {
-            try await self.fetchCurrentLocation(useCachedLocationIfAvailable)
-        }
-    }
-    
+
     public func fetchCurrentLocation(_ useCachedLocationIfAvailable: Bool = true) async throws -> CLLocation {
         if let lastKnownLocation = self.lastKnownLocation , useCachedLocationIfAvailable {
             return lastKnownLocation
@@ -110,4 +103,14 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
 
 }
     
+import Task
+/// Legacy implementation using Deferred
+public extension LocationFetcher {
+    func fetchCurrentLocation(_ useCachedLocationIfAvailable: Bool = true) -> Task<CLLocation> {
+        return Task.fromSwiftConcurrency {
+            try await self.fetchCurrentLocation(useCachedLocationIfAvailable)
+        }
+    }
+}
+
 #endif

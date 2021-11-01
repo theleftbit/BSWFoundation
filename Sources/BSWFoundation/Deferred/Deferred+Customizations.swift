@@ -148,7 +148,7 @@ public extension Task.Result {
     }
 }
 
-#if canImport(UIKit)
+#if os(iOS)
 
 import UIKit
 
@@ -160,15 +160,6 @@ public extension UIApplication {
         task.upon(.main) { (_) in
             self.endBackgroundTask(backgroundTask)
         }
-    }
-
-    #warning("This makes no sense")
-    func keepAppAliveUntilTaskCompletes<T, E: Swift.Error>(_ task: _Concurrency.Task<T, E>) async {
-        let backgroundTask = self.beginBackgroundTask {
-            task.cancel()
-        }
-        let _ = try? await task.value
-        self.endBackgroundTask(backgroundTask)
     }
 }
 

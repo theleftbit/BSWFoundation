@@ -201,8 +201,6 @@ private func generateRandomData() -> Data {
     return Data(bytes: bytes, count: length)
 }
 
-import Task
-
 private class MockAPIClientDelegate: APIClientDelegate {
     func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool {
         failedPath = atPath
