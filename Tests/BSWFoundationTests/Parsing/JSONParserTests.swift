@@ -5,7 +5,6 @@
 import XCTest
 import BSWFoundation
 import Task
-import Combine
 
 class JSONParserTests: XCTestCase {
 

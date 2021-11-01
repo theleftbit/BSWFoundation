@@ -298,7 +298,7 @@ extension URLSession: APIClientNetworkFetcher {
 }
 
 public typealias HTTPHeaders = [String: String]
-public struct VoidResponse: Decodable {}
+public struct VoidResponse: Decodable, Hashable {}
 
 private extension Swift.Error {
     var is401: Bool {

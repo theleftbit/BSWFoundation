@@ -32,7 +32,6 @@ extension JSONParser {
     }
 }
 
-
 //MARK: Public
 
 public func both<T, U>(first: Task<T>, second: Task<U>) ->  Task<(T, U)> {
@@ -79,6 +78,19 @@ public func bothSerially<T, U>(first: Task<T>, second: @escaping (T) -> Task<U>)
 }
 
 extension Task {
+    
+    public func toSwiftConcurrency() async throws -> Success {
+        try await withCheckedThrowingContinuation { cont in
+            toObjectiveC { success, error in
+                if let error = error {
+                    cont.resume(throwing: error)
+                } else {
+                    cont.resume(returning: success!)
+                }
+            }
+        }
+    }
+
     public func toObjectiveC(completionHandler handler: @escaping (Success?, NSError?) -> Void) {
         upon(.main) { (result) in
             switch result {
@@ -91,6 +103,7 @@ extension Task {
     }
     
     public typealias SwiftConcurrencySignature = () async throws -> Success
+    
     public static func fromSwiftConcurrency(_ closure: @escaping SwiftConcurrencySignature) -> Task<Success> {
         let deferred = Deferred<Task<Success>.Result>()
         let swiftTask = _Concurrency.Task {
