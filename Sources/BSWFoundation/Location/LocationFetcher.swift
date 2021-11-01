@@ -102,15 +102,5 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
     }
 
 }
-    
-import Task
-/// Legacy implementation using Deferred
-public extension LocationFetcher {
-    func fetchCurrentLocation(_ useCachedLocationIfAvailable: Bool = true) -> Task<CLLocation> {
-        return Task.fromSwiftConcurrency {
-            try await self.fetchCurrentLocation(useCachedLocationIfAvailable)
-        }
-    }
-}
 
 #endif

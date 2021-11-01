@@ -10,21 +10,6 @@ public enum JSONParser {
     public static let jsonDecoder = JSONDecoder()
     public static let Options: JSONSerialization.ReadingOptions = [.allowFragments]
 
-    public static func parseData<T: Decodable>(_ data: Data) async throws -> T {
-        let task: _Concurrency.Task<T, Swift.Error> = _Concurrency.Task {
-            do {
-                let result: Swift.Result<T, Error> = self.parseData(data)
-                switch result {
-                case .success(let value):
-                    return value
-                case .failure(let error):
-                    throw error
-                }
-            }
-        }
-        return try await task.value
-    }
-
     public static func dataIsNull(_ data: Data) -> Bool {
         guard let j = try? JSONSerialization.jsonObject(with: data, options: JSONParser.Options) else {
             return false
@@ -60,11 +45,11 @@ public enum JSONParser {
         return dictionary["error"]
     }
 
-    static public func parseData<T: Decodable>(_ data: Data) -> Swift.Result<T, Error> {
+    public static func parseData<T: Decodable>(_ data: Data) throws -> T {
 
         guard T.self != VoidResponse.self else {
             let response = VoidResponse.init() as! T
-            return .success(response)
+            return response
         }
         
         if let provider = T.self as? DateDecodingStrategyProvider.Type {
@@ -73,35 +58,31 @@ public enum JSONParser {
             jsonDecoder.dateDecodingStrategy = .formatted(iso8601DateFormatter)
         }
 
-        let result: Swift.Result<T, Error>
         do {
-            let output: T = try jsonDecoder.decode(T.self, from: data)
-            result = .success(output)
+            return try jsonDecoder.decode(T.self, from: data)
         } catch let decodingError as DecodingError {
             switch decodingError {
             case .keyNotFound(let missingKey, let context):
                 print("*ERROR* decoding, key \"\(missingKey)\" is missing, Context: \(context)")
-                result = .failure(Error.malformedSchema)
+                throw Error.malformedSchema
             case .typeMismatch(let type, let context):
                 print("*ERROR* decoding, type \"\(type)\" mismatched, context: \(context)")
-                result = .failure(Error.malformedSchema)
+                throw Error.malformedSchema
             case .valueNotFound(let type, let context):
                 print("*ERROR* decoding, value not found \"\(type)\", context: \(context)")
-                result = .failure(Error.malformedSchema)
+                throw Error.malformedSchema
             case .dataCorrupted(let context):
                 print("*ERROR* Data Corrupted \"\(context)\")")
                 if let string = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
                     print("*ERROR* incoming JSON: \(string)")
                 }
-                result = .failure(Error.malformedJSON)
+                throw Error.malformedJSON
             @unknown default:
-                result = .failure(Error.unknownError)
+                throw Error.unknownError
             }
         } catch {
-            result = .failure(Error.unknownError)
+            throw Error.unknownError
         }
-        
-        return result
     }
 
     //MARK: Error
@@ -128,15 +109,5 @@ private var iso8601DateFormatter: DateFormatter {
 extension Array: DateDecodingStrategyProvider where Element: DateDecodingStrategyProvider {
     public static var dateDecodingStrategy: DateFormatter {
         return Element.dateDecodingStrategy
-    }
-}
-
-import Task
-
-/// Legacy implementation using Deferred
-
-extension JSONParser {
-    public static func parseData<T: Decodable>(_ data: Data) -> Task<T> {
-        Task.fromSwiftConcurrency { try await self.parseData(data) }
     }
 }

@@ -51,7 +51,7 @@ open class APIClient {
             let response = try await sendNetworkRequest(customizedURLRequest)
             try request.validator(response)
             let validatedResponse = try await validateResponse(response)
-            return try await parseResponseData(validatedResponse)
+            return try JSONParser.parseData(validatedResponse)
         } catch {
             do {
                 return try await attemptToRecoverFrom(error: error, request: request)
@@ -122,7 +122,7 @@ private extension APIClient {
     typealias NetworkRequest = (request: URLRequest, fileURL: URL?)
 
     func sendNetworkRequest(_ networkRequest: NetworkRequest) async throws -> APIClient.Response {
-        try _Concurrency.Task.checkCancellation()
+        try Task.checkCancellation()
         defer { logRequest(request: networkRequest.request) }
         if let fileURL = networkRequest.fileURL {
             let response = try await self.networkFetcher.uploadFile(with: networkRequest.request, fileURL: fileURL)
@@ -147,10 +147,6 @@ private extension APIClient {
 
             throw apiError
         }
-    }
-
-    func parseResponseData<T: Decodable>(_ data: Data) async throws -> T {
-        return try await JSONParser.parseData(data)
     }
 
     func attemptToRecoverFrom<T: Decodable>(error: Swift.Error, request: Request<T>) async throws -> T {
@@ -313,17 +309,5 @@ private extension Swift.Error {
                 return false
         }
         return true
-    }
-}
-
-import Task
-/// Legacy implementation using Deferred
-extension APIClient {
-    public func perform<T: Decodable>(_ request: Request<T>) -> Task<T> {
-        Task.fromSwiftConcurrency({ try await self.perform(request) })
-    }
-
-    public func performSimpleRequest(forEndpoint endpoint: Endpoint) -> Task<APIClient.Response> {
-        Task.fromSwiftConcurrency({ try await self.performSimpleRequest(forEndpoint: endpoint )})
     }
 }

@@ -6,6 +6,32 @@
 import Task
 import Foundation
 import Deferred
+import CoreLocation
+
+//MARK: Legacy APIs using Deferred
+
+extension APIClient {
+    public func perform<T: Decodable>(_ request: Request<T>) -> Task<T> {
+        Task.fromSwiftConcurrency { try await self.perform(request) }
+    }
+
+    public func performSimpleRequest(forEndpoint endpoint: Endpoint) -> Task<APIClient.Response> {
+        Task.fromSwiftConcurrency { try await self.performSimpleRequest(forEndpoint: endpoint )}
+    }
+}
+
+public extension LocationFetcher {
+    func fetchCurrentLocation(_ useCachedLocationIfAvailable: Bool = true) -> Task<CLLocation> {
+        Task.fromSwiftConcurrency { try await self.fetchCurrentLocation(useCachedLocationIfAvailable) }
+    }
+}
+
+extension JSONParser {
+    public static func parseData<T: Decodable>(_ data: Data) -> Task<T> {
+        Task.fromSwiftConcurrency { try self.parseData(data) }
+    }
+}
+
 
 //MARK: Public
 
