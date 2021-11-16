@@ -11,6 +11,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build
-      run: arch -x86_64 swift build -v
+      run: arch -arm64 swift build -v
     - name: Run tests
-      run: arch -x86_64 swift test -v
+      run: arch -arm64 swift test -v
