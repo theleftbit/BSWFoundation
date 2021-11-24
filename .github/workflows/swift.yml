@@ -6,11 +6,11 @@ on:
 jobs:
   build:
 
-    runs-on: self-hosted
+    runs-on: ios
 
     steps:
     - uses: actions/checkout@v2
     - name: Build
-      run: swift package clean; swift build
+      run: arch -arm64 swift package clean; arch -arm64 swift build -v
     - name: Run tests
-      run: swift test
+      run: arch -arm64 swift test -v
