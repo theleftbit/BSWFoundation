@@ -3,7 +3,6 @@
 //
 
 import Foundation
-import Task
 
 public class MockNetworkFetcher: APIClientNetworkFetcher {
     
@@ -11,16 +10,16 @@ public class MockNetworkFetcher: APIClientNetworkFetcher {
     public var mockedData: Data!
     public var mockedStatusCode: Int = 200
     public var capturedURLRequest: URLRequest?
-
-    public func fetchData(with urlRequest: URLRequest) -> Task<APIClient.Response> {
+    
+    public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
         self.capturedURLRequest = urlRequest
         let response = APIClient.Response(data: mockedData, httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: mockedStatusCode, httpVersion: nil, headerFields: nil)!)
-        return Task(success: response)
+        return response
     }
     
-    public func uploadFile(with urlRequest: URLRequest, fileURL: URL) -> Task<APIClient.Response> {
+    public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
         self.capturedURLRequest = urlRequest
         let response = APIClient.Response(data: mockedData, httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: mockedStatusCode, httpVersion: nil, headerFields: nil)!)
-        return Task(success: response)
+        return response
     }
 }

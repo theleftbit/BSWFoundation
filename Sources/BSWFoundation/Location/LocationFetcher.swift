@@ -5,17 +5,18 @@
 
 import Foundation
 import CoreLocation
-import Task; import Deferred
 
-#if os(iOS)
-
-@available(iOS 9, *)
 public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
+    
+    public enum LocationErrors: Swift.Error {
+        case authorizationDenied
+        case unknown
+    }
     
     public static let fetcher = LocationFetcher()
     
-    fileprivate let locationManager = CLLocationManager()
-    fileprivate var currentRequest: Deferred<CLLocation?>?
+    internal var locationManager = CLLocationManager()
+    fileprivate var continuations: [CheckedContinuation<CLLocation, Error>] = []
     public let desiredAccuracy = kCLLocationAccuracyHundredMeters
     public var lastKnownLocation: CLLocation?
 
@@ -29,21 +30,23 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
         locationManager.delegate = self
         locationManager.desiredAccuracy = desiredAccuracy
     }
-    
-    public func fetchCurrentLocation(_ useCachedLocationIfAvailable: Bool = true) -> Future<CLLocation?> {
+
+    public func fetchCurrentLocation(_ useCachedLocationIfAvailable: Bool = true) async throws -> CLLocation {
         if let lastKnownLocation = self.lastKnownLocation , useCachedLocationIfAvailable {
-            return Future(value: lastKnownLocation)
+            return lastKnownLocation
         }
         
-        if let currentRequest = self.currentRequest {
-            return Future(currentRequest)
+        if !self.continuations.isEmpty {
+            return try await withCheckedThrowingContinuation({ continuation in
+                self.continuations.append(continuation)
+            })
         }
 
-        switch CLLocationManager.authorizationStatus() {
+        switch locationManager.authorizationStatus {
         case .restricted:
             fallthrough
         case .denied:
-            return Future(value: nil)
+            throw LocationErrors.authorizationDenied
         case .authorizedAlways:
             fallthrough
         case .authorizedWhenInUse:
@@ -51,17 +54,24 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
         case .notDetermined:
             locationManager.requestWhenInUseAuthorization()
         @unknown default:
-            return Future(value: nil)
+            throw LocationErrors.unknown
         }
         
-        let deferredLocation = Deferred<CLLocation?>()
-        self.currentRequest = deferredLocation
-        return Future(deferredLocation)
+        return try await withCheckedThrowingContinuation({ continuation in
+            continuations.append(continuation)
+        })
     }
     
-    private func completeCurrentRequest(_ location: CLLocation? = nil) {
-        self.currentRequest?.fill(with: location)
-        self.currentRequest = nil
+    private func completeCurrentRequest(_ result: Swift.Result<CLLocation, LocationErrors> = .failure(.unknown)) {
+        continuations.forEach({
+            switch result {
+            case .failure(let error):
+                $0.resume(throwing: error)
+            case .success(let location):
+                $0.resume(returning: location)
+            }
+        })
+        continuations = []
     }
 
     //MARK:- CLLocationManagerDelegate
@@ -69,7 +79,7 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.first {
             self.lastKnownLocation = location
-            completeCurrentRequest(location)
+            completeCurrentRequest(.success(location))
         }
     }
     
@@ -82,13 +92,17 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
     
         guard status != .notDetermined else { return }
         
-        if status == .authorizedAlways || status == .authorizedWhenInUse {
+        let isStatusAuthorized: Bool = {
+            #if os(macOS)
+            return (status == .authorizedAlways)
+            #else
+            return (status == .authorizedAlways || status == .authorizedWhenInUse)
+            #endif
+        }()
+        if isStatusAuthorized {
             manager.requestLocation()
         } else {
             completeCurrentRequest()
         }
     }
-
 }
-    
-#endif

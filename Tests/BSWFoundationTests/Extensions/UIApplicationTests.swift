@@ -1,5 +1,5 @@
 
-#if canImport(UIKit)
+#if os(iOS)
 
 import XCTest
 import BSWFoundation

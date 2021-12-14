@@ -3,9 +3,34 @@
 //  Created by Pierluigi Cifani on 20/04/16.
 //
 
-import Task
+import Task; import Deferred
 import Foundation
-import Deferred
+
+//MARK: Legacy APIs using Deferred
+
+extension APIClient {
+    public func perform<T: Decodable>(_ request: Request<T>) -> Task<T> {
+        Task.fromSwiftConcurrency { try await self.perform(request) }
+    }
+
+    public func performSimpleRequest(forEndpoint endpoint: Endpoint) -> Task<APIClient.Response> {
+        Task.fromSwiftConcurrency { try await self.performSimpleRequest(forEndpoint: endpoint )}
+    }
+}
+
+import CoreLocation
+
+public extension LocationFetcher {
+    func fetchCurrentLocation(_ useCachedLocationIfAvailable: Bool = true) -> Task<CLLocation> {
+        Task.fromSwiftConcurrency { try await self.fetchCurrentLocation(useCachedLocationIfAvailable) }
+    }
+}
+
+extension JSONParser {
+    public static func parseData<T: Decodable>(_ data: Data) -> Task<T> {
+        Task.fromSwiftConcurrency { try self.parseData(data) }
+    }
+}
 
 //MARK: Public
 
@@ -53,6 +78,19 @@ public func bothSerially<T, U>(first: Task<T>, second: @escaping (T) -> Task<U>)
 }
 
 extension Task {
+    
+    public func toSwiftConcurrency() async throws -> Success {
+        try await withCheckedThrowingContinuation { cont in
+            toObjectiveC { success, error in
+                if let error = error {
+                    cont.resume(throwing: error)
+                } else {
+                    cont.resume(returning: success!)
+                }
+            }
+        }
+    }
+
     public func toObjectiveC(completionHandler handler: @escaping (Success?, NSError?) -> Void) {
         upon(.main) { (result) in
             switch result {
@@ -62,6 +100,35 @@ extension Task {
                 handler(nil, error as NSError)
             }
         }
+    }
+    
+    public typealias SwiftConcurrencySignature = () async throws -> Success
+    
+    public static func fromSwiftConcurrency(_ closure: @escaping SwiftConcurrencySignature) -> Task<Success> {
+        let deferred = Deferred<Task<Success>.Result>()
+        let swiftTask = _Concurrency.Task {
+            do {
+                let object: Success = try await closure()
+                deferred.fill(with: .success(object))
+            } catch {
+                deferred.fill(with: .failure(error))
+            }
+        }
+        return Task(deferred, uponCancel: {
+            swiftTask.cancel()
+        })
+    }
+}
+
+extension Future {
+    public typealias SwiftConcurrencySignature = () async -> Value?
+    public static func fromSwiftConcurrency(_ closure: @escaping SwiftConcurrencySignature) -> Future<Value?> {
+        let deferred = Deferred<Value?>()
+        _Concurrency.Task {
+            let object: Value? = await closure()
+            deferred.fill(with: object)
+        }
+        return Future<Value?>(deferred)
     }
 }
 
@@ -120,7 +187,7 @@ public extension Task.Result {
     }
 }
 
-#if canImport(UIKit)
+#if os(iOS)
 
 import UIKit
 
