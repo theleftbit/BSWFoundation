@@ -248,19 +248,27 @@ extension URLSession: APIClientNetworkFetcher {
 
     @available(iOS, deprecated: 15.0, message: "Use the built-in API instead")
     public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
-        try await withCheckedThrowingContinuation { continuation in
-            let task = self.dataTask(with: urlRequest) { data, response, error in
-                if let error = error {
-                    return continuation.resume(throwing: error)
-                }
-
-                guard let httpResponse = response as? HTTPURLResponse, let data = data else {
-                    return continuation.resume(throwing: APIClient.Error.malformedResponse)
-                }
-                return continuation.resume(returning: .init(data: data, httpResponse: httpResponse))
+        if #available(iOS 15.0, tvOS 15.0, watchOS 8.0, macOS 12.0, *) {
+            let tuple = try await self.data(for: urlRequest)
+            guard let httpResponse = tuple.1 as? HTTPURLResponse else {
+                throw APIClient.Error.malformedResponse
             }
+            return .init(data: tuple.0, httpResponse: httpResponse)
+        } else {
+            return try await withCheckedThrowingContinuation { continuation in
+                let task = self.dataTask(with: urlRequest) { data, response, error in
+                    if let error = error {
+                        return continuation.resume(throwing: error)
+                    }
 
-            task.resume()
+                    guard let httpResponse = response as? HTTPURLResponse, let data = data else {
+                        return continuation.resume(throwing: APIClient.Error.malformedResponse)
+                    }
+                    return continuation.resume(returning: .init(data: data, httpResponse: httpResponse))
+                }
+
+                task.resume()
+            }
         }
     }
     
