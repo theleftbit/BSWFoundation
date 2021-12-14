@@ -6,10 +6,10 @@ import PackageDescription
 let package = Package(
     name: "BSWFoundation",
     platforms: [
-        .iOS(.v15),
-        .tvOS(.v15),
-        .macOS(.v12),
-        .watchOS(.v8),
+        .iOS(.v14),
+        .tvOS(.v14),
+        .macOS(.v11),
+        .watchOS(.v7),
     ],
     products: [
         .library(
