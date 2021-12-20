@@ -18,6 +18,18 @@ class JSONParserTests: XCTestCase {
         }
     }
 
+    struct SampleModelWithDate: Codable, DateDecodingStrategyProvider {
+        let date: Date
+
+        enum CodingKeys: String, CodingKey {
+            case date = "date"
+        }
+        
+        public static var dateDecodingStrategy: DateFormatter {
+            someFormatter
+        }
+    }
+    
     func testParsing() throws {
         let model = SampleModel(identity: "123456", name: "Hola", amount: 5678)
         let jsonData = try JSONEncoder().encode(model)
@@ -32,6 +44,16 @@ class JSONParserTests: XCTestCase {
         XCTAssert(model.identity == parsedModel.identity)
     }
 
+    func testParsingWithDate_forSwiftConcurency() throws {
+        let sampleString = """
+        {\"date\":\"2021-12-20T09:32:30+0000\"}
+        """
+        let model: SampleModelWithDate = try JSONParser.parseData(sampleString.data(using: .utf8)!)
+        XCTAssert(Calendar.current.component(.year, from: model.date) == 2021)
+        XCTAssert(Calendar.current.component(.month, from: model.date) == 12)
+        XCTAssert(Calendar.current.component(.day, from: model.date) == 20)
+    }
+    
     func testArrayParsing() throws {
         let model1 = SampleModel(identity: "123456", name: "Hola", amount: 5678)
         let model2 = SampleModel(identity: "987642", name: "🍻", amount: 0986)
@@ -65,6 +87,12 @@ class JSONParserTests: XCTestCase {
     }
 }
 
-struct ParseError: Swift.Error {
-}
+struct ParseError: Swift.Error { }
 
+private let someFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.timeZone = TimeZone(identifier: "UTC")
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+    return formatter
+}()
