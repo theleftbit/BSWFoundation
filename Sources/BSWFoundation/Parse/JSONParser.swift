@@ -7,7 +7,6 @@ import Foundation
 
 public enum JSONParser {
     
-    public static let jsonDecoder = JSONDecoder()
     public static let Options: JSONSerialization.ReadingOptions = [.allowFragments]
 
     public static func dataIsNull(_ data: Data) -> Bool {
@@ -46,6 +45,8 @@ public enum JSONParser {
     }
 
     public static func parseData<T: Decodable>(_ data: Data) throws -> T {
+        
+        let jsonDecoder = JSONDecoder()
 
         guard T.self != VoidResponse.self else {
             let response = VoidResponse.init() as! T
