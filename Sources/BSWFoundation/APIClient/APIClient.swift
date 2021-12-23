@@ -32,7 +32,7 @@ open class APIClient {
 
     open weak var delegate: APIClientDelegate?
     open var loggingConfiguration = LoggingConfiguration.default
-    private var router: Router
+    private let router: Router
     private let networkFetcher: APIClientNetworkFetcher
     private let sessionDelegate: SessionDelegate
     open var mapError: (Swift.Error) -> (Swift.Error) = { $0 }
