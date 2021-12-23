@@ -13,13 +13,19 @@ public protocol APIClientNetworkFetcher {
     func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response
 }
 
+/// This protocol is used to communicate errors during the lifetime of the APIClient
 public protocol APIClientDelegate: AnyObject {
-    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool
-    func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) async
+    
+    /// This method is called when APIClient recieves a 401 and gives a chance to the delegate to update the APIClient's authToken
+    /// before retrying the request. Return `true` if you were able to refresh the token. Throw or return false in case you couldn't do it.
+    @MainActor func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool
+    
+    /// Notifies the delegate of an incoming HTTP error when decoding the response.
+    @MainActor func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) async
 }
 
 public extension APIClientDelegate {
-    func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) { }
+    @MainActor func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) async { }
 }
 
 open class APIClient {
