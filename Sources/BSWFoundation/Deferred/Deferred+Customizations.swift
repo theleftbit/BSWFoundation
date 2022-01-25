@@ -73,7 +73,6 @@ public func bothSerially<T, U>(first: Task<T>, second: @escaping (T) -> Task<U>)
             deferred.fill(with: .success((firstValue, secondValue)))
         }
     }
-    
     return Task(Future(deferred))
 }
 
