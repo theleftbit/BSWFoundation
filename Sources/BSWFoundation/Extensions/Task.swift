@@ -6,4 +6,10 @@ public extension Task where Success == Never, Failure == Never {
             try await Task.sleep(nanoseconds: 1_000_000_000_000)
         }
     }
+    
+    /// Use this override to for your unimplemented functions
+    static func never<T>() async throws -> T {
+        let _ = try await _Concurrency.Task.never
+        fatalError()
+    }
 }
