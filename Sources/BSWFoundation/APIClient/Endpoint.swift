@@ -27,6 +27,9 @@ public protocol Endpoint {
     
     /// The HTTP headers to be sent
     var httpHeaderFields: HTTPHeaders? { get }
+
+    /// How long before the request is timed out
+    var timeoutInterval: TimeInterval? { get }
 }
 
 public enum HTTPMethod: String {
@@ -54,6 +57,10 @@ extension Endpoint {
     }
     
     public var httpHeaderFields: HTTPHeaders? {
+        return nil
+    }
+    
+    public var timeoutInterval: TimeInterval? {
         return nil
     }
 }
