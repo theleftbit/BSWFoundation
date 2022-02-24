@@ -129,7 +129,7 @@ private extension APIClient {
 
     func sendNetworkRequest(_ networkRequest: NetworkRequest) async throws -> APIClient.Response {
         try Task.checkCancellation()
-        defer { logRequest(request: networkRequest.request) }
+        logRequest(request: networkRequest.request)
         if let fileURL = networkRequest.fileURL {
             let response = try await self.networkFetcher.uploadFile(with: networkRequest.request, fileURL: fileURL)
             try await self.deleteFileAtPath(fileURL: fileURL)
@@ -140,7 +140,7 @@ private extension APIClient {
     }
 
     func validateResponse(_ response: Response) async throws -> Data {
-        defer { logResponse(response)}
+        logResponse(response)
         switch response.httpResponse.statusCode {
         case (200..<300):
             return response.data
