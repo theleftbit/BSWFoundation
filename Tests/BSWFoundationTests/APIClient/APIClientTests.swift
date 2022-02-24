@@ -102,7 +102,7 @@ class APIClientTests: XCTestCase {
         }
     }
     
-    func testUnauthorizedCallsRightMethod() throws {
+    func testUnauthorizedCallsRightMethod() async throws {
         let mockDelegate = MockAPIClientDelegate()
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: Network401Fetcher())
         sut.delegate = mockDelegate
@@ -111,13 +111,14 @@ class APIClientTests: XCTestCase {
             endpoint: HTTPBin.API.ip
         )
         // We don't care about the error here
-        let _ = try? waitAndExtractValue(sut.perform(ipRequest))
-        XCTAssert(mockDelegate.failedPath != nil)
+        let _ = try? await sut.perform(ipRequest)
+        let failedPath = await mockDelegate.failedPath
+        XCTAssert(failedPath != nil)
     }
 
     func testUnauthorizedRetriesAfterGeneratingNewCredentials() throws {
         
-        class MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
+        actor MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
             func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool {
                 apiClient.customizeRequest = { urlRequest in
                     var mutableRequest = urlRequest
@@ -201,7 +202,7 @@ private func generateRandomData() -> Data {
     return Data(bytes: bytes, count: length)
 }
 
-private class MockAPIClientDelegate: APIClientDelegate {
+private actor MockAPIClientDelegate: APIClientDelegate {
     func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool {
         failedPath = atPath
         return false
