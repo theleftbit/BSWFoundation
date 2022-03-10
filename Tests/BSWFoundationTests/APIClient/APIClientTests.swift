@@ -13,16 +13,7 @@ class APIClientTests: XCTestCase {
         sut = APIClient(environment: HTTPBin.Hosts.production)
     }
 
-    func testGET() throws {
-        let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
-            endpoint: HTTPBin.API.ip
-        )
-
-        let getTask = sut.perform(ipRequest)
-        let _ = try self.waitAndExtractValue(getTask, timeout: 3)
-    }
-
-    func testGET_async_await() async throws {
+    func testGET() async throws {
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
@@ -30,7 +21,7 @@ class APIClientTests: XCTestCase {
         let _ = try await sut.perform(ipRequest)
     }
 
-    func testGETWithCustomValidation() throws {
+    func testGETWithCustomValidation() async throws {
         
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip,
@@ -40,20 +31,19 @@ class APIClientTests: XCTestCase {
                 }
         })
         
-        let getTask = sut.perform(ipRequest)
-        let _ = try self.waitAndExtractValue(getTask, timeout: 3)
+        let _ = try await sut.perform(ipRequest)
     }
 
-    func testGETCancel() throws {
+    func testGETCancel() async throws {
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
 
-        let getTask = sut.perform(ipRequest)
+        let getTask = Task { try await sut.perform(ipRequest) }
         getTask.cancel()
 
         do {
-            let _ = try self.waitAndExtractValue(getTask)
+            let _ = try await getTask.value
             XCTFail("This should fail here")
         } catch let error {
             if error is CancellationError {
@@ -66,30 +56,24 @@ class APIClientTests: XCTestCase {
         }
     }
 
-    func testUpload() throws {
+    func testUpload() async throws {
         let uploadRequest = BSWFoundation.Request<VoidResponse>(
             endpoint: HTTPBin.API.upload(generateRandomData())
         )
 
-        let uploadTask = sut.perform(uploadRequest)
-        var progress: ProgressObserver! = ProgressObserver(progress: uploadTask.progress) { (progress) in
-            print(progress.fractionCompleted)
-        }
-        let _ = try self.waitAndExtractValue(uploadTask, timeout: 10)
-        if let _ = progress {} /// This if-let is to to shut up the compiler
-        progress = nil
+        let _ = try await sut.perform(uploadRequest)
     }
 
-    func testUploadCancel() {
+    func testUploadCancel() async throws {
         let uploadRequest = BSWFoundation.Request<VoidResponse>(
             endpoint: HTTPBin.API.upload(generateRandomData())
         )
 
-        let uploadTask = sut.perform(uploadRequest)
+        let uploadTask = Task { try await sut.perform(uploadRequest) }
         uploadTask.cancel()
 
         do {
-            let _ = try self.waitAndExtractValue(uploadTask)
+            let _ = try await uploadTask.value
             XCTFail("This should fail here")
         } catch let error {
             if error is CancellationError {
@@ -102,7 +86,7 @@ class APIClientTests: XCTestCase {
         }
     }
     
-    func testUnauthorizedCallsRightMethod() throws {
+    func testUnauthorizedCallsRightMethod() async throws {
         let mockDelegate = MockAPIClientDelegate()
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: Network401Fetcher())
         sut.delegate = mockDelegate
@@ -111,11 +95,11 @@ class APIClientTests: XCTestCase {
             endpoint: HTTPBin.API.ip
         )
         // We don't care about the error here
-        let _ = try? waitAndExtractValue(sut.perform(ipRequest))
+        let _ = try? await sut.perform(ipRequest)
         XCTAssert(mockDelegate.failedPath != nil)
     }
 
-    func testUnauthorizedRetriesAfterGeneratingNewCredentials() throws {
+    func testUnauthorizedRetriesAfterGeneratingNewCredentials() async throws {
         
         class MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
             func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool {
@@ -151,10 +135,10 @@ class APIClientTests: XCTestCase {
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
-        let _ = try waitAndExtractValue(sut.perform(ipRequest))
+        let _ = try await sut.perform(ipRequest)
     }
     
-    func testCustomizeRequests() throws {
+    func testCustomizeRequests() async throws {
         let mockNetworkFetcher = MockNetworkFetcher()
         mockNetworkFetcher.mockedData = Data()
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: mockNetworkFetcher)
@@ -168,7 +152,7 @@ class APIClientTests: XCTestCase {
             endpoint: HTTPBin.API.ip
         )
 
-        let _ = try waitAndExtractValue(sut.perform(ipRequest))
+        let _ = try await sut.perform(ipRequest)
         
         guard let capturedURLRequest = mockNetworkFetcher.capturedURLRequest else {
             throw ValidationError()
@@ -176,7 +160,7 @@ class APIClientTests: XCTestCase {
         XCTAssert(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
     }
     
-    func testCustomizeSimpleRequests() throws {
+    func testCustomizeSimpleRequests() async throws {
         let mockNetworkFetcher = MockNetworkFetcher()
         mockNetworkFetcher.mockedData = Data()
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: mockNetworkFetcher)
@@ -186,7 +170,7 @@ class APIClientTests: XCTestCase {
             return mutableURLRequest
         }
         
-        let _ = try waitAndExtractValue(sut.performSimpleRequest(forEndpoint: HTTPBin.API.ip))
+        let _ = try await sut.performSimpleRequest(forEndpoint: HTTPBin.API.ip)
         
         guard let capturedURLRequest = mockNetworkFetcher.capturedURLRequest else {
             throw ValidationError()
