@@ -2,15 +2,6 @@
   "object": {
     "pins": [
       {
-        "package": "Deferred",
-        "repositoryURL": "https://github.com/theleftbit/Deferred.git",
-        "state": {
-          "branch": null,
-          "revision": "8d601f0597135179a4b2f72b99fd196e6067dabe",
-          "version": "4.2.1"
-        }
-      },
-      {
         "package": "KeychainAccess",
         "repositoryURL": "https://github.com/kishikawakatsumi/KeychainAccess.git",
         "state": {

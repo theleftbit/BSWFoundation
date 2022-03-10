@@ -4,7 +4,6 @@
 
 import XCTest
 import BSWFoundation
-import Task
 
 class JSONParserTests: XCTestCase {
 
@@ -30,13 +29,6 @@ class JSONParserTests: XCTestCase {
         }
     }
     
-    func testParsing() throws {
-        let model = SampleModel(identity: "123456", name: "Hola", amount: 5678)
-        let jsonData = try JSONEncoder().encode(model)
-        let task: Task<SampleModel> = JSONParser.parseData(jsonData)
-        let _ = try self.waitAndExtractValue(task)
-    }
-
     func testParsing_forSwiftConcurency() async throws {
         let model = SampleModel(identity: "123456", name: "Hola", amount: 5678)
         let jsonData = try JSONEncoder().encode(model)
@@ -60,8 +52,7 @@ class JSONParserTests: XCTestCase {
         let array = [model1, model2]
         let jsonData = try JSONEncoder().encode(array)
 
-        let task: Task<[SampleModel]> = JSONParser.parseData(jsonData)
-        let _ = try self.waitAndExtractValue(task)
+        let _: [SampleModel] = try JSONParser.parseData(jsonData)
     }
 
     func testParsePrettyPrinting() throws {
@@ -80,10 +71,7 @@ class JSONParserTests: XCTestCase {
     func testEmptyResponseParsing() throws {
         let jsonData = """
         """.data(using: .utf8)!
-        print(jsonData)
-        let task: Task<VoidResponse> = JSONParser.parseData(jsonData)
-        let value = try self.waitAndExtractValue(task)
-        print(value)
+        let _: VoidResponse = try JSONParser.parseData(jsonData)
     }
 }
 

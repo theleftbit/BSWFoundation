@@ -3,6 +3,12 @@ import XCTest
 @testable import BSWFoundation
 
 class APIClientErrorTests: XCTestCase {
+    
+    override func setUp() async throws {
+        try await super.setUp()
+        Locale.current = .init(identifier: "en_US")
+    }
+    
     func testErrorPrinting_encodingRequestFailed() {
         let localizedDescription = APIClient.Error.encodingRequestFailed.localizedDescription
         XCTAssert(localizedDescription == "The operation couldn’t be completed. (BSWFoundation.APIClient.Error.encodingRequestFailed)")
