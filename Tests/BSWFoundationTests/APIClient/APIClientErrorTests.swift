@@ -6,7 +6,6 @@ class APIClientErrorTests: XCTestCase {
     
     override func setUp() async throws {
         try await super.setUp()
-        Locale.current = .init(identifier: "en_US")
     }
     
     func testErrorPrinting_encodingRequestFailed() {
