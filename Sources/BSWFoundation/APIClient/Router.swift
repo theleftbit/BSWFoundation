@@ -8,8 +8,14 @@ import Foundation
 // MARK:- Router
 
 extension APIClient {
-    struct Router {
+    
+    actor Router {
+        
         let environment: Environment
+        
+        init(environment: Environment) {
+            self.environment = environment
+        }
         
         func urlRequest(forEndpoint endpoint: Endpoint) throws -> (URLRequest, URL?) {
             guard let URL = URL(string: environment.routeURL(endpoint.path)) else {

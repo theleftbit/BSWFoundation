@@ -52,7 +52,7 @@ open class APIClient {
 
     public func perform<T: Decodable>(_ request: Request<T>) async throws -> T {
         do {
-            let urlRequest = try router.urlRequest(forEndpoint: request.endpoint)
+            let urlRequest = try await router.urlRequest(forEndpoint: request.endpoint)
             let customizedURLRequest = (customizeRequest(urlRequest.0), urlRequest.1)
             let response = try await sendNetworkRequest(customizedURLRequest)
             try request.validator(response)
@@ -68,7 +68,7 @@ open class APIClient {
     }
 
     public func performSimpleRequest(forEndpoint endpoint: Endpoint) async throws -> APIClient.Response {
-        let request             = try self.router.urlRequest(forEndpoint: endpoint)
+        let request             = try await router.urlRequest(forEndpoint: endpoint)
         let customizedRequest   = (self.customizeRequest(request.0), request.1)
         return try await sendNetworkRequest(customizedRequest)
     }
