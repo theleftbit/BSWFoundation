@@ -30,6 +30,9 @@ public protocol Endpoint {
 
     /// How long before the request is timed out
     var timeoutInterval: TimeInterval? { get }
+    
+    /// The cachePolicy for the request
+    var cachePolicy: NSURLRequest.CachePolicy { get }
 }
 
 public enum HTTPMethod: String {
@@ -62,6 +65,10 @@ extension Endpoint {
     
     public var timeoutInterval: TimeInterval? {
         return nil
+    }
+    
+    public var cachePolicy: NSURLRequest.CachePolicy {
+        return .reloadIgnoringLocalCacheData
     }
 }
 

@@ -29,6 +29,7 @@ extension APIClient {
             urlRequest.allHTTPHeaderFields = endpoint.httpHeaderFields
             let userAgentValue = "\(Bundle.main.osName) - \(Bundle.main.displayName) \(Bundle.main.appVersion) (\(Bundle.main.appBuild))"
             urlRequest.setValue(userAgentValue.cleanForUserAgent, forHTTPHeaderField: "User-Agent")
+            urlRequest.cachePolicy = endpoint.cachePolicy
             if let timeout = endpoint.timeoutInterval {
                 urlRequest.timeoutInterval = timeout
             }
