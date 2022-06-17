@@ -329,7 +329,7 @@ private extension Swift.Error {
 private extension URLSessionConfiguration {
     static func withMultipath() -> URLSessionConfiguration {
         let configuration = URLSessionConfiguration.default
-        #if os(iOS)
+        #if os(iOS) && !targetEnvironment(simulator)
         configuration.multipathServiceType = .handover
         #endif
         return configuration
