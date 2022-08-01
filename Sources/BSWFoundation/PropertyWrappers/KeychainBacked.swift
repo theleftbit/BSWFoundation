@@ -8,10 +8,17 @@ import KeychainAccess
 @propertyWrapper
 public class KeychainBacked {
     private let key: String
-    private let keychain = Keychain(service: Bundle.main.bundleIdentifier!)
+    private let keychain: Keychain
 
-    public init(key: String) {
+    public init(key: String, appGroupID: String? = nil) {
         self.key = key
+        self.keychain = {
+            if let appGroupID = appGroupID {
+                return Keychain(service: Bundle.main.bundleIdentifier!, accessGroup: appGroupID)
+            } else {
+                return Keychain(service: Bundle.main.bundleIdentifier!)
+            }
+        }()
     }
     
     public var wrappedValue: String? {
