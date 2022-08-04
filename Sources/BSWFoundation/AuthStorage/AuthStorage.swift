@@ -4,20 +4,24 @@
 //
 
 import Foundation
+import KeychainAccess
 
 public class AuthStorage {
-
-    private var jwt: JWT? {
-        get {
-            guard let jwtString = jwtToken else { return nil}
-            return try? decode(jwt: jwtString)
-        }
-    }
+    
+    public static let defaultStorage = AuthStorage(appGroupID: nil)
 
     @UserDefaultsBacked(key: Keys.HasAppBeenExecuted, defaultValue: false)
     private var appBeenExecuted: Bool!
+    private let keychain: Keychain
 
-    private init() {
+    public init(appGroupID: String?) {
+        self.keychain = {
+            if let appGroupID = appGroupID {
+                return Keychain(service: Bundle.main.bundleIdentifier!, accessGroup: appGroupID)
+            } else {
+                return Keychain(service: Bundle.main.bundleIdentifier!)
+            }
+        }()
         guard !(appBeenExecuted) else {
             return
         }
@@ -28,19 +32,37 @@ public class AuthStorage {
         appBeenExecuted = true
     }
 
-    public static let defaultStorage = AuthStorage()
-
-    @KeychainBacked(key: Keys.JWT)
-    public var jwtToken: String?
+    public var jwtToken: String? {
+        get {
+            keychain[Keys.JWT]
+        } set {
+            keychain[Keys.JWT] = newValue
+        }
+    }
     
-    @KeychainBacked(key: Keys.UserID)
-    public var userID: String?
+    public var userID: String? {
+        get {
+            keychain[Keys.UserID]
+        } set {
+            keychain[Keys.UserID] = newValue
+        }
+    }
     
-    @KeychainBacked(key: Keys.AuthToken)
-    public var authToken: String?
+    public var authToken: String? {
+        get {
+            keychain[Keys.AuthToken]
+        } set {
+            keychain[Keys.AuthToken] = newValue
+        }
+    }
     
-    @KeychainBacked(key: Keys.RefreshToken)
-    public var refreshToken: String?
+    public var refreshToken: String? {
+        get {
+            keychain[Keys.RefreshToken]
+        } set {
+            keychain[Keys.RefreshToken] = newValue
+        }
+    }
     
     public var tokenIsExpired: Bool {
         guard let jwt = self.jwt else { return false }
@@ -52,6 +74,13 @@ public class AuthStorage {
         self.authToken = nil
         self.userID = nil
         self.refreshToken = nil
+    }
+    
+    private var jwt: JWT? {
+        get {
+            guard let jwtString = jwtToken else { return nil}
+            return try? decode(jwt: jwtString)
+        }
     }
 }
 
