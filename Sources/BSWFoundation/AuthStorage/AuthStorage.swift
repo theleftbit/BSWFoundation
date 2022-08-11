@@ -8,18 +8,27 @@ import KeychainAccess
 
 public class AuthStorage {
     
-    public static let defaultStorage = AuthStorage(appGroupID: nil)
+    public static let defaultStorage = AuthStorage()
 
     @UserDefaultsBacked(key: Keys.HasAppBeenExecuted, defaultValue: false)
     private var appBeenExecuted: Bool!
     private let keychain: Keychain
 
-    public init(appGroupID: String?) {
+    /// Where should `AppStorage` put it's values.
+    public enum Style {
+        /// Uses the Bundle ID of the app to namespace the values
+        case simple
+        /// Pass the ID of the App Group and the AppName _without_ `Bundle` APIs
+        case appGroup(id: String, appName: String)
+    }
+    
+    public init(style: Style = .simple) {
         self.keychain = {
-            if let appGroupID = appGroupID {
-                return Keychain(service: Bundle.main.bundleIdentifier!, accessGroup: appGroupID)
-            } else {
+            switch style {
+            case .simple:
                 return Keychain(service: Bundle.main.bundleIdentifier!)
+            case .appGroup(let id, let appName):
+                return Keychain(service: appName, accessGroup: id)
             }
         }()
         guard !(appBeenExecuted) else {
