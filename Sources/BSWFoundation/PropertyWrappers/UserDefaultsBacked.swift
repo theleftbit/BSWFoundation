@@ -8,32 +8,40 @@ import Foundation
 public class UserDefaultsBacked<T> {
     private let key: String
     private let defaultValue: T?
-
-    public init(key: String, defaultValue: T? = nil) {
+    private let store: UserDefaults
+    
+    public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
         self.defaultValue = defaultValue
+        self.store = {
+            if let appGroupID = appGroupID {
+                return UserDefaults(suiteName: appGroupID)!
+            } else {
+                return UserDefaults.standard
+            }
+        }()
     }
     
     public var wrappedValue: T? {
         get {
-            guard let value = UserDefaults.standard.object(forKey: key) as? T else {
+            guard let value = self.store.object(forKey: key) as? T else {
                 return defaultValue
             }
             return value
         } set {
             if newValue != nil {
-                UserDefaults.standard.set(newValue, forKey: key)
+                self.store.set(newValue, forKey: key)
             } else {
-                UserDefaults.standard.removeObject(forKey: key)
+                self.store.removeObject(forKey: key)
             }
-            UserDefaults.standard.synchronize()
+            self.store.synchronize()
         }
     }
 }
 
 public extension UserDefaultsBacked {
     func reset() {
-        UserDefaults.standard.removeObject(forKey: key)
+        self.store.removeObject(forKey: key)
     }
 }
 
@@ -42,15 +50,23 @@ public extension UserDefaultsBacked {
 public class CodableUserDefaultsBacked<T: Codable> {
     private let key: String
     private let defaultValue: T?
+    private let store: UserDefaults
 
-    public init(key: String, defaultValue: T? = nil) {
+    public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
         self.defaultValue = defaultValue
+        self.store = {
+            if let appGroupID = appGroupID {
+                return UserDefaults(suiteName: appGroupID)!
+            } else {
+                return UserDefaults.standard
+            }
+        }()
     }
     
     public var wrappedValue: T? {
         get {
-            guard let data = UserDefaults.standard.data(forKey: key) else {
+            guard let data = self.store.data(forKey: key) else {
                 return defaultValue
             }
             return try? JSONDecoder().decode(T.self, from: data)
@@ -58,14 +74,14 @@ public class CodableUserDefaultsBacked<T: Codable> {
             guard let data = try? JSONEncoder().encode(newValue) else {
                 return
             }
-            UserDefaults.standard.set(data, forKey: key)
-            UserDefaults.standard.synchronize()
+            self.store.set(data, forKey: key)
+            self.store.synchronize()
         }
     }
 }
 
 public extension CodableUserDefaultsBacked {
     func reset() {
-        UserDefaults.standard.removeObject(forKey: key)
+        self.store.removeObject(forKey: key)
     }
 }
