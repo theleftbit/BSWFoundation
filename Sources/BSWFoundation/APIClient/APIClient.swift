@@ -46,7 +46,7 @@ open class APIClient {
     public init(environment: Environment, networkFetcher: APIClientNetworkFetcher? = nil) {
         let sessionDelegate = SessionDelegate(environment: environment)
         self.router = Router(environment: environment)
-        self.networkFetcher = networkFetcher ?? URLSession(configuration: .withMultipath(), delegate: sessionDelegate, delegateQueue: .main)
+        self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: sessionDelegate, delegateQueue: .main)
         self.sessionDelegate = sessionDelegate
     }
 
@@ -323,15 +323,5 @@ private extension Swift.Error {
                 return false
         }
         return true
-    }
-}
-
-private extension URLSessionConfiguration {
-    static func withMultipath() -> URLSessionConfiguration {
-        let configuration = URLSessionConfiguration.default
-        #if os(iOS) && !targetEnvironment(simulator)
-        configuration.multipathServiceType = .handover
-        #endif
-        return configuration
     }
 }
