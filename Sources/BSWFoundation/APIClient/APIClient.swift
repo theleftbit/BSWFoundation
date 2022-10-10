@@ -14,18 +14,20 @@ public protocol APIClientNetworkFetcher {
 }
 
 /// This protocol is used to communicate errors during the lifetime of the APIClient
+@MainActor
 public protocol APIClientDelegate: AnyObject {
     
     /// This method is called when APIClient recieves a 401 and gives a chance to the delegate to update the APIClient's authToken
     /// before retrying the request. Return `true` if you were able to refresh the token. Throw or return false in case you couldn't do it.
-    @MainActor func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool
+    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool
     
     /// Notifies the delegate of an incoming HTTP error when decoding the response.
-    @MainActor func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) async
+    func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) async
 }
 
+@MainActor
 public extension APIClientDelegate {
-    @MainActor func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) async { }
+    func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) async { }
 }
 
 open class APIClient {
@@ -173,8 +175,8 @@ private extension APIClient {
         return try await perform(mutatedRequest)
     }
 
-    func deleteFileAtPath(fileURL: URL) async throws -> Void {
-        let void: Void = try await withCheckedThrowingContinuation { continuation in
+    func deleteFileAtPath(fileURL: URL) async throws {
+        try await withCheckedThrowingContinuation { continuation in
             FileManagerWrapper.shared.perform { fileManager in
                 do {
                     try fileManager.removeItem(at: fileURL)
@@ -184,7 +186,6 @@ private extension APIClient {
                 }
             }
         }
-        return void /// as of Xcode 13.2, this stupid variable was required
     }
 
     /// Proxy object to do all our URLSessionDelegate work
