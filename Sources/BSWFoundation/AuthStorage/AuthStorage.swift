@@ -15,7 +15,7 @@ public class AuthStorage {
     private let keychain: Keychain
 
     /// Where should `AppStorage` put it's values.
-    public enum Style {
+    public enum Style: Equatable {
         /// Uses the Bundle ID of the app to namespace the values
         case simple
         /// Pass the ID of the App Group and the AppName _without_ `Bundle` APIs
@@ -31,14 +31,13 @@ public class AuthStorage {
                 return Keychain(service: appName, accessGroup: id)
             }
         }()
-        guard !(appBeenExecuted) else {
-            return
+        
+        if appBeenExecuted == false, style == .simple {
+            // Clear the keychain on app's first launch, so the user
+            // has to log-in again after an app delete
+            clearKeychain()
+            appBeenExecuted = true
         }
-
-        // Clear the keychain on app's first launch, so the user
-        // has to log-in again after an app delete
-        clearKeychain()
-        appBeenExecuted = true
     }
 
     public var jwtToken: String? {
