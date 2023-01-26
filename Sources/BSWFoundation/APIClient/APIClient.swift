@@ -87,7 +87,6 @@ extension APIClient {
         case malformedParameters
         case malformedResponse
         case encodingRequestFailed
-        case multipartEncodingFailed(reason: MultipartFormFailureReason)
         case malformedJSONResponse(Swift.Error)
         case failureStatusCode(Int, Data?)
         case requestCanceled

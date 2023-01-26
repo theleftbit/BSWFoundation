@@ -39,7 +39,6 @@ public enum HTTPMethod: String {
 public enum HTTPParameterEncoding {
     case url
     case json
-    case multipart
 }
 
 //  This is the default implementation for Endpoint 
@@ -81,10 +80,4 @@ public enum MimeType {
             return mimeTypeStr
         }
     }
-}
-
-public enum MultipartParameter {
-    case url(URL, fileName: String, mimeType: MimeType)
-    case data(Data, fileName: String, mimeType: MimeType)
-    case string(String)
 }

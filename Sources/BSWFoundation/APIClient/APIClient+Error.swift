@@ -12,8 +12,6 @@ extension APIClient.Error: LocalizedError {
                 return "malformedResponse"
             case .encodingRequestFailed:
                 return "encodingRequestFailed"
-            case .multipartEncodingFailed(let reason):
-                return "multipartEncodingFailed Reason: \(reason)"
             case .malformedJSONResponse(let error):
                 return "malformedJSONResponse Error: \(error.localizedDescription)"
             case .failureStatusCode(let statusCode, let data):
