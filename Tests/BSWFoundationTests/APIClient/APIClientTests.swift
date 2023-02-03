@@ -87,7 +87,7 @@ class APIClientTests: XCTestCase {
     }
     
     func testUnauthorizedCallsRightMethod() async throws {
-        let mockDelegate = await MockAPIClientDelegate()
+        let mockDelegate = MockAPIClientDelegate()
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: Network401Fetcher())
         sut.delegate = mockDelegate
         
@@ -96,8 +96,7 @@ class APIClientTests: XCTestCase {
         )
         // We don't care about the error here
         let _ = try? await sut.perform(ipRequest)
-        let failedPath = await mockDelegate.failedPath
-        XCTAssert(failedPath != nil)
+        XCTAssert(mockDelegate.failedPath != nil)
     }
 
     func testUnauthorizedRetriesAfterGeneratingNewCredentials() async throws {
@@ -130,7 +129,7 @@ class APIClientTests: XCTestCase {
         }
         
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: SignatureCheckingNetworkFetcher())
-        let mockDelegate = await MockAPIClientDelegateThatGeneratesNewSignature()
+        let mockDelegate = MockAPIClientDelegateThatGeneratesNewSignature()
         sut.delegate = mockDelegate
 
         let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
