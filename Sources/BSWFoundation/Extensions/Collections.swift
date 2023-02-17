@@ -109,6 +109,13 @@ public struct SelectableArray<T>: Collection {
         }
         return array
     }
+    
+    public mutating func updateOption(atIndex: Int, option: T, andSelectIt: Bool = false) {
+        options[atIndex] = option
+        if andSelectIt {
+            selectedIndex = atIndex
+        }
+    }
 
     public var selectedElement: T? {
         guard let selectedIndex = selectedIndex else { return nil }
