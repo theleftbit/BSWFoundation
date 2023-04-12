@@ -53,7 +53,7 @@ open class APIClient {
     public func perform<T: Decodable>(_ request: Request<T>) async throws -> T {
         do {
             let urlRequest = try await router.urlRequest(forEndpoint: request.endpoint)
-            let customizedURLRequest = (customizeRequest(urlRequest.0), urlRequest.1)
+            let customizedURLRequest = customizeRequest(urlRequest)
             let response = try await sendNetworkRequest(customizedURLRequest)
             try request.validator(response)
             let validatedResponse = try await validateResponse(response)
@@ -69,7 +69,7 @@ open class APIClient {
 
     public func performSimpleRequest(forEndpoint endpoint: Endpoint) async throws -> APIClient.Response {
         let request             = try await router.urlRequest(forEndpoint: endpoint)
-        let customizedRequest   = (self.customizeRequest(request.0), request.1)
+        let customizedRequest   = self.customizeRequest(request)
         return try await sendNetworkRequest(customizedRequest)
     }
 
@@ -124,18 +124,10 @@ extension APIClient {
 
 private extension APIClient {
     
-    typealias NetworkRequest = (request: URLRequest, fileURL: URL?)
-
-    func sendNetworkRequest(_ networkRequest: NetworkRequest) async throws -> APIClient.Response {
+    func sendNetworkRequest(_ urlRequest: URLRequest) async throws -> APIClient.Response {
         try Task.checkCancellation()
-        logRequest(request: networkRequest.request)
-        if let fileURL = networkRequest.fileURL {
-            let response = try await self.networkFetcher.uploadFile(with: networkRequest.request, fileURL: fileURL)
-            try await self.deleteFileAtPath(fileURL: fileURL)
-            return response
-        } else {
-            return try await self.networkFetcher.fetchData(with: networkRequest.request)
-        }
+        logRequest(request: urlRequest)
+        return try await networkFetcher.fetchData(with: urlRequest)
     }
 
     func validateResponse(_ response: Response) async throws -> Data {

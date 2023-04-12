@@ -3,7 +3,7 @@ import XCTest
 import BSWFoundation
 
 class TaskTests: XCTestCase {
-    func testNever() async throws {
+    func testNever() throws {
         let waiter = XCTWaiter()
         let exp = self.expectation(description: " ")
         let task = Task(priority: .userInitiated) {
@@ -15,7 +15,7 @@ class TaskTests: XCTestCase {
         task.cancel()
     }
     
-    func testNeverFuncOverride() async throws {
+    func testNeverFuncOverride() throws {
         @Sendable func someThingThatReturnsAValue() async throws -> Int {
             try await Task.never()
         }
