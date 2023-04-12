@@ -17,13 +17,12 @@ extension APIClient {
             self.environment = environment
         }
         
-        func urlRequest(forEndpoint endpoint: Endpoint) throws -> (URLRequest, URL?) {
+        func urlRequest(forEndpoint endpoint: Endpoint) throws -> URLRequest {
             guard let URL = URL(string: environment.routeURL(endpoint.path)) else {
                 throw APIClient.Error.malformedURL
             }
 
             var urlRequest = URLRequest(url: URL)
-            var fileURL: URL?
 
             urlRequest.httpMethod = endpoint.method.rawValue
             urlRequest.allHTTPHeaderFields = endpoint.httpHeaderFields
@@ -53,7 +52,7 @@ extension APIClient {
                 }
             }
 
-            return (urlRequest, fileURL)
+            return urlRequest
         }        
     }
 }
