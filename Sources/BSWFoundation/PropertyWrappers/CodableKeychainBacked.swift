@@ -5,6 +5,7 @@
 import Foundation
 import KeychainAccess
 
+/// Stores the given `T` type on the Keychain (as long as it's `Codable`)
 @propertyWrapper
 public class CodableKeychainBacked<T: Codable> {
     private let key: String

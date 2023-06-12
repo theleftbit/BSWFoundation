@@ -5,6 +5,7 @@
 
 import Foundation
 
+/// A simple wrapper on top of `Foundation.Progress` that makes it easier to observe it's progress.
 public class ProgressObserver: NSObject {
     
     fileprivate let onUpdate: (Progress) -> Void

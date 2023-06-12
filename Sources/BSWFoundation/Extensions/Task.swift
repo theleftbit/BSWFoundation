@@ -22,7 +22,12 @@ public extension Task where Success == Void, Failure == CancellationError {
             "Didn't receive asynchronous value."
         }
     }
-
+    
+    /// Wait for async operation to return value and call callback with the value.
+    ///
+    /// Use with caution!!!
+    /// - Parameter operation: The operation to perform while the current thread is blocked
+    /// - Returns: The result of the operation
     static func wait<T>(operation: @escaping () async throws -> T) throws -> T {
         var v: T? = nil
         AsyncWaiter({

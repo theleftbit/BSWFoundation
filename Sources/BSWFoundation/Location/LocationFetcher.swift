@@ -6,6 +6,15 @@
 import Foundation
 import CoreLocation
 
+/**
+ Simple wrapper that allows you to obtain the current location.
+ 
+ Using it is as simple as:
+ 
+ ```
+ let currentLocation = try await LocationFetcher.fetcher.fetchCurrentLocation()
+ ```
+*/
 public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
     
     public enum LocationErrors: Swift.Error {

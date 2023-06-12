@@ -4,6 +4,9 @@
 
 import Foundation
 
+/// Stores the given `T` type on User Defaults.
+///
+/// The value parameter can be only property list objects: `NSData`, `NSString`, `NSNumber`, `NSDate`, `NSArray`, or `NSDictionary`.
 @propertyWrapper
 public class UserDefaultsBacked<T> {
     private let key: String
@@ -46,6 +49,7 @@ public extension UserDefaultsBacked {
 }
 
 
+/// Stores the given `T` type on User Defaults (as long as it's `Codable`)
 @propertyWrapper
 public class CodableUserDefaultsBacked<T: Codable> {
     private let key: String

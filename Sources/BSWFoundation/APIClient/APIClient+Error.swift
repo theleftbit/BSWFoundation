@@ -6,24 +6,16 @@ extension APIClient.Error: LocalizedError {
             switch self {
             case .malformedURL:
                 return "malformedURL"
-            case .malformedParameters:
-                return "malformedParameters"
             case .malformedResponse:
                 return "malformedResponse"
             case .encodingRequestFailed:
                 return "encodingRequestFailed"
-            case .malformedJSONResponse(let error):
-                return "malformedJSONResponse Error: \(error.localizedDescription)"
             case .failureStatusCode(let statusCode, let data):
                 if let data = data, let prettyError = JSONParser.parseDataAsJSONPrettyPrint(data) {
                     return "FailureStatusCode: \(statusCode), Message: \(prettyError)"
                 } else {
                     return "FailureStatusCode: \(statusCode)"
                 }
-            case .requestCanceled:
-                return "requestCanceled"
-            case .unknownError:
-                return "unknownError"
             }
         }()
         let localizedError = ShimError().localizedDescription
