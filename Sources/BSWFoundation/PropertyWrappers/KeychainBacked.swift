@@ -5,6 +5,7 @@
 import Foundation
 import KeychainAccess
 
+/// Stores a String on the Keychain
 @propertyWrapper
 public class KeychainBacked {
     private let key: String

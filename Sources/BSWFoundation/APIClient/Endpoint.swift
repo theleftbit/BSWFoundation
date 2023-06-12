@@ -41,7 +41,7 @@ public enum HTTPParameterEncoding {
     case json
 }
 
-//  This is the default implementation for Endpoint 
+///  This is the default implementation for Endpoint 
 extension Endpoint {
     public var method: HTTPMethod {
         return .GET

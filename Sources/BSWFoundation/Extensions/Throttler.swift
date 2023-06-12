@@ -5,6 +5,7 @@
 
 import Foundation
 
+/// Makes sure that the given job is not executed more than once every `seconds`
 public class Throttler {
     
     private let queue: DispatchQueue
@@ -16,6 +17,10 @@ public class Throttler {
         self.queue = queue
     }
     
+    /// The job to throttle.
+    ///
+    /// If called more than once per instance, the previous job will be canceled.
+    /// - Parameter block: The job to throttle
     public func throttle(block: @escaping () -> ()) {
         job.cancel()
         job = DispatchWorkItem() { 

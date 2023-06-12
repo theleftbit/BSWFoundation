@@ -8,6 +8,7 @@ import Foundation
 import UIKit
 #endif
 
+/// Types conforming to this protocol will perform network requests on behalf of `APIClient`
 public protocol APIClientNetworkFetcher {
     func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response
     func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response
@@ -28,28 +29,41 @@ public extension APIClientDelegate {
     @MainActor func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) async { }
 }
 
+/// This type allows you to simplify the communications with HTTP servers using the `Environment` protocol and `Request` type.
 open class APIClient {
-
+    
+    /// Sets the `delegate` for this class
     open weak var delegate: APIClientDelegate?
+    
+    /// Defines how this object will log to the console the requests and responses.
     open var loggingConfiguration = LoggingConfiguration.default
+    
     private let router: Router
     private let networkFetcher: APIClientNetworkFetcher
     private let sessionDelegate: SessionDelegate
+    
+    /// An optional closure that allows you to map an error before it's thrown
     open var mapError: (Swift.Error) -> (Swift.Error) = { $0 }
+    
+    /// An optional closure that allows you customize a `URLRequest` before it's sent over the network.
+    ///
+    /// This is useful for example to add an HTTP Header to authenticate with the Server.
     open var customizeRequest: (URLRequest) -> (URLRequest) = { $0 }
-
-    public static func backgroundClient(environment: Environment) -> APIClient {
-        let session = URLSession(configuration: .background(withIdentifier: "\(Bundle.main.displayName)-APIClient"))
-        return APIClient(environment: environment, networkFetcher: session)
-    }
-
+    
+    /// Initializes the `APIClient`
+    /// - Parameters:
+    ///   - environment: The `Environment` to attack.
+    ///   - networkFetcher: The `APIClientNetworkFetcher` that will perform the network requests. If nil is passed, a `URLSession` with a `.default` configuration will be used.
     public init(environment: Environment, networkFetcher: APIClientNetworkFetcher? = nil) {
         let sessionDelegate = SessionDelegate(environment: environment)
         self.router = Router(environment: environment)
         self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: sessionDelegate, delegateQueue: .main)
         self.sessionDelegate = sessionDelegate
     }
-
+    
+    /// Sends a `Request` over the network, validates the response, parses it's contents and returns them.
+    /// - Parameter request: The `Request<T>` to perform
+    /// - Returns: The parsed response from this request.
     public func perform<T: Decodable>(_ request: Request<T>) async throws -> T {
         do {
             let urlRequest = try await router.urlRequest(forEndpoint: request.endpoint)
@@ -66,31 +80,37 @@ open class APIClient {
             }
         }
     }
-
+    
+    /// Sends a `Request` over the network, validates the response and returns the response as-is from the Server..
+    /// - Parameter request: The `Request<T>` to perform
+    /// - Returns: The `APIClient.Response` from this request.
     public func performSimpleRequest(forEndpoint endpoint: Endpoint) async throws -> APIClient.Response {
         let request             = try await router.urlRequest(forEndpoint: endpoint)
         let customizedRequest   = self.customizeRequest(request)
         return try await sendNetworkRequest(customizedRequest)
     }
-
+    
+    /// Returns the environment configured for this `APIClient`
     public var currentEnvironment: Environment {
         return self.router.environment
     }
 }
 
 extension APIClient {
-
+    
+    /// Errors thrown from the `APIClient`.
     public enum Error: Swift.Error {
+        /// The URL resulting from generating the `URLRequest` is not valid.
         case malformedURL
-        case malformedParameters
+        /// The response received from the Server is malformed.
         case malformedResponse
+        /// Encoding the request failed. This could be because some of the `Endpoint.parameters` are not valid.
         case encodingRequestFailed
-        case malformedJSONResponse(Swift.Error)
+        /// The server returned an error Status Code.
         case failureStatusCode(Int, Data?)
-        case requestCanceled
-        case unknownError
     }
-
+    
+    /// This type defines how the `APIClient` will log requests and responses into the Console
     public struct LoggingConfiguration {
         
         public let requestBehaviour: Behavior
@@ -108,9 +128,12 @@ extension APIClient {
             case onlyFailing
         }
     }
-        
+    
+    /// Encapsulates the response received by the server.
     public struct Response {
+        /// The raw data as received by the server.
         public let data: Data
+        /// Other metadata of the response sent by the server encapsulated in a `HTTPURLResponse`
         public let httpResponse: HTTPURLResponse
         
         public init(data: Data, httpResponse: HTTPURLResponse) {

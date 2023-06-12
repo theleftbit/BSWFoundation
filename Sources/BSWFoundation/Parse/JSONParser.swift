@@ -20,7 +20,10 @@ public enum JSONParser {
         
         return true
     }
-
+    
+    /// Parses a `Data` as a JSON to pretty print. Useful for debugging.
+    /// - Parameter data: The given Data.
+    /// - Returns: The String as pretty print, for easy debug
     public static func parseDataAsJSONPrettyPrint(_ data: Data) -> String? {
         guard let json = try? JSONSerialization.jsonObject(with: data, options: JSONParser.Options) else { return nil }
         let options: JSONSerialization.WritingOptions = {
@@ -33,7 +36,10 @@ public enum JSONParser {
         guard let prettyPrintedData = try? JSONSerialization.data(withJSONObject: json, options: options) else { return nil }
         return String(data: prettyPrintedData, encoding: .utf8)
     }
-
+    
+    /// Attempts to extract an error string from the passed JSON data.
+    /// - Parameter data: The JSON data that should include an `"error"` key
+    /// - Returns: The error string if found
     public static func errorMessageFromData(_ data: Data) -> String? {
         guard let j = try? JSONSerialization.jsonObject(with: data, options: JSONParser.Options) else {
             return nil
@@ -43,7 +49,10 @@ public enum JSONParser {
         }        
         return dictionary["error"]
     }
-
+    
+    /// Parses `Data` to the `T: Decodable` value.
+    /// - Parameter data: The JSON data.
+    /// - Returns: The `T` parsed value
     public static func parseData<T: Decodable>(_ data: Data) throws -> T {
         
         let jsonDecoder = JSONDecoder()
