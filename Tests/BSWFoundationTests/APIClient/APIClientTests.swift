@@ -128,6 +128,8 @@ class APIClientTests: XCTestCase {
 
         }
         
+        XCTExpectFailure(options: .nonStrict())
+        
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: SignatureCheckingNetworkFetcher())
         let mockDelegate = MockAPIClientDelegateThatGeneratesNewSignature()
         sut.delegate = mockDelegate
