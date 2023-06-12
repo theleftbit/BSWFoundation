@@ -17,7 +17,7 @@ class APIClientTests: XCTestCase {
     }
 
     func testGET() async throws {
-        let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
+        let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
 
@@ -26,7 +26,7 @@ class APIClientTests: XCTestCase {
 
     func testGETWithCustomValidation() async throws {
         
-        let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
+        let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip,
             validator: { response in
                 if response.httpResponse.statusCode != 200 {
@@ -38,7 +38,7 @@ class APIClientTests: XCTestCase {
     }
 
     func testGETCancel() async throws {
-        let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
+        let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
 
@@ -60,7 +60,7 @@ class APIClientTests: XCTestCase {
     }
 
     func testUpload() async throws {
-        let uploadRequest = BSWFoundation.Request<VoidResponse>(
+        let uploadRequest = BSWFoundation.APIClient.Request<VoidResponse>(
             endpoint: HTTPBin.API.upload(generateRandomData())
         )
 
@@ -68,7 +68,7 @@ class APIClientTests: XCTestCase {
     }
 
     func testUploadCancel() async throws {
-        let uploadRequest = BSWFoundation.Request<VoidResponse>(
+        let uploadRequest = BSWFoundation.APIClient.Request<VoidResponse>(
             endpoint: HTTPBin.API.upload(generateRandomData())
         )
 
@@ -94,7 +94,7 @@ class APIClientTests: XCTestCase {
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: Network401Fetcher())
         sut.delegate = mockDelegate
         
-        let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
+        let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
         // We don't care about the error here
@@ -135,7 +135,7 @@ class APIClientTests: XCTestCase {
         let mockDelegate = MockAPIClientDelegateThatGeneratesNewSignature()
         sut.delegate = mockDelegate
 
-        let ipRequest = BSWFoundation.Request<HTTPBin.Responses.IP>(
+        let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
         let _ = try await sut.perform(ipRequest)
@@ -151,7 +151,7 @@ class APIClientTests: XCTestCase {
             return mutableURLRequest
         }
         
-        let ipRequest = BSWFoundation.Request<VoidResponse>(
+        let ipRequest = BSWFoundation.APIClient.Request<VoidResponse>(
             endpoint: HTTPBin.API.ip
         )
 
