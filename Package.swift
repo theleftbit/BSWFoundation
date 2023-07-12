@@ -19,11 +19,15 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
+        .package(url: "https://github.com/apple/swift-http-types.git", from: "0.1.1")
     ],
     targets: [
         .target(
             name: "BSWFoundation",
-            dependencies: ["KeychainAccess"]
+            dependencies: [
+                "KeychainAccess",
+                .product(name: "HTTPTypes", package: "swift-http-types")
+            ]
         ),
         .testTarget(
             name: "BSWFoundationTests",

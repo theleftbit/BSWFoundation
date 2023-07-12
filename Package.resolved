@@ -9,6 +9,15 @@
           "revision": "84e546727d66f1adc5439debad16270d0fdd04e7",
           "version": "4.2.2"
         }
+      },
+      {
+        "package": "http-types",
+        "repositoryURL": "https://github.com/apple/swift-http-types.git",
+        "state": {
+          "branch": null,
+          "revision": "39661f4ca82db8ad050cc060a471c8e2c542b24f",
+          "version": "0.1.1"
+        }
       }
     ]
   },
