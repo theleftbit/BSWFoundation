@@ -6,11 +6,7 @@ public extension ProcessInfo {
         #if targetEnvironment(macCatalyst)
         return true
         #else
-        if #available(iOS 14.0, macOS 11, *) {
-            return isiOSAppOnMac
-        } else {
-            return false
-        }
+        return isiOSAppOnMac
         #endif
     }
 }

@@ -292,62 +292,27 @@ private extension APIClient {
 
 extension URLSession: APIClientNetworkFetcher {
 
-    @available(iOS, deprecated: 15.0, message: "Use the built-in API instead")
     public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
-        if #available(iOS 15.0, tvOS 15.0, watchOS 8.0, macOS 12.0, *) {
-            let tuple = try await self.data(for: urlRequest)
-            guard let httpResponse = tuple.1 as? HTTPURLResponse else {
-                throw APIClient.Error.malformedResponse
-            }
-            return .init(data: tuple.0, httpResponse: httpResponse)
-        } else {
-            return try await withCheckedThrowingContinuation { continuation in
-                let task = self.dataTask(with: urlRequest) { data, response, error in
-                    if let error = error {
-                        return continuation.resume(throwing: error)
-                    }
-
-                    guard let httpResponse = response as? HTTPURLResponse, let data = data else {
-                        return continuation.resume(throwing: APIClient.Error.malformedResponse)
-                    }
-                    return continuation.resume(returning: .init(data: data, httpResponse: httpResponse))
-                }
-
-                task.resume()
-            }
+        let tuple = try await self.data(for: urlRequest)
+        guard let httpResponse = tuple.1 as? HTTPURLResponse else {
+            throw APIClient.Error.malformedResponse
         }
+        return .init(data: tuple.0, httpResponse: httpResponse)
     }
     
-    @available(iOS, deprecated: 15.0, message: "Use the built-in API instead")
     public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
-        
-        if #available(iOS 15.0, tvOS 15.0, watchOS 8.0, macOS 12.0, *) {
+        let cancelTask: @Sendable () -> () = {}
 #if os(iOS)
-            let backgroundTask = await UIApplication.shared.beginBackgroundTask { }
+        let backgroundTask = await UIApplication.shared.beginBackgroundTask(expirationHandler: cancelTask)
 #endif
-            let (data, response) = try await self.upload(for: urlRequest, fromFile: fileURL)
+        let (data, response) = try await self.upload(for: urlRequest, fromFile: fileURL)
 #if os(iOS)
-            await UIApplication.shared.endBackgroundTask(backgroundTask)
+        await UIApplication.shared.endBackgroundTask(backgroundTask)
 #endif
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw APIClient.Error.malformedResponse
-            }
-            return .init(data: data, httpResponse: httpResponse)
-        } else {
-            return try await withCheckedThrowingContinuation { continuation in
-                let urlSessionTask = self.uploadTask(with: urlRequest, fromFile: fileURL) { (data, response, error) in
-                    if let error = error {
-                        return continuation.resume(throwing: error)
-                    }
-
-                    guard let httpResponse = response as? HTTPURLResponse, let data = data else {
-                        return continuation.resume(throwing: APIClient.Error.malformedResponse)
-                    }
-                    return continuation.resume(returning: .init(data: data, httpResponse: httpResponse))
-                }
-                urlSessionTask.resume()
-            }
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIClient.Error.malformedResponse
         }
+        return .init(data: data, httpResponse: httpResponse)
     }
 }
 

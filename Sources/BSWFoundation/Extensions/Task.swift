@@ -45,11 +45,25 @@ public extension Task where Success == Void, Failure == CancellationError {
 /// Wait for async operation to return value and call callback with the value
 /// This class is intended to workaround/simplify async/await + actors isolation
 /// https://twitter.com/krzyzanowskim/status/1523233140914876416
-private class AsyncWaiter<T> {
-    var didReceiveValue: Bool = false
+private class AsyncWaiter<T>: @unchecked Sendable {
+    var didReceiveValue: Bool {
+        get {
+            var value = false
+            queue.sync {
+                value = ___didReceiveValue
+            }
+            return value
+        } set {
+            queue.sync {
+                ___didReceiveValue = newValue
+            }
+        }
+    }
     let value: (T) -> Void
     let operation: () async throws -> T
-
+    let queue = DispatchQueue(label: "async-waiter")
+    var ___didReceiveValue: Bool = false
+    
     init(_ value: @escaping (T) -> Void, operation: @escaping () async throws -> T) {
         self.value = value
         self.operation = operation
