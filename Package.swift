@@ -23,7 +23,11 @@ let package = Package(
     targets: [
         .target(
             name: "BSWFoundation",
-            dependencies: ["KeychainAccess"]
+            dependencies: ["KeychainAccess"],
+            swiftSettings: [
+                /// Xcode 14:
+                SwiftSetting.unsafeFlags(["-Xfrontend", "-strict-concurrency=complete"]),
+            ]
         ),
         .testTarget(
             name: "BSWFoundationTests",

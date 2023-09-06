@@ -18,8 +18,8 @@ public class ProgressObserver: NSObject {
         self.onUpdate = onUpdate
         super.init()
         self.observer = progress.observe(\.fractionCompleted) { [weak self] (progress, _) in
-            DispatchQueue.main.async {
-                guard let `self` = self else { return }
+            guard let self else { return }
+            Task { @MainActor in
                 self.onUpdate(progress)
             }
         }

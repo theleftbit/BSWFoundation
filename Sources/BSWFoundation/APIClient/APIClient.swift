@@ -137,7 +137,7 @@ extension APIClient {
     }
     
     /// This type defines how the `APIClient` will log requests and responses into the Console
-    public struct LoggingConfiguration {
+    public struct LoggingConfiguration: Sendable {
         
         public let requestBehaviour: Behavior
         public let responseBehaviour: Behavior
@@ -147,8 +147,8 @@ extension APIClient {
             self.responseBehaviour = responseBehaviour
         }
         
-        public static var `default` = LoggingConfiguration(requestBehaviour: .none, responseBehaviour: .onlyFailing)
-        public enum Behavior {
+        public static let `default` = LoggingConfiguration(requestBehaviour: .none, responseBehaviour: .onlyFailing)
+        public enum Behavior: Sendable {
             case none
             case all
             case onlyFailing
