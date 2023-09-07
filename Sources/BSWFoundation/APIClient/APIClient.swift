@@ -19,18 +19,20 @@ public protocol APIClientDelegate: AnyObject {
     
     /// This method is called when APIClient recieves a 401 and gives a chance to the delegate to update the APIClient's authToken
     /// before retrying the request. Return `true` if you were able to refresh the token. Throw or return false in case you couldn't do it.
-    @MainActor func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool
+    @MainActor func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClientID: APIClient.ID) async throws -> Bool
     
     /// Notifies the delegate of an incoming HTTP error when decoding the response.
-    @MainActor func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) async
+    @MainActor func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClientID: APIClient.ID) async
 }
 
 public extension APIClientDelegate {
-    @MainActor func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) async { }
+    @MainActor func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClientID: APIClient.ID) async { }
 }
 
 /// This type allows you to simplify the communications with HTTP servers using the `Environment` protocol and `Request` type.
-open class APIClient {
+open class APIClient: Identifiable {
+    
+    public var id: String { router.environment.baseURL.absoluteString }
     
     /// Sets the `delegate` for this class
     open weak var delegate: APIClientDelegate?
@@ -156,7 +158,7 @@ extension APIClient {
     }
     
     /// Encapsulates the response received by the server.
-    public struct Response {
+    public struct Response: Sendable {
         /// The raw data as received by the server.
         public let data: Data
         /// Other metadata of the response sent by the server encapsulated in a `HTTPURLResponse`
@@ -188,7 +190,7 @@ private extension APIClient {
             let apiError = APIClient.Error.failureStatusCode(response.httpResponse.statusCode, response.data)
             
             if let path = response.httpResponse.url?.path {
-                await self.delegate?.apiClientDidReceiveError(apiError, forRequest: path, apiClient: self)
+                await self.delegate?.apiClientDidReceiveError(apiError, forRequest: path, apiClientID: id)
             }
 
             throw apiError
@@ -201,7 +203,7 @@ private extension APIClient {
             let delegate = self.delegate else {
             throw error
         }
-        let didUpdateSignature = try await delegate.apiClientDidReceiveUnauthorized(forRequest: request.endpoint.path, apiClient: self)
+        let didUpdateSignature = try await delegate.apiClientDidReceiveUnauthorized(forRequest: request.endpoint.path, apiClientID: id)
         guard didUpdateSignature else {
             throw error
         }
@@ -228,7 +230,7 @@ private extension APIClient {
     }
 
     /// Proxy object to do all our URLSessionDelegate work
-    class SessionDelegate: NSObject, URLSessionDelegate {
+    final class SessionDelegate: NSObject, URLSessionDelegate {
         
         let environment: Environment
         

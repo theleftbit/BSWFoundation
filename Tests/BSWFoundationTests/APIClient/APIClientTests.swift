@@ -105,7 +105,13 @@ class APIClientTests: XCTestCase {
     func testUnauthorizedRetriesAfterGeneratingNewCredentials() async throws {
         
         class MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
-            func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool {
+            
+            init(apiClient: APIClient) {
+                self.apiClient = apiClient
+            }
+            let apiClient: APIClient
+            
+            func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClientID: APIClient.ID) async throws -> Bool {
                 apiClient.customizeRequest = { urlRequest in
                     var mutableRequest = urlRequest
                     mutableRequest.setValue("Daenerys Targaryen is the True Queen", forHTTPHeaderField: "JWT")
@@ -132,7 +138,7 @@ class APIClientTests: XCTestCase {
         }
         
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: SignatureCheckingNetworkFetcher())
-        let mockDelegate = MockAPIClientDelegateThatGeneratesNewSignature()
+        let mockDelegate = MockAPIClientDelegateThatGeneratesNewSignature(apiClient: sut)
         sut.delegate = mockDelegate
 
         let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
@@ -189,7 +195,7 @@ private func generateRandomData() -> Data {
 }
 
 private class MockAPIClientDelegate: APIClientDelegate {
-    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool {
+    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClientID: APIClient.ID) async throws -> Bool {
         failedPath = atPath
         return false
     }
