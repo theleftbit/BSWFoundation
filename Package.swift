@@ -25,7 +25,7 @@ let package = Package(
             name: "BSWFoundation",
             dependencies: ["KeychainAccess"],
             swiftSettings: [
-//                SwiftSetting.unsafeFlags(["-Xfrontend", "-strict-concurrency=complete"]),
+                SwiftSetting.unsafeFlags(["-Xfrontend", "-strict-concurrency=complete"]),
             ]
         ),
         .testTarget(

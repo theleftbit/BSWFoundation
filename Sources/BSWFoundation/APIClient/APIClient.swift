@@ -39,7 +39,7 @@ open class APIClient: Identifiable {
     open weak var delegate: APIClientDelegate?
     
     /// Defines how this object will log to the console the requests and responses.
-    open var loggingConfiguration = LoggingConfiguration.default
+    open var loggingConfiguration = LoggingConfiguration.default()
     
     private let router: Router
     private let networkFetcher: APIClientNetworkFetcher
@@ -150,7 +150,9 @@ extension APIClient {
             self.responseBehaviour = responseBehaviour
         }
         
-        public static let `default` = LoggingConfiguration(requestBehaviour: .none, responseBehaviour: .onlyFailing)
+        public static func `default`() -> LoggingConfiguration {
+            LoggingConfiguration(requestBehaviour: .none, responseBehaviour: .onlyFailing)
+        }
         public enum Behavior: Sendable {
             case none
             case all
