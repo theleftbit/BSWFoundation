@@ -26,13 +26,7 @@ public enum JSONParser {
     /// - Returns: The String as pretty print, for easy debug
     public static func parseDataAsJSONPrettyPrint(_ data: Data) -> String? {
         guard let json = try? JSONSerialization.jsonObject(with: data, options: JSONParser.Options) else { return nil }
-        let options: JSONSerialization.WritingOptions = {
-            if #available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *) {
-                return [.fragmentsAllowed,.withoutEscapingSlashes]
-            } else {
-                return [.fragmentsAllowed]
-            }
-        }()
+        let options: JSONSerialization.WritingOptions = [.fragmentsAllowed,.withoutEscapingSlashes, .sortedKeys]
         guard let prettyPrintedData = try? JSONSerialization.data(withJSONObject: json, options: options) else { return nil }
         return String(data: prettyPrintedData, encoding: .utf8)
     }

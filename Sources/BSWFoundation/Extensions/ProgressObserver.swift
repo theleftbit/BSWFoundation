@@ -6,7 +6,7 @@
 import Foundation
 
 /// A simple wrapper on top of `Foundation.Progress` that makes it easier to observe it's progress.
-public class ProgressObserver: NSObject {
+public class ProgressObserver: NSObject, @unchecked Sendable {
     
     fileprivate let onUpdate: (Progress) -> Void
     fileprivate let progress: Progress
@@ -18,8 +18,8 @@ public class ProgressObserver: NSObject {
         self.onUpdate = onUpdate
         super.init()
         self.observer = progress.observe(\.fractionCompleted) { [weak self] (progress, _) in
-            DispatchQueue.main.async {
-                guard let `self` = self else { return }
+            guard let self else { return }
+            Task { @MainActor in
                 self.onUpdate(progress)
             }
         }

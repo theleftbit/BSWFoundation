@@ -90,7 +90,7 @@ class APIClientTests: XCTestCase {
     }
     
     func testUnauthorizedCallsRightMethod() async throws {
-        let mockDelegate = MockAPIClientDelegate()
+        let mockDelegate = await MockAPIClientDelegate()
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: Network401Fetcher())
         sut.delegate = mockDelegate
         
@@ -99,13 +99,20 @@ class APIClientTests: XCTestCase {
         )
         // We don't care about the error here
         let _ = try? await sut.perform(ipRequest)
-        XCTAssert(mockDelegate.failedPath != nil)
+        let failedPath = await mockDelegate.failedPath
+        XCTAssert(failedPath != nil)
     }
 
     func testUnauthorizedRetriesAfterGeneratingNewCredentials() async throws {
         
-        class MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
-            func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool {
+        actor MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
+            
+            init(apiClient: APIClient) {
+                self.apiClient = apiClient
+            }
+            let apiClient: APIClient
+            
+            func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClientID: APIClient.ID) async throws -> Bool {
                 apiClient.customizeRequest = { urlRequest in
                     var mutableRequest = urlRequest
                     mutableRequest.setValue("Daenerys Targaryen is the True Queen", forHTTPHeaderField: "JWT")
@@ -132,7 +139,7 @@ class APIClientTests: XCTestCase {
         }
         
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: SignatureCheckingNetworkFetcher())
-        let mockDelegate = MockAPIClientDelegateThatGeneratesNewSignature()
+        let mockDelegate = MockAPIClientDelegateThatGeneratesNewSignature(apiClient: sut)
         sut.delegate = mockDelegate
 
         let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
@@ -188,9 +195,11 @@ private func generateRandomData() -> Data {
     return Data(bytes: bytes, count: length)
 }
 
-private class MockAPIClientDelegate: APIClientDelegate {
-    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool {
+@MainActor
+private class MockAPIClientDelegate: NSObject, APIClientDelegate {
+    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClientID: APIClient.ID) async throws -> Bool {
         failedPath = atPath
+        XCTAssert(Thread.isMainThread)
         return false
     }
     var failedPath: String?

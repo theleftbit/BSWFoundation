@@ -14,29 +14,32 @@ public protocol APIClientNetworkFetcher {
     func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response
 }
 
-/// This protocol is used to communicate errors during the lifetime of the APIClient
+/// This protocol is used to communicate errors during the lifetime of the APIClient.
+/// You can conform to it on Actors as well as UIKit objects by annotating them as `@MainActor`
 public protocol APIClientDelegate: AnyObject {
     
     /// This method is called when APIClient recieves a 401 and gives a chance to the delegate to update the APIClient's authToken
     /// before retrying the request. Return `true` if you were able to refresh the token. Throw or return false in case you couldn't do it.
-    @MainActor func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClient: APIClient) async throws -> Bool
+    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClientID: APIClient.ID) async throws -> Bool
     
     /// Notifies the delegate of an incoming HTTP error when decoding the response.
-    @MainActor func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) async
+    func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClientID: APIClient.ID) async
 }
 
 public extension APIClientDelegate {
-    @MainActor func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClient: APIClient) async { }
+    @MainActor func apiClientDidReceiveError(_ error: Error, forRequest atPath: String, apiClientID: APIClient.ID) async { }
 }
 
 /// This type allows you to simplify the communications with HTTP servers using the `Environment` protocol and `Request` type.
-open class APIClient {
+open class APIClient: Identifiable {
+    
+    public var id: String { router.environment.baseURL.absoluteString }
     
     /// Sets the `delegate` for this class
     open weak var delegate: APIClientDelegate?
     
     /// Defines how this object will log to the console the requests and responses.
-    open var loggingConfiguration = LoggingConfiguration.default
+    open var loggingConfiguration = LoggingConfiguration.default()
     
     private let router: Router
     private let networkFetcher: APIClientNetworkFetcher
@@ -137,7 +140,7 @@ extension APIClient {
     }
     
     /// This type defines how the `APIClient` will log requests and responses into the Console
-    public struct LoggingConfiguration {
+    public struct LoggingConfiguration: Sendable {
         
         public let requestBehaviour: Behavior
         public let responseBehaviour: Behavior
@@ -147,8 +150,10 @@ extension APIClient {
             self.responseBehaviour = responseBehaviour
         }
         
-        public static var `default` = LoggingConfiguration(requestBehaviour: .none, responseBehaviour: .onlyFailing)
-        public enum Behavior {
+        public static func `default`() -> LoggingConfiguration {
+            LoggingConfiguration(requestBehaviour: .none, responseBehaviour: .onlyFailing)
+        }
+        public enum Behavior: Sendable {
             case none
             case all
             case onlyFailing
@@ -156,7 +161,7 @@ extension APIClient {
     }
     
     /// Encapsulates the response received by the server.
-    public struct Response {
+    public struct Response: Sendable {
         /// The raw data as received by the server.
         public let data: Data
         /// Other metadata of the response sent by the server encapsulated in a `HTTPURLResponse`
@@ -188,7 +193,7 @@ private extension APIClient {
             let apiError = APIClient.Error.failureStatusCode(response.httpResponse.statusCode, response.data)
             
             if let path = response.httpResponse.url?.path {
-                await self.delegate?.apiClientDidReceiveError(apiError, forRequest: path, apiClient: self)
+                await self.delegate?.apiClientDidReceiveError(apiError, forRequest: path, apiClientID: id)
             }
 
             throw apiError
@@ -201,7 +206,7 @@ private extension APIClient {
             let delegate = self.delegate else {
             throw error
         }
-        let didUpdateSignature = try await delegate.apiClientDidReceiveUnauthorized(forRequest: request.endpoint.path, apiClient: self)
+        let didUpdateSignature = try await delegate.apiClientDidReceiveUnauthorized(forRequest: request.endpoint.path, apiClientID: id)
         guard didUpdateSignature else {
             throw error
         }
@@ -228,7 +233,7 @@ private extension APIClient {
     }
 
     /// Proxy object to do all our URLSessionDelegate work
-    class SessionDelegate: NSObject, URLSessionDelegate {
+    final class SessionDelegate: NSObject, URLSessionDelegate {
         
         let environment: Environment
         
@@ -292,62 +297,27 @@ private extension APIClient {
 
 extension URLSession: APIClientNetworkFetcher {
 
-    @available(iOS, deprecated: 15.0, message: "Use the built-in API instead")
     public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
-        if #available(iOS 15.0, tvOS 15.0, watchOS 8.0, macOS 12.0, *) {
-            let tuple = try await self.data(for: urlRequest)
-            guard let httpResponse = tuple.1 as? HTTPURLResponse else {
-                throw APIClient.Error.malformedResponse
-            }
-            return .init(data: tuple.0, httpResponse: httpResponse)
-        } else {
-            return try await withCheckedThrowingContinuation { continuation in
-                let task = self.dataTask(with: urlRequest) { data, response, error in
-                    if let error = error {
-                        return continuation.resume(throwing: error)
-                    }
-
-                    guard let httpResponse = response as? HTTPURLResponse, let data = data else {
-                        return continuation.resume(throwing: APIClient.Error.malformedResponse)
-                    }
-                    return continuation.resume(returning: .init(data: data, httpResponse: httpResponse))
-                }
-
-                task.resume()
-            }
+        let tuple = try await self.data(for: urlRequest)
+        guard let httpResponse = tuple.1 as? HTTPURLResponse else {
+            throw APIClient.Error.malformedResponse
         }
+        return .init(data: tuple.0, httpResponse: httpResponse)
     }
     
-    @available(iOS, deprecated: 15.0, message: "Use the built-in API instead")
     public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
-        
-        if #available(iOS 15.0, tvOS 15.0, watchOS 8.0, macOS 12.0, *) {
+        let cancelTask: @Sendable () -> () = {}
 #if os(iOS)
-            let backgroundTask = await UIApplication.shared.beginBackgroundTask { }
+        let backgroundTask = await UIApplication.shared.beginBackgroundTask(expirationHandler: cancelTask)
 #endif
-            let (data, response) = try await self.upload(for: urlRequest, fromFile: fileURL)
+        let (data, response) = try await self.upload(for: urlRequest, fromFile: fileURL)
 #if os(iOS)
-            await UIApplication.shared.endBackgroundTask(backgroundTask)
+        await UIApplication.shared.endBackgroundTask(backgroundTask)
 #endif
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw APIClient.Error.malformedResponse
-            }
-            return .init(data: data, httpResponse: httpResponse)
-        } else {
-            return try await withCheckedThrowingContinuation { continuation in
-                let urlSessionTask = self.uploadTask(with: urlRequest, fromFile: fileURL) { (data, response, error) in
-                    if let error = error {
-                        return continuation.resume(throwing: error)
-                    }
-
-                    guard let httpResponse = response as? HTTPURLResponse, let data = data else {
-                        return continuation.resume(throwing: APIClient.Error.malformedResponse)
-                    }
-                    return continuation.resume(returning: .init(data: data, httpResponse: httpResponse))
-                }
-                urlSessionTask.resume()
-            }
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIClient.Error.malformedResponse
         }
+        return .init(data: data, httpResponse: httpResponse)
     }
 }
 

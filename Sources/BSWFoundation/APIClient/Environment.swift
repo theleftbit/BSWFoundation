@@ -6,7 +6,7 @@
 import Foundation
 
 /// Describes an environment to attack using a `APIClient`
-public protocol Environment {
+public protocol Environment: Sendable {
     
     /// What URL to send the requests to.
     var baseURL: URL { get }
