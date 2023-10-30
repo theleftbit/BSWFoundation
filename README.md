@@ -9,8 +9,4 @@
  
 ## Documentation
 
-Please checkout [the documentation](https://www.theleftbit.com/BSWFoundation/documentation/bswfoundation/) generated with DocC using:
-
-```
-xcodebuild docbuild -scheme BSWFoundation -destination generic/platform=iOS DOCC_HOSTING_BASE_PATH='BSWFoundation'
-```
+Please checkout [the documentation](https://swiftpackageindex.com/theleftbit/BSWFoundation/documentation/) generated with DocC and hosted generously by Swift Package Index
