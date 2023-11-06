@@ -9,4 +9,8 @@ public extension ProcessInfo {
         return isiOSAppOnMac
         #endif
     }
+    
+    var isXcodePreview: Bool {
+        environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    }
 }
