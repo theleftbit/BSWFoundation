@@ -10,7 +10,7 @@ public extension ProcessInfo {
         #endif
     }
     
-    static var isXcodePreview: Bool {
-        self.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+    var isXcodePreview: Bool {
+        environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
 }
