@@ -36,6 +36,8 @@ class JSONParserTests: XCTestCase {
         XCTAssert(model.identity == parsedModel.identity)
     }
 
+#if os(Android)
+#else
     func testParsingWithDate_forSwiftConcurency() throws {
         let sampleString = """
         {\"date\":\"2021-12-20T09:32:30+0000\"}
@@ -45,6 +47,7 @@ class JSONParserTests: XCTestCase {
         XCTAssert(Calendar.current.component(.month, from: model.date) == 12)
         XCTAssert(Calendar.current.component(.day, from: model.date) == 20)
     }
+#endif
     
     func testArrayParsing() throws {
         let model1 = SampleModel(identity: "123456", name: "Hola", amount: 5678)
@@ -70,7 +73,7 @@ class JSONParserTests: XCTestCase {
 
     func testEmptyResponseParsing() throws {
         let jsonData = """
-        """.data(using: .utf8)!
+        """.data(using: String.Encoding.utf8)!
         let _: VoidResponse = try JSONParser.parseData(jsonData)
     }
 }

@@ -23,7 +23,7 @@ extension APIClient.Error: LocalizedError {
         return localizedError.replacingOccurrences(
             of: pattern,
             with: "(BSWFoundation.APIClient.Error.\(apiClientError))",
-            options: .regularExpression
+            options: NSString.CompareOptions.regularExpression
         )
     }
     

@@ -60,7 +60,7 @@ open class APIClient: Identifiable {
     public init(environment: Environment, networkFetcher: APIClientNetworkFetcher? = nil) {
         let sessionDelegate = SessionDelegate(environment: environment)
         self.router = Router(environment: environment)
-        self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: sessionDelegate, delegateQueue: .main)
+        self.networkFetcher = networkFetcher ?? FoundationAPIClientNetworkFetcher(sessionDelegate: sessionDelegate)
         self.sessionDelegate = sessionDelegate
     }
     
@@ -219,6 +219,8 @@ private extension APIClient {
     }
 
     func deleteFileAtPath(fileURL: URL) async throws -> Void {
+#if os(Android)
+#else
         let void: Void = try await withCheckedThrowingContinuation { continuation in
             FileManagerWrapper.shared.perform { fileManager in
                 do {
@@ -230,6 +232,7 @@ private extension APIClient {
             }
         }
         return void /// as of Xcode 13.2, this stupid variable was required
+#endif
     }
 
     /// Proxy object to do all our URLSessionDelegate work
@@ -258,6 +261,8 @@ import os.log
 
 private extension APIClient {
     private func logRequest(request: URLRequest) {
+#if os(Android)
+#else
         switch loggingConfiguration.requestBehaviour {
         case .all:
             let customLog = OSLog(subsystem: submoduleName("APIClient"), category: "APIClient.Request")
@@ -270,9 +275,12 @@ private extension APIClient {
         default:
             break
         }
+#endif
     }
     
     private func logResponse(_ response: Response) {
+#if os(Android)
+#else
         let isError = !(200..<300).contains(response.httpResponse.statusCode)
         let shouldLogThis: Bool = {
             switch loggingConfiguration.responseBehaviour {
@@ -292,13 +300,20 @@ private extension APIClient {
         if isError, let errorString = String(data: response.data, encoding: .utf8) {
             os_log("Error Message: %{public}@", log: customLog, type: .error, errorString)
         }
+#endif
     }
 }
 
-extension URLSession: APIClientNetworkFetcher {
+class FoundationAPIClientNetworkFetcher: APIClientNetworkFetcher {
+
+    let urlSession: URLSession
+    
+    fileprivate init(sessionDelegate: APIClient.SessionDelegate) {
+        self.urlSession = URLSession(configuration: URLSessionConfiguration.default, delegate: sessionDelegate, delegateQueue: nil)
+    }
 
     public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
-        let tuple = try await self.data(for: urlRequest)
+        let tuple = try await urlSession.data(for: urlRequest)
         guard let httpResponse = tuple.1 as? HTTPURLResponse else {
             throw APIClient.Error.malformedResponse
         }
@@ -306,11 +321,14 @@ extension URLSession: APIClientNetworkFetcher {
     }
     
     public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
+#if os(Android)
+        fatalError()
+#else
         let cancelTask: @Sendable () -> () = {}
 #if os(iOS)
         let backgroundTask = await UIApplication.shared.beginBackgroundTask(expirationHandler: cancelTask)
 #endif
-        let (data, response) = try await self.upload(for: urlRequest, fromFile: fileURL)
+        let (data, response) = try await urlSession.upload(for: urlRequest, fromFile: fileURL)
 #if os(iOS)
         await UIApplication.shared.endBackgroundTask(backgroundTask)
 #endif
@@ -318,6 +336,7 @@ extension URLSession: APIClientNetworkFetcher {
             throw APIClient.Error.malformedResponse
         }
         return .init(data: data, httpResponse: httpResponse)
+#endif
     }
 }
 

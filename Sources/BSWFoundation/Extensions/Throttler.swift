@@ -4,7 +4,8 @@
 //
 
 import Foundation
-
+#if os(Android)
+#else
 /// Makes sure that the given job is not executed more than once every `seconds`
 public class Throttler {
     
@@ -29,3 +30,4 @@ public class Throttler {
         queue.asyncAfter(deadline: .now() + Double(maxInterval), execute: job)
     }
 }
+#endif

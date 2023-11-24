@@ -1,3 +1,6 @@
+#if os(Android)
+#else
+
 import XCTest
 import BSWFoundation
 
@@ -89,3 +92,4 @@ class UserDefaultsBackedTests: XCTestCase {
         XCTAssertNil(UserDefaults.standard.data(forKey: "Hello"))
     }
 }
+#endif

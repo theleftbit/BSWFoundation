@@ -1,3 +1,5 @@
+#if os(Android)
+#else
 
 import XCTest
 import BSWFoundation
@@ -15,3 +17,4 @@ class StringTests: XCTestCase {
     }
 
 }
+#endif

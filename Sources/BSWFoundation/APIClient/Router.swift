@@ -9,7 +9,7 @@ import Foundation
 
 extension APIClient {
     
-    actor Router {
+    struct Router {
         
         let environment: Environment
         
@@ -44,7 +44,7 @@ extension APIClient {
             case .json:
                 guard let parameters = endpoint.parameters, !parameters.isEmpty else { break }
                 do {
-                    let data = try JSONSerialization.data(withJSONObject: parameters, options: [.sortedKeys])
+                    let data = try JSONSerialization.data(withJSONObject: parameters, options: [JSONSerialization.WritingOptions.sortedKeys])
                     urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
                     urlRequest.httpBody = data
                 } catch {
@@ -110,13 +110,20 @@ private enum URLEncoding {
     }
 
     static func escape(_ string: String) -> String {
+#if os(Android)
+        return string
+#else
         let generalDelimitersToEncode = ":#[]@" // does not include "?" or "/" due to RFC 3986 - Section 3.4
         let subDelimitersToEncode = "!$&'()*+,;="
         var allowedCharacterSet = CharacterSet.urlQueryAllowed
         allowedCharacterSet.remove(charactersIn: "\(generalDelimitersToEncode)\(subDelimitersToEncode)")
         return string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) ?? string
+#endif
     }
 }
+
+#if os(Android)
+#else
 
 private extension String {
     var cleanForUserAgent: String {
@@ -126,3 +133,5 @@ private extension String {
         return String(unicodeScalars.filter { allowed.contains($0) })
     }
 }
+
+#endif

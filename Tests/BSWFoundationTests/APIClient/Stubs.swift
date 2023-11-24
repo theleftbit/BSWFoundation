@@ -172,12 +172,12 @@ enum Giphy {
 
             init(from decoder: Decoder) throws {
                 let container = try decoder.container(keyedBy: GIFKeys.self)
-                let id: String = try container.decode(String.self, forKey: .id)
-                let title: String = try container.decode(String.self, forKey: .title)
-                let imagesContainer = try container.nestedContainer(keyedBy: ImagesKeys.self, forKey: .images)
-                let originalContainer = try imagesContainer.nestedContainer(keyedBy: ImageKeys.self, forKey: .original)
-                let url: URL = try originalContainer.decode(URL.self, forKey: .url)
-                self.init(id: id, url: url, title: title)
+                let id: String = try container.decode(String.self, forKey: GIFKeys.id)
+                let title: String = try container.decode(String.self, forKey: GIFKeys.title)
+                let imagesContainer = try container.nestedContainer(keyedBy: ImagesKeys.self, forKey: GIFKeys.images)
+                let originalContainer = try imagesContainer.nestedContainer(keyedBy: ImageKeys.self, forKey: ImagesKeys.original)
+                let url: URL = try originalContainer.decode(URL.self, forKey: ImageKeys.url)
+                self = .init(id: id, url: url, title: title)
             }
         }
 

@@ -1,3 +1,5 @@
+#if os(Android)
+#else
 
 import XCTest
 import BSWFoundation
@@ -85,3 +87,4 @@ class CollectionTests: XCTestCase {
         XCTAssertNil(array1.selectedElement)
     }
 }
+#endif

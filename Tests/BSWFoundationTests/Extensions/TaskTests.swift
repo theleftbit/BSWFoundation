@@ -1,3 +1,5 @@
+#if os(Android)
+#else
 
 import XCTest
 import BSWFoundation
@@ -30,3 +32,4 @@ class TaskTests: XCTestCase {
         task.cancel()
     }
 }
+#endif

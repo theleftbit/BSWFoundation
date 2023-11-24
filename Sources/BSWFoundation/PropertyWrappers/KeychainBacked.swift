@@ -2,6 +2,9 @@
 //  Created by Pierluigi Cifani on 20/06/2019.
 //
 
+#if os(Android)
+#else
+
 import Foundation
 import KeychainAccess
 
@@ -36,3 +39,4 @@ public extension KeychainBacked {
         wrappedValue = nil
     }
 }
+#endif

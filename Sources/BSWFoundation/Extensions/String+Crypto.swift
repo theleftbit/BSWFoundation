@@ -1,6 +1,8 @@
 //
 //  Created by Pierluigi Cifani on 13/06/2019.
 //
+#if os(Android)
+#else
 
 import Foundation
 import CommonCrypto
@@ -63,3 +65,4 @@ public enum CryptoAlgorithm {
     }
 }
 
+#endif

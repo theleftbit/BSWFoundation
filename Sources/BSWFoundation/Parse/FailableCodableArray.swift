@@ -11,11 +11,14 @@ public struct FailableCodableArray<Element : Decodable> : Decodable {
     }
 }
 
+#if os(Android)
+#else
 extension FailableCodableArray: DateDecodingStrategyProvider where Element: DateDecodingStrategyProvider {
     public static var dateDecodingStrategy: DateFormatter {
         return Element.dateDecodingStrategy
     }
 }
+#endif
 
 private struct FailableDecodable<Base : Decodable> : Decodable {
 

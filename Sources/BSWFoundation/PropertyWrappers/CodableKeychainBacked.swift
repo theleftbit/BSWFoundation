@@ -1,6 +1,8 @@
 //
 //  Created by Michele Restuccia on 07/09/2020.
 //
+#if os(Android)
+#else
 
 import Foundation
 import KeychainAccess
@@ -45,3 +47,4 @@ private extension Encodable {
         return string
     }
 }
+#endif

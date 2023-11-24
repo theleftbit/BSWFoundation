@@ -28,7 +28,7 @@ public enum JSONParser {
         guard let json = try? JSONSerialization.jsonObject(with: data, options: JSONParser.Options) else { return nil }
         let options: JSONSerialization.WritingOptions = [.fragmentsAllowed,.withoutEscapingSlashes, .sortedKeys]
         guard let prettyPrintedData = try? JSONSerialization.data(withJSONObject: json, options: options) else { return nil }
-        return String(data: prettyPrintedData, encoding: .utf8)
+        return String(data: prettyPrintedData, encoding: String.Encoding.utf8)
     }
     
     /// Attempts to extract an error string from the passed JSON data.
@@ -56,12 +56,15 @@ public enum JSONParser {
             return response
         }
         
+        #if os(Android)
+        #else
         if let provider = T.self as? DateDecodingStrategyProvider.Type {
             jsonDecoder.dateDecodingStrategy = .formatted(provider.dateDecodingStrategy)
         } else {
             jsonDecoder.dateDecodingStrategy = .formatted(iso8601DateFormatter)
         }
-
+        #endif
+        
         do {
             return try jsonDecoder.decode(T.self, from: data)
         } catch let decodingError as DecodingError {
@@ -99,10 +102,6 @@ public enum JSONParser {
     }
 }
 
-public protocol DateDecodingStrategyProvider {
-    static var dateDecodingStrategy: DateFormatter { get }
-}
-
 private var iso8601DateFormatter: DateFormatter {
     let formatter = DateFormatter()
     formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -110,8 +109,15 @@ private var iso8601DateFormatter: DateFormatter {
     return formatter
 }
 
+#if os(Android)
+#else
+public protocol DateDecodingStrategyProvider {
+    static var dateDecodingStrategy: DateFormatter { get }
+}
+
 extension Array: DateDecodingStrategyProvider where Element: DateDecodingStrategyProvider {
     public static var dateDecodingStrategy: DateFormatter {
         return Element.dateDecodingStrategy
     }
 }
+#endif

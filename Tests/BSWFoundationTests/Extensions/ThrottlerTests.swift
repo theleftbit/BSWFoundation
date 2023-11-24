@@ -1,3 +1,6 @@
+#if os(Android)
+#else
+
 import Foundation
 import XCTest
 import BSWFoundation
@@ -44,3 +47,4 @@ class ThrottlerTests: XCTestCase {
         XCTAssert(numberOfTimesThisIsExecuted == 0)
     }
 }
+#endif

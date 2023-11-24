@@ -13,7 +13,7 @@ class APIClientTests: XCTestCase {
         sut = APIClient(environment: HTTPBin.Hosts.production)
         
         /// This might happen given that `HTTPBin` is throttling
-        XCTExpectFailure(options: .nonStrict())
+        XCTExpectFailure(options: XCTExpectedFailure.Options.nonStrict())
     }
 
     func testGET() async throws {
@@ -104,40 +104,7 @@ class APIClientTests: XCTestCase {
     }
 
     func testUnauthorizedRetriesAfterGeneratingNewCredentials() async throws {
-        
-        actor MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
-            
-            init(apiClient: APIClient) {
-                self.apiClient = apiClient
-            }
-            let apiClient: APIClient
-            
-            func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClientID: APIClient.ID) async throws -> Bool {
-                apiClient.customizeRequest = { urlRequest in
-                    var mutableRequest = urlRequest
-                    mutableRequest.setValue("Daenerys Targaryen is the True Queen", forHTTPHeaderField: "JWT")
-                    return mutableRequest
-                }
-                return true
-            }
-        }
-        
-        class SignatureCheckingNetworkFetcher: APIClientNetworkFetcher {
-            
-            public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
-                guard let _ = urlRequest.allHTTPHeaderFields?["JWT"] else {
-                    return APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!)
-                }
                 
-                return try await URLSession.shared.fetchData(with: urlRequest)
-            }
-            
-            public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
-                fatalError()
-            }
-
-        }
-        
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: SignatureCheckingNetworkFetcher())
         let mockDelegate = MockAPIClientDelegateThatGeneratesNewSignature(apiClient: sut)
         sut.delegate = mockDelegate
@@ -217,3 +184,38 @@ private class Network401Fetcher: APIClientNetworkFetcher {
 }
 
 struct ValidationError: Swift.Error {}
+
+private class SignatureCheckingNetworkFetcher: APIClientNetworkFetcher {
+    
+    public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
+        guard let _ = urlRequest.allHTTPHeaderFields?["JWT"] else {
+            return APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!)
+        }
+        
+        let tuple = try await URLSession.shared.data(for: urlRequest)
+        return .init(data: tuple.0, httpResponse: tuple.1 as! HTTPURLResponse)
+    }
+    
+    public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
+        fatalError()
+    }
+
+}
+
+private class MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
+    
+    init(apiClient: APIClient) {
+        self.apiClient = apiClient
+    }
+    let apiClient: APIClient
+    
+    func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClientID: APIClient.ID) async throws -> Bool {
+        apiClient.customizeRequest = { urlRequest in
+            var mutableRequest = urlRequest
+            mutableRequest.setValue("Daenerys Targaryen is the True Queen", forHTTPHeaderField: "JWT")
+            return mutableRequest
+        }
+        return true
+    }
+}
+

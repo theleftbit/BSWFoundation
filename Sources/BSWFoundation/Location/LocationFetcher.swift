@@ -2,6 +2,8 @@
 //  Created by Pierluigi Cifani on 20/04/16.
 //  Copyright (c) 2016 TheLeftBit SL. All rights reserved.
 //
+#if os(Android)
+#else
 
 import Foundation
 import CoreLocation
@@ -115,3 +117,5 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
         }
     }
 }
+
+#endif

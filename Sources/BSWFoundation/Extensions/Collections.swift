@@ -2,6 +2,8 @@
 //  Created by Pierluigi Cifani on 18/02/16.
 //  Copyright © 2018 TheLeftBit SL SL. All rights reserved.
 //
+#if os(Android)
+#else
 
 import Foundation
 
@@ -148,3 +150,4 @@ public extension Sequence {
         }
     }
 }
+#endif
