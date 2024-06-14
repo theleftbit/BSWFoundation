@@ -31,37 +31,29 @@ public extension APIClientDelegate {
 }
 
 /// This type allows you to simplify the communications with HTTP servers using the `Environment` protocol and `Request` type.
-open class APIClient: Identifiable {
+public actor APIClient: Identifiable {
     
-    public var id: String { router.environment.baseURL.absoluteString }
+    public nonisolated var id: String { router.environment.baseURL.absoluteString }
     
-    /// Sets the `delegate` for this class
-    open weak var delegate: APIClientDelegate?
-    
-    /// Defines how this object will log to the console the requests and responses.
-    open var loggingConfiguration = LoggingConfiguration.default()
-    
+    private weak var delegate: APIClientDelegate?
+    private let loggingConfiguration: LoggingConfiguration
     private let router: Router
     private let networkFetcher: APIClientNetworkFetcher
     private let sessionDelegate: SessionDelegate
-    
-    /// An optional closure that allows you to map an error before it's thrown
-    open var mapError: (Swift.Error) -> (Swift.Error) = { $0 }
-    
-    /// An optional closure that allows you customize a `URLRequest` before it's sent over the network.
-    ///
-    /// This is useful for example to add an HTTP Header to authenticate with the Server.
-    open var customizeRequest: (URLRequest) -> (URLRequest) = { $0 }
-    
+    private var mapError: (Swift.Error) -> (Swift.Error) = { $0 }
+    private var customizeRequest: (URLRequest) -> (URLRequest) = { $0 }
+
     /// Initializes the `APIClient`
     /// - Parameters:
     ///   - environment: The `Environment` to attack.
     ///   - networkFetcher: The `APIClientNetworkFetcher` that will perform the network requests. If nil is passed, a `URLSession` with a `.default` configuration will be used.
-    public init(environment: Environment, networkFetcher: APIClientNetworkFetcher? = nil) {
+    ///   - loggingConfiguration: Defines how this object will log to the console the requests and responses
+    public init(environment: Environment, networkFetcher: APIClientNetworkFetcher? = nil, loggingConfiguration: LoggingConfiguration = .default()) {
         let sessionDelegate = SessionDelegate(environment: environment)
         self.router = Router(environment: environment)
         self.networkFetcher = networkFetcher ?? URLSession(configuration: .default, delegate: sessionDelegate, delegateQueue: .main)
         self.sessionDelegate = sessionDelegate
+        self.loggingConfiguration = loggingConfiguration
     }
     
     /// Sends a `Request` over the network, validates the response, parses it's contents and returns them.
@@ -96,6 +88,23 @@ open class APIClient: Identifiable {
     /// Returns the environment configured for this `APIClient`
     public var currentEnvironment: Environment {
         return self.router.environment
+    }
+    
+    /// An optional closure that allows you to map an error before it's thrown
+    public func mapError(_ mapper: @escaping (Swift.Error) -> (Swift.Error)) {
+        self.mapError = mapper
+    }
+    
+    /// An optional closure that allows you customize a `URLRequest` before it's sent over the network.
+    ///
+    /// This is useful for example to add an HTTP Header to authenticate with the Server.
+    public func customizeRequest(_ mapper: @escaping (URLRequest) -> (URLRequest)) {
+        self.customizeRequest = mapper
+    }
+    
+    /// Sets the `delegate` for this instance
+    public func setDelegate(_ d: APIClientDelegate?) {
+        self.delegate = d
     }
 }
 

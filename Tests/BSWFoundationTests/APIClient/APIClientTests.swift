@@ -92,7 +92,7 @@ class APIClientTests: XCTestCase {
     func testUnauthorizedCallsRightMethod() async throws {
         let mockDelegate = await MockAPIClientDelegate()
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: Network401Fetcher())
-        sut.delegate = mockDelegate
+        await sut.setDelegate(mockDelegate)
         
         let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
@@ -113,11 +113,11 @@ class APIClientTests: XCTestCase {
             let apiClient: APIClient
             
             func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClientID: APIClient.ID) async throws -> Bool {
-                apiClient.customizeRequest = { urlRequest in
+                await apiClient.customizeRequest({ urlRequest in
                     var mutableRequest = urlRequest
                     mutableRequest.setValue("Daenerys Targaryen is the True Queen", forHTTPHeaderField: "JWT")
                     return mutableRequest
-                }
+                })
                 return true
             }
         }
@@ -140,7 +140,7 @@ class APIClientTests: XCTestCase {
         
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: SignatureCheckingNetworkFetcher())
         let mockDelegate = MockAPIClientDelegateThatGeneratesNewSignature(apiClient: sut)
-        sut.delegate = mockDelegate
+        await sut.setDelegate(mockDelegate)
 
         let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
@@ -152,11 +152,11 @@ class APIClientTests: XCTestCase {
         let mockNetworkFetcher = MockNetworkFetcher()
         mockNetworkFetcher.mockedData = Data()
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: mockNetworkFetcher)
-        sut.customizeRequest = {
+        await sut.customizeRequest({
             var mutableURLRequest = $0
             mutableURLRequest.setValue("hello", forHTTPHeaderField: "Signature")
             return mutableURLRequest
-        }
+        })
         
         let ipRequest = BSWFoundation.APIClient.Request<VoidResponse>(
             endpoint: HTTPBin.API.ip
@@ -174,11 +174,11 @@ class APIClientTests: XCTestCase {
         let mockNetworkFetcher = MockNetworkFetcher()
         mockNetworkFetcher.mockedData = Data()
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: mockNetworkFetcher)
-        sut.customizeRequest = {
+        await sut.customizeRequest({
             var mutableURLRequest = $0
             mutableURLRequest.setValue("hello", forHTTPHeaderField: "Signature")
             return mutableURLRequest
-        }
+        })
         
         let _ = try await sut.performSimpleRequest(forEndpoint: HTTPBin.API.ip)
         
