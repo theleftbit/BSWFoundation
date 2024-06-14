@@ -15,6 +15,7 @@ import CoreLocation
  let currentLocation = try await LocationFetcher.fetcher.fetchCurrentLocation()
  ```
 */
+@MainActor
 public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
     
     public enum LocationErrors: Swift.Error {
@@ -85,20 +86,23 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
 
     //MARK:- CLLocationManagerDelegate
     
-    public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.first {
-            self.lastKnownLocation = location
-            completeCurrentRequest(.success(location))
+    public nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        MainActor.assumeIsolated {
+            if let location = locations.first {
+                self.lastKnownLocation = location
+                completeCurrentRequest(.success(location))
+            }
         }
     }
     
-    public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    public nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Error finding location: \(error.localizedDescription)")
-        completeCurrentRequest()
+        MainActor.assumeIsolated {
+            completeCurrentRequest()
+        }
     }
     
-    public func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-    
+    public nonisolated func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         guard status != .notDetermined else { return }
         
         let isStatusAuthorized: Bool = {
@@ -111,7 +115,9 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
         if isStatusAuthorized {
             manager.requestLocation()
         } else {
-            completeCurrentRequest()
+            MainActor.assumeIsolated {
+                completeCurrentRequest()
+            }
         }
     }
 }

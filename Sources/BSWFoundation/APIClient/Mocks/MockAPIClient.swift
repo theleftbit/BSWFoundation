@@ -4,7 +4,7 @@
 
 import Foundation
 
-public class MockNetworkFetcher: APIClientNetworkFetcher {
+public class MockNetworkFetcher: APIClientNetworkFetcher, @unchecked Sendable {
     
     enum Error: Swift.Error {
         case noDataProvided

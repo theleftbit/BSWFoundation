@@ -9,7 +9,7 @@ import UIKit
 #endif
 
 /// Types conforming to this protocol will perform network requests on behalf of `APIClient`
-public protocol APIClientNetworkFetcher {
+public protocol APIClientNetworkFetcher: Sendable {
     func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response
     func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response
 }

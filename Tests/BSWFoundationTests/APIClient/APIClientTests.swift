@@ -122,7 +122,7 @@ class APIClientTests: XCTestCase {
             }
         }
         
-        class SignatureCheckingNetworkFetcher: APIClientNetworkFetcher {
+        class SignatureCheckingNetworkFetcher: APIClientNetworkFetcher, @unchecked Sendable {
             
             public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
                 guard let _ = urlRequest.allHTTPHeaderFields?["JWT"] else {
@@ -205,7 +205,7 @@ private class MockAPIClientDelegate: NSObject, APIClientDelegate {
     var failedPath: String?
 }
 
-private class Network401Fetcher: APIClientNetworkFetcher {
+private class Network401Fetcher: APIClientNetworkFetcher, @unchecked Sendable {
     
     public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
         return APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!)
