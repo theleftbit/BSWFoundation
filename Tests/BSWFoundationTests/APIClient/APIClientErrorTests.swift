@@ -1,31 +1,30 @@
 
-import XCTest
+import Testing
 @testable import BSWFoundation
 
-class APIClientErrorTests: XCTestCase {
-    
-    override func setUp() async throws {
-        try await super.setUp()
-    }
-    
-    func testErrorPrinting_encodingRequestFailed() {
+struct APIClientErrorTests {
+
+    @Test
+    func errorPrinting_encodingRequestFailed() {
         let localizedDescription = APIClient.Error.encodingRequestFailed.localizedDescription
-        XCTAssert(localizedDescription == "The operation couldn’t be completed. (BSWFoundation.APIClient.Error.encodingRequestFailed)")
+        #expect(localizedDescription == "The operation couldn’t be completed. (BSWFoundation.APIClient.Error.encodingRequestFailed)")
     }
     
-    func testErrorPrinting_serverStatusCode() {
+    @Test
+    func errorPrinting_serverStatusCode() {
         let errorMessageData =  """
         ["Please try again"]
         """.data(using: .utf8)
         let localizedDescription = APIClient.Error.failureStatusCode(400, errorMessageData).localizedDescription
-        XCTAssert(localizedDescription == "The operation couldn’t be completed. (BSWFoundation.APIClient.Error.FailureStatusCode: 400, Message: [\"Please try again\"])")
+        #expect(localizedDescription == "The operation couldn’t be completed. (BSWFoundation.APIClient.Error.FailureStatusCode: 400, Message: [\"Please try again\"])")
     }
     
-    func testErrorPrinting_serverStatusCode_2() {
+    @Test
+    func errorPrinting_serverStatusCode_2() {
         let errorMessageData =  """
         "Please try again"
         """.data(using: .utf8)
         let localizedDescription = APIClient.Error.failureStatusCode(400, errorMessageData).localizedDescription
-        XCTAssert(localizedDescription == "The operation couldn’t be completed. (BSWFoundation.APIClient.Error.FailureStatusCode: 400, Message: \"Please try again\")")
+        #expect(localizedDescription == "The operation couldn’t be completed. (BSWFoundation.APIClient.Error.FailureStatusCode: 400, Message: \"Please try again\")")
     }
 }

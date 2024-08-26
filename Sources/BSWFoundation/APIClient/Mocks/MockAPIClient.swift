@@ -19,6 +19,10 @@ public actor MockNetworkFetcher: APIClientNetworkFetcher {
         self.mockedData = mockedData
     }
     
+    public func setMockedStatusCode(_ statusCode: Int) async {
+        self.mockedStatusCode = statusCode
+    }
+    
     public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
         guard mockedData != nil else {
             throw Error.noDataProvided
