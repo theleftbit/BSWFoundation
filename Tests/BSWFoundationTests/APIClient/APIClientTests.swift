@@ -2,21 +2,20 @@
 //  Created by Pierluigi Cifani on 09/02/2017.
 //
 
-import XCTest
+import Testing
 import BSWFoundation
+import Foundation
 
-class APIClientTests: XCTestCase, @unchecked Sendable {
+actor APIClientTests {
 
-    var sut: APIClient!
+    var sut: APIClient
 
-    override func setUp() {
+    init() {
         sut = APIClient(environment: HTTPBin.Hosts.production)
-        
-        /// This might happen given that `HTTPBin` is throttling
-        XCTExpectFailure(options: .nonStrict())
     }
 
-    func testGET() async throws {
+    @Test
+    func GET() async throws {
         let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
@@ -24,7 +23,8 @@ class APIClientTests: XCTestCase, @unchecked Sendable {
         let _ = try await sut.perform(ipRequest)
     }
 
-    func testGETWithCustomValidation() async throws {
+    @Test
+    func GETWithCustomValidation() async throws {
         
         let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip,
@@ -37,7 +37,8 @@ class APIClientTests: XCTestCase, @unchecked Sendable {
         let _ = try await sut.perform(ipRequest)
     }
 
-    func testGETCancel() async throws {
+    @Test
+    func GETCancel() async throws {
         let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
@@ -47,19 +48,20 @@ class APIClientTests: XCTestCase, @unchecked Sendable {
 
         do {
             let _ = try await getTask.value
-            XCTFail("This should fail here")
+            Issue.record("This should fail here")
         } catch let error {
             if error is CancellationError {
                 return
             } else {
                 let nsError = error as NSError
-                XCTAssert(nsError.domain == NSURLErrorDomain)
-                XCTAssert(nsError.code == NSURLErrorCancelled)
+                #expect(nsError.domain == NSURLErrorDomain)
+                #expect(nsError.code == NSURLErrorCancelled)
             }
         }
     }
 
-    func testUpload() async throws {
+    @Test
+    func upload() async throws {
         let uploadRequest = BSWFoundation.APIClient.Request<VoidResponse>(
             endpoint: HTTPBin.API.upload(generateRandomData())
         )
@@ -67,7 +69,8 @@ class APIClientTests: XCTestCase, @unchecked Sendable {
         let _ = try await sut.perform(uploadRequest)
     }
 
-    func testUploadCancel() async throws {
+    @Test
+    func uploadCancel() async throws {
         let uploadRequest = BSWFoundation.APIClient.Request<VoidResponse>(
             endpoint: HTTPBin.API.upload(generateRandomData())
         )
@@ -77,19 +80,20 @@ class APIClientTests: XCTestCase, @unchecked Sendable {
 
         do {
             let _ = try await uploadTask.value
-            XCTFail("This should fail here")
+            Issue.record("This should fail here")
         } catch let error {
             if error is CancellationError {
                 return
             } else {
                 let nsError = error as NSError
-                XCTAssert(nsError.domain == NSURLErrorDomain)
-                XCTAssert(nsError.code == NSURLErrorCancelled)
+                #expect(nsError.domain == NSURLErrorDomain)
+                #expect(nsError.code == NSURLErrorCancelled)
             }
         }
     }
     
-    func testUnauthorizedCallsRightMethod() async throws {
+    @Test
+    func unauthorizedCallsRightMethod() async throws {
         let mockDelegate = await MockAPIClientDelegate()
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: Network401Fetcher())
         sut.delegate = mockDelegate
@@ -100,10 +104,11 @@ class APIClientTests: XCTestCase, @unchecked Sendable {
         // We don't care about the error here
         let _ = try? await sut.perform(ipRequest)
         let failedPath = await mockDelegate.failedPath
-        XCTAssert(failedPath != nil)
+        #expect(failedPath != nil)
     }
 
-    func testUnauthorizedRetriesAfterGeneratingNewCredentials() async throws {
+    @Test
+    func unauthorizedRetriesAfterGeneratingNewCredentials() async throws {
         
         actor MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
             
@@ -148,7 +153,8 @@ class APIClientTests: XCTestCase, @unchecked Sendable {
         let _ = try await sut.perform(ipRequest)
     }
     
-    func testCustomizeRequests() async throws {
+    @Test
+    func customizeRequests() async throws {
         let mockNetworkFetcher = MockNetworkFetcher()
         await mockNetworkFetcher.setMockedData(mockedData: Data())
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: mockNetworkFetcher)
@@ -167,10 +173,11 @@ class APIClientTests: XCTestCase, @unchecked Sendable {
         guard let capturedURLRequest = await mockNetworkFetcher.capturedURLRequest else {
             throw ValidationError()
         }
-        XCTAssert(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
+        #expect(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
     }
     
-    func testCustomizeSimpleRequests() async throws {
+    @Test
+    func customizeSimpleRequests() async throws {
         let mockNetworkFetcher = MockNetworkFetcher()
         await mockNetworkFetcher.setMockedData(mockedData: Data())
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: mockNetworkFetcher)
@@ -185,7 +192,7 @@ class APIClientTests: XCTestCase, @unchecked Sendable {
         guard let capturedURLRequest = await mockNetworkFetcher.capturedURLRequest else {
             throw ValidationError()
         }
-        XCTAssert(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
+        #expect(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
     }
 }
 

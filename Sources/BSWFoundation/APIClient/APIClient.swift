@@ -31,7 +31,7 @@ public extension APIClientDelegate {
 }
 
 /// This type allows you to simplify the communications with HTTP servers using the `Environment` protocol and `Request` type.
-open class APIClient: Identifiable {
+open class APIClient: Identifiable, @unchecked Sendable {
     
     public var id: String { router.environment.baseURL.absoluteString }
     
