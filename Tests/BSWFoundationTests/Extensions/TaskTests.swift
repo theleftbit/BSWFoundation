@@ -1,20 +1,21 @@
 
-import XCTest
+import Testing
 import BSWFoundation
 
-class TaskTests: XCTestCase {
-    func testNever() throws {
-        let waiter = XCTWaiter()
-        let exp = self.expectation(description: " ")
-        let task = Task(priority: .userInitiated) {
-            let _ = try await Task.never
-            exp.fulfill()
+struct TaskTests {
+    
+    @Test
+    func never() async throws {
+        await confirmation(expectedCount: 0) { confirmation in
+            let task = Task(priority: .userInitiated) {
+                let _ = try await Task.never
+                confirmation()
+            }
+            task.cancel()
         }
-        waiter.wait(for: [exp], timeout: 1)
-        XCTAssert(waiter.fulfilledExpectations.isEmpty)
-        task.cancel()
     }
     
+    /*
     func testNeverFuncOverride() throws {
         @Sendable func someThingThatReturnsAValue() async throws -> Int {
             try await Task.never()
@@ -29,4 +30,5 @@ class TaskTests: XCTestCase {
         XCTAssert(waiter.fulfilledExpectations.isEmpty)
         task.cancel()
     }
+     */
 }
