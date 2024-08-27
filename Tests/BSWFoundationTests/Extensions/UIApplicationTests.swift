@@ -3,6 +3,7 @@
 
 import Testing
 import BSWFoundation
+import UIKit
 
 actor UIApplicationTests {
 
