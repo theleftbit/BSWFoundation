@@ -3,20 +3,23 @@
 //
 //
 
-import XCTest
+import Testing
 @testable import BSWFoundation
+import Foundation
 
-class EnvironmentTests: XCTestCase {
+actor EnvironmentTests {
     
-    func testRouteURL() {
+    @Test
+    func routeURL() {
         let sut = BSWEnvironment.production
-        XCTAssert(sut.routeURL("login") == "https://theleftbit.com/login")
+        #expect(sut.routeURL("login") == "https://theleftbit.com/login")
     }
 
-    func testInsecureConnections() {
+    @Test
+    func insecureConnections() {
         let production = BSWEnvironment.production
         let staging = BSWEnvironment.staging
-        XCTAssert(production.shouldAllowInsecureConnections == false)
-        XCTAssert(staging.shouldAllowInsecureConnections == true)
+        #expect(production.shouldAllowInsecureConnections == false)
+        #expect(staging.shouldAllowInsecureConnections == true)
     }
 }

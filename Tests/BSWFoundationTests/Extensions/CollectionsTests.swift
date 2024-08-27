@@ -1,22 +1,24 @@
-
-import XCTest
+import Testing
 import BSWFoundation
 
-class CollectionTests: XCTestCase {
+actor CollectionTests {
 
-    fileprivate let sample = [1,2,3,4,5,6,7,8,9]
+    private let sample = [1,2,3,4,5,6,7,8,9]
 
-    func testFind() {
-        XCTAssertNotNil(sample.find(predicate: {$0 == 1}))
-        XCTAssertNil(sample.find(predicate: {$0 == 42}))
+    @Test
+    func find() {
+        #expect(sample.find(predicate: {$0 == 1}) != nil)
+        #expect(sample.find(predicate: {$0 == 42}) == nil)
     }
 
-    func testSafe() {
-        XCTAssertNotNil(sample[safe: 0])
-        XCTAssertNil(sample[safe: 42])
+    @Test
+    func safe() {
+        #expect(sample[safe: 0] != nil)
+        #expect(sample[safe: 42] == nil)
     }
 
-    func testShuffle() {
+    @Test
+    func shuffle() {
         //These tests are testing for randomness, let's try up to 10 times if any of them fails
         for _ in 0...10 {
             let testShuffledArrayChanges = sample.shuffled() != sample
@@ -26,62 +28,69 @@ class CollectionTests: XCTestCase {
                 return
             }
         }
-        XCTFail()
+        Issue.record("Shuffling tests failed")
     }
 
-    func testMoveItem() {
+    @Test
+    func moveItem() {
         var mutableSample = sample
         mutableSample.moveItem(fromIndex: 0, toIndex: 1)
-        XCTAssert(mutableSample[0] == 2)
-        XCTAssert(mutableSample[1] == 1)
+        #expect(mutableSample[0] == 2)
+        #expect(mutableSample[1] == 1)
     }
 
-    func testDictionaryInitWithTuples() {
+    @Test
+    func dictionaryInitWithTuples() {
         let tuples = [(0, 1), (1, 1), (2, 1), (3, 1)]
         let dict = Dictionary(elements: tuples)
-        XCTAssertNotNil(dict[0])
-        XCTAssertNotNil(dict[1])
-        XCTAssertNotNil(dict[2])
-        XCTAssertNotNil(dict[3])
-        XCTAssertNil(dict[42])
+        #expect(dict[0] != nil)
+        #expect(dict[1] != nil)
+        #expect(dict[2] != nil)
+        #expect(dict[3] != nil)
+        #expect(dict[42] == nil)
     }
     
-    func testSelectableArray() {
+    @Test
+    func selectableArray() {
         let values = [0,1,2,3]
         var array = SelectableArray<Int>(options: values)
         array.select(atIndex: 2)
-        XCTAssert(array.selectedElement == 2)
+        #expect(array.selectedElement == 2)
         array.enumerated().forEach { (offset, _) in
-            XCTAssert(array[offset] == values[offset])
+            #expect(array[offset] == values[offset])
         }
         array.appendOption(4, andSelectIt: true)
-        XCTAssert(array.selectedElement == 4)
+        #expect(array.selectedElement == 4)
     }
     
-    func testSelectableArrayImmutable() {
+    @Test
+    func selectableArrayImmutable() {
         let values = [0,1,2,3]
         let array = SelectableArray<Int>(options: values)
         let newArray = array.appendingOption(4, andSelectIt: true)
-        XCTAssert(newArray.selectedElement == 4)
+        #expect(newArray.selectedElement == 4)
     }
 
-    func testSelectableArrayEquatable() {
+    @Test
+    func selectableArrayEquatable() {
         let array1 = SelectableArray<Int>(options: [0,1,2,3])
         let array2 = SelectableArray<Int>(options: [4,1,2,3])
-        XCTAssert(array1 != array2)
+        #expect(array1 != array2)
     }
     
-    func testSelectableArrayEquatable2() {
+    @Test
+    func selectableArrayEquatable2() {
         var array1 = SelectableArray<Int>(options: [0,1,2,3])
         array1.select(atIndex: 0)
         let array2 = SelectableArray<Int>(options: [0,1,2,3])
-        XCTAssert(array1 != array2)
+        #expect(array1 != array2)
     }
     
-    func testRemoveSelectionSelectableArray() {
+    @Test
+    func removeSelectionSelectableArray() {
         var array1 = SelectableArray<Int>(options: [0,1,2,3])
         array1.select(atIndex: 0)
         array1.removeSelection()
-        XCTAssertNil(array1.selectedElement)
+        #expect(array1.selectedElement == nil)
     }
 }

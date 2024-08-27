@@ -2,31 +2,35 @@
 //  Created by Pierluigi Cifani on 07/05/2018.
 //
 
-import XCTest
+import Testing
 @testable import BSWFoundation
+import Foundation
 
-class RouterTests: XCTestCase {
+actor RouterTests {
 
-    func testSimpleURLEncoding() async throws {
+    @Test
+    func simpleURLEncoding() async throws {
         let sut = APIClient.Router(environment: Giphy.Hosts.production)
         let urlRequest = try await sut.urlRequest(forEndpoint: Giphy.API.search("hola"))
         guard let url = urlRequest.url else {
             throw Error.objectUnwrappedFailed
         }
-        XCTAssert(url.absoluteString == "https://api.giphy.com/v1/gifs/search?q=hola")
-        XCTAssert(urlRequest.allHTTPHeaderFields?["Content-Type"] == "application/x-www-form-urlencoded")
+        #expect(url.absoluteString == "https://api.giphy.com/v1/gifs/search?q=hola")
+        #expect(urlRequest.allHTTPHeaderFields?["Content-Type"] == "application/x-www-form-urlencoded")
     }
 
-    func testComplicatedURLEncoding() async throws {
+    @Test
+    func complicatedURLEncoding() async throws {
         let sut = APIClient.Router(environment: Giphy.Hosts.production)
         let urlRequest = try await sut.urlRequest(forEndpoint: Giphy.API.search("hola guapa"))
         guard let url = urlRequest.url else {
             throw Error.objectUnwrappedFailed
         }
-        XCTAssert(url.absoluteString == "https://api.giphy.com/v1/gifs/search?q=hola%20guapa")
+        #expect(url.absoluteString == "https://api.giphy.com/v1/gifs/search?q=hola%20guapa")
     }
 
-    func testJSONEncoding() async throws {
+    @Test
+    func JSONEncoding() async throws {
         let sut = APIClient.Router(environment: HTTPBin.Hosts.production)
         let endpoint = HTTPBin.API.orderPizza
         typealias PizzaRequestParams = [String: [String]]
@@ -36,13 +40,13 @@ class RouterTests: XCTestCase {
             throw Error.objectUnwrappedFailed
         }
 
-        XCTAssert(url.absoluteString == "https://httpbin.org/forms/post")
+        #expect(url.absoluteString == "https://httpbin.org/forms/post")
 
         guard
             let jsonParam = try JSONSerialization.jsonObject(with: data, options: []) as? PizzaRequestParams,
             let endpointParams = endpoint.parameters as? PizzaRequestParams else {
             throw Error.objectUnwrappedFailed
         }
-        XCTAssert(jsonParam == endpointParams)
+        #expect(jsonParam == endpointParams)
     }
 }
