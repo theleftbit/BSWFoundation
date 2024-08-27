@@ -5,9 +5,10 @@ import BSWFoundation
 actor UserDefaultsBackedTests {
 
     @Test
-    func itStoresStrings() {
+    func itStoresInts() {
         class Mock {
-            @UserDefaultsBacked(key: "Hello") var someValue: Int?
+            @UserDefaultsBacked(key: UserDefaultsBackedTests.ItStoresIntsKey)
+            var someValue: Int?
             deinit {
                 _someValue.reset()
             }
@@ -16,19 +17,20 @@ actor UserDefaultsBackedTests {
         var sut: Mock! = Mock()
         sut.someValue = 8
         
-        guard let value = UserDefaults.standard.object(forKey: "Hello") as? Int else {
+        guard let value = UserDefaults.standard.object(forKey: UserDefaultsBackedTests.ItStoresIntsKey) as? Int else {
             Issue.record("Failed to retrieve the stored Int value")
             return
         }
         #expect(value == 8)
         sut = nil
-        #expect(UserDefaults.standard.object(forKey: "Hello") as? Int == nil)
+        #expect(UserDefaults.standard.object(forKey: UserDefaultsBackedTests.ItStoresIntsKey) as? Int == nil)
     }
 
     @Test
     func itStoresBool() {
         class Mock {
-            @UserDefaultsBacked(key: "Hello") var someValue: Bool?
+            @UserDefaultsBacked(key: UserDefaultsBackedTests.ItStoresBoolKey)
+            var someValue: Bool?
             deinit {
                 _someValue.reset()
             }
@@ -37,19 +39,20 @@ actor UserDefaultsBackedTests {
         var sut: Mock! = Mock()
         sut.someValue = true
         
-        guard let value = UserDefaults.standard.object(forKey: "Hello") as? Bool else {
+        guard let value = UserDefaults.standard.object(forKey: UserDefaultsBackedTests.ItStoresBoolKey) as? Bool else {
             Issue.record("Failed to retrieve the stored Bool value")
             return
         }
         #expect(value == true)
         sut = nil
-        #expect(UserDefaults.standard.object(forKey: "Hello") as? Bool == nil)
+        #expect(UserDefaults.standard.object(forKey: UserDefaultsBackedTests.ItStoresBoolKey) as? Bool == nil)
     }
 
     @Test
     func itStoresDefaultValue() {
         class Mock {
-            @UserDefaultsBacked(key: "Hello", defaultValue: "DefaultValue") var someValue: String?
+            @UserDefaultsBacked(key: UserDefaultsBackedTests.ItStoresDefaultValue, defaultValue: "DefaultValue")
+            var someValue: String?
             deinit {
                 _someValue.reset()
             }
@@ -70,7 +73,7 @@ actor UserDefaultsBackedTests {
             let id: String
         }
         class Mock {
-            @CodableUserDefaultsBacked(key: "Hello")
+            @CodableUserDefaultsBacked(key: UserDefaultsBackedTests.ItStoresCodable)
             var someValue: SomeData?
             
             init() {
@@ -84,12 +87,19 @@ actor UserDefaultsBackedTests {
         var sut: Mock! = Mock()
         #expect(sut.someValue != nil)
         
-        guard let data = UserDefaults.standard.data(forKey: "Hello") else {
+        guard let data = UserDefaults.standard.data(forKey: UserDefaultsBackedTests.ItStoresCodable) else {
             Issue.record("Failed to retrieve the stored Codable value")
             return
         }
         #expect(data != nil)
         sut = nil
-        #expect(UserDefaults.standard.data(forKey: "Hello") == nil)
+        #expect(UserDefaults.standard.data(forKey: UserDefaultsBackedTests.ItStoresCodable) == nil)
     }
+    
+    /// Since all of these tests are attacking the same UserDefaults instance,
+    /// we need different keys in order for them to run concurrently
+    static let ItStoresIntsKey          = "ItStoresIntsKey"
+    static let ItStoresBoolKey          = "ItStoresBoolKey"
+    static let ItStoresDefaultValue     = "ItStoresDefaultValue"
+    static let ItStoresCodable          = "ItStoresCodable"
 }
