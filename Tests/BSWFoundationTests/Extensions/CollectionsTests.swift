@@ -1,3 +1,5 @@
+#if canImport(Testing)
+
 import Testing
 import BSWFoundation
 
@@ -94,3 +96,4 @@ actor CollectionTests {
         #expect(array1.selectedElement == nil)
     }
 }
+#endif

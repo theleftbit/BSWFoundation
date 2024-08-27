@@ -1,9 +1,10 @@
+#if canImport(Testing)
 
 import Foundation
 import BSWFoundation
 import Testing
 
-class ProgressObserverTests_ {
+class ProgressObserverTests {
     
     @Test
     func progressObserving() async throws {
@@ -34,3 +35,4 @@ class ProgressObserverTests_ {
         #expect(weakSUT == nil) //This is to test that it is indeed dealloc
     }
 }
+#endif

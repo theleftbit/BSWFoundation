@@ -1,3 +1,4 @@
+#if canImport(Testing)
 
 #if os(iOS)
 
@@ -16,3 +17,4 @@ actor UIApplicationTests {
 
 #endif
 
+#endif

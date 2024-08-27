@@ -1,3 +1,5 @@
+#if canImport(Testing)
+
 import Testing
 import Foundation
 import BSWFoundation
@@ -103,3 +105,5 @@ actor UserDefaultsBackedTests {
     static let ItStoresDefaultValue     = "ItStoresDefaultValue"
     static let ItStoresCodable          = "ItStoresCodable"
 }
+
+#endif

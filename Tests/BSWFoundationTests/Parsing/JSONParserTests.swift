@@ -1,3 +1,5 @@
+#if canImport(Testing)
+
 import Testing
 import BSWFoundation
 import Foundation
@@ -86,3 +88,5 @@ private let someFormatter: DateFormatter = {
     formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
     return formatter
 }()
+
+#endif

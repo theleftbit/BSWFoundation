@@ -1,6 +1,7 @@
 //
 //  Created by Pierluigi Cifani on 07/05/2018.
 //
+#if canImport(Testing)
 
 import Testing
 @testable import BSWFoundation
@@ -50,3 +51,4 @@ actor RouterTests {
         #expect(jsonParam == endpointParams)
     }
 }
+#endif

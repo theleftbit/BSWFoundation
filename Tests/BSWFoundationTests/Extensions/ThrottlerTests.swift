@@ -1,3 +1,6 @@
+
+#if canImport(Testing)
+
 import Foundation
 import BSWFoundation
 import Testing
@@ -17,3 +20,4 @@ struct ThrottlerTests {
         }
     }
 }
+#endif

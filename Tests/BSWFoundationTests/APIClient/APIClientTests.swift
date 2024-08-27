@@ -1,6 +1,7 @@
 //
 //  Created by Pierluigi Cifani on 09/02/2017.
 //
+#if canImport(Testing)
 
 import Testing
 import BSWFoundation
@@ -224,3 +225,4 @@ private class Network401Fetcher: APIClientNetworkFetcher {
 }
 
 struct ValidationError: Swift.Error {}
+#endif
