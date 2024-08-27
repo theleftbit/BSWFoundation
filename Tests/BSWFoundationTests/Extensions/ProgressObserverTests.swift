@@ -4,7 +4,7 @@ import Foundation
 import BSWFoundation
 import Testing
 
-class ProgressObserverTests {
+struct ProgressObserverTests {
     
     @Test
     func progressObserving() async throws {
@@ -18,7 +18,6 @@ class ProgressObserverTests {
             sut = ProgressObserver(progress: progress) {
                 switch $0.completedUnitCount {
                 case 1, 2:
-                    print("asda")
                     confirmation()
                 default:
                     Issue.record()
@@ -26,8 +25,9 @@ class ProgressObserverTests {
             }
             weakSUT = sut
             progress.completedUnitCount = 1
+            try? await Task.sleep(for: .milliseconds(10))
             progress.completedUnitCount = 2
-            try? await Task.sleep(for: .milliseconds(100))
+            try? await Task.sleep(for: .milliseconds(10))
         }
 
         sut = nil
