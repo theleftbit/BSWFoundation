@@ -26,7 +26,7 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
     public static let fetcher = LocationFetcher()
     
     internal var locationManager = CLLocationManager()
-    fileprivate var continuations: [CheckedContinuation<CLLocation, Error>] = []
+    private var continuations: [CheckedContinuation<CLLocation, Error>] = []
     public let desiredAccuracy = kCLLocationAccuracyHundredMeters
     public var lastKnownLocation: CLLocation?
 

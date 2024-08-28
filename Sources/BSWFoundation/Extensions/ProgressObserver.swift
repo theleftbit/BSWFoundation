@@ -8,9 +8,8 @@ import Foundation
 /// A simple wrapper on top of `Foundation.Progress` that makes it easier to observe it's progress.
 public final class ProgressObserver: NSObject, Sendable {
     
-    fileprivate let onUpdate: @MainActor (Progress) -> Void
-    fileprivate let progress: Progress
-    
+    private let onUpdate: @MainActor (Progress) -> Void
+    private let progress: Progress
     private nonisolated(unsafe) var observer: NSKeyValueObservation!
     
     public init(progress: Progress, onUpdate: @escaping @MainActor (Progress) -> Void) {
