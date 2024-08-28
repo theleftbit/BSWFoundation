@@ -19,5 +19,19 @@ struct ThrottlerTests {
             try? await Task.sleep(for: .seconds(seconds + 0.1))
         }
     }
+ 
+    /// The job of this test is to make sure that work sent to the Throttler is not executed immediatelly,
+    /// but rather at least `maxInterval` is waited. In this test case, we want to check that nothing
+    /// is executed because we're checking 10 milliseconds before `maxInterval` expires.
+    @Test
+    func itDoesntJustSpitTheFirstJobButRatherWaitsForTheDelayToKickIn() async throws {
+        let seconds: Double = 0.5
+        await confirmation(expectedCount: 0) { confirmation in
+            let sut = Throttler(seconds: seconds)
+            sut.throttle { confirmation() }
+            try? await Task.sleep(for: .seconds(seconds - 0.1))
+        }
+    }
 }
+
 #endif
