@@ -11,6 +11,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build
-      run: swift package clean; swift build -v
+      run: swift package clean; swift build
     - name: Run tests
-      run: set -o pipefail && swift test -v 2>&1 | xcbeautify --renderer github-actions
+      run: swift test
