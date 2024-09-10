@@ -4,11 +4,6 @@ import Testing
 struct APIClientErrorTests {
     
     @Test
-    func itFails() {
-        #expect(Bool(false))
-    }
-    
-    @Test
     func errorPrinting_encodingRequestFailed() {
         let localizedDescription = APIClient.Error.encodingRequestFailed.localizedDescription
         #expect(localizedDescription == "The operation couldn’t be completed. (BSWFoundation.APIClient.Error.encodingRequestFailed)")
