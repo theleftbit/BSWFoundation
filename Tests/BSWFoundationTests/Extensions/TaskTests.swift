@@ -1,4 +1,3 @@
-#if canImport(Testing)
 
 import Testing
 import BSWFoundation
@@ -31,4 +30,3 @@ struct TaskTests {
         }
     }
 }
-#endif

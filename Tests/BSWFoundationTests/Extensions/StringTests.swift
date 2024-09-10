@@ -1,4 +1,3 @@
-#if canImport(Testing)
 
 import Testing
 import BSWFoundation
@@ -18,4 +17,3 @@ actor StringTests {
     }
 
 }
-#endif

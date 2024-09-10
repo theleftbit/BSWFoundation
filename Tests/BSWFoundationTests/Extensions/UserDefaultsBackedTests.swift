@@ -1,4 +1,3 @@
-#if canImport(Testing)
 
 import Testing
 import Foundation
@@ -99,5 +98,3 @@ actor UserDefaultsBackedTests {
 
 
 private let UserDefaultsKey = "Key"
-
-#endif

@@ -1,5 +1,3 @@
-#if canImport(Testing)
-
 #if os(iOS)
 
 import Testing
@@ -14,7 +12,5 @@ actor UIApplicationTests {
         #expect(UIApplication.shared.isRunningTests)
     }
 }
-
-#endif
 
 #endif

@@ -2,7 +2,6 @@
 //  Created by Pierluigi Cifani on 06/08/16.
 //
 //
-#if canImport(Testing)
 
 import Testing
 @testable import BSWFoundation
@@ -24,4 +23,3 @@ actor EnvironmentTests {
         #expect(staging.shouldAllowInsecureConnections == true)
     }
 }
-#endif

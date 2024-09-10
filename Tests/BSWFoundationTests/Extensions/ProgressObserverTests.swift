@@ -1,11 +1,10 @@
-#if canImport(Testing)
-
 import Foundation
 import BSWFoundation
 import Testing
 
 struct ProgressObserverTests {
     
+    @available(iOS 16.0, *)
     @Test
     func progressObserving() async throws {
         var sut: ProgressObserver!
@@ -35,4 +34,3 @@ struct ProgressObserverTests {
         #expect(weakSUT == nil) //This is to test that it is indeed dealloc
     }
 }
-#endif
