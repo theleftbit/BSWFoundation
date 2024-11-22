@@ -7,14 +7,16 @@
 
 #if os(Android)
 import FoundationEssentials; import FoundationInternationalization
-#else
-import Foundation
 #endif
-
+import Foundation
 
 extension Bundle {
     var displayName: String {
+#if os(Android)
+        return "BSWFoundation-Android"
+#else
         return object(forInfoDictionaryKey: kCFBundleNameKey as String) as? String ?? "BSWFoundation"
+#endif
     }
     
     var appVersion: String {

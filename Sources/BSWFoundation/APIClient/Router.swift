@@ -5,10 +5,8 @@
 
 #if os(Android)
 import FoundationEssentials; import FoundationInternationalization; import FoundationNetworking
-#else
-import Foundation
 #endif
-
+import Foundation
 
 // MARK:- Router
 
@@ -75,7 +73,7 @@ private enum URLEncoding {
 
     static func queryComponents(fromKey key: String, value: Any) -> [(String, String)] {
         var components: [(String, String)] = []
-
+#warning("The commented code here below")
         if let dictionary = value as? [String: Any] {
             for (nestedKey, value) in dictionary {
                 components += queryComponents(fromKey: "\(key)[\(nestedKey)]", value: value)
@@ -86,13 +84,13 @@ private enum URLEncoding {
                 components += queryComponents(fromKey: "\(key)[]", value: value)
             }
         }
-        else if let value = value as? NSNumber {
-            if value.isBool {
-                components.append((escape(key), escape((value.boolValue ? "1" : "0"))))
-            } else {
-                components.append((escape(key), escape("\(value)")))
-            }
-        }
+//        else if let value = value as? NSNumber {
+//            if value.isBool {
+//                components.append((escape(key), escape((value.boolValue ? "1" : "0"))))
+//            } else {
+//                components.append((escape(key), escape("\(value)")))
+//            }
+//        }
         else if let bool = value as? Bool {
             components.append((escape(key), escape((bool ? "1" : "0"))))
         }
