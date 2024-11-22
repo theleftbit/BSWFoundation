@@ -4,11 +4,8 @@
 //
 
 #if os(Android)
-import FoundationEssentials
 #else
 import Foundation
-#endif
-
 
 public extension String {
     
@@ -27,3 +24,4 @@ public extension String {
         return self.replacingOccurrences(of: "\n", with: " ").trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     }
 }
+#endif

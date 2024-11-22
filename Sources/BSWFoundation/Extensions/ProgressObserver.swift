@@ -4,11 +4,8 @@
 //
 
 #if os(Android)
-import FoundationEssentials
 #else
 import Foundation
-#endif
-
 
 /// A simple wrapper on top of `Foundation.Progress` that makes it easier to observe it's progress.
 public final class ProgressObserver: NSObject, Sendable {
@@ -34,3 +31,5 @@ public final class ProgressObserver: NSObject, Sendable {
         self.observer = nil
     }
 }
+
+#endif
