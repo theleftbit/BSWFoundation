@@ -4,7 +4,12 @@
 
 import Testing
 @testable import BSWFoundation
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 actor RouterTests {
 

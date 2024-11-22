@@ -2,7 +2,12 @@
 //  Created by Pierluigi Cifani on 12/2/15.
 //
 //
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 //MARK: - Random generation
 

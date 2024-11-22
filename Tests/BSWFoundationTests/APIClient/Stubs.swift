@@ -3,7 +3,12 @@
 //
 
 import BSWFoundation
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 enum Error: Swift.Error {
     case objectUnwrappedFailed

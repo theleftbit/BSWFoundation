@@ -3,7 +3,12 @@
 //  Copyright (c) 2016 TheLeftBit SL. All rights reserved.
 //
 
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 nonisolated func submoduleName(_ submodule : String) -> String {
     let ModuleName = "com.bswfoundation"

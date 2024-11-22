@@ -1,4 +1,9 @@
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 public extension ProcessInfo {
     /// Detects if the current process is running on a Mac.

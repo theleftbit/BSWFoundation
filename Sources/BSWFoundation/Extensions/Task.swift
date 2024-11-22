@@ -1,4 +1,9 @@
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 public extension Task where Success == Never, Failure == Never {
     /// Returns a Task that will never return... Well, actually, it'll complete in 1000 seconds

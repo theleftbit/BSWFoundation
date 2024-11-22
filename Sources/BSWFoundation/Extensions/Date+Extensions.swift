@@ -2,7 +2,12 @@
 //  Created by Pierluigi Cifani on 11/30/15.
 //
 
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 extension Date {
     

@@ -2,8 +2,11 @@
 //  Created by Pierluigi Cifani on 13/06/2019.
 //
 
-import Foundation
+#if os(Android)
+#else
+
 import CommonCrypto
+import Foundation
 
 public extension String {
     
@@ -63,3 +66,4 @@ public enum CryptoAlgorithm {
     }
 }
 
+#endif

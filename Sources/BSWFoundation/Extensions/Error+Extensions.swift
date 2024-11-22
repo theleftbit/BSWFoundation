@@ -3,7 +3,12 @@
 //  Created by Pierluigi Cifani on 11/07/2019.
 //
 
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 public extension Error {
     var isURLCancelled: Bool {

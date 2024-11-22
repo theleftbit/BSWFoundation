@@ -2,8 +2,14 @@
 //  Created by Pierluigi Cifani on 09/02/2017.
 //  Copyright (c) 2017 TheLeftBit SL. All rights reserved.
 //
-
+#if os(Android)
+#else
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 @preconcurrency import KeychainAccess
 
 /// A class that's useful to store sensitive information using the device's Keychain.
@@ -160,7 +166,12 @@ private struct Keys {
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 /**
  Decodes a JWT token into an object that holds the decoded body (along with token header and signature parts).
@@ -314,7 +325,12 @@ private func decodeJWTPart(_ value: String) throws -> [String: Any] {
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 /**
  *  Protocol that defines what a decoded JWT token should be.
@@ -385,7 +401,12 @@ public extension JWT {
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 /**
  JWT decode error codes
@@ -410,3 +431,4 @@ public enum DecodeError: LocalizedError {
         }
     }
 }
+#endif

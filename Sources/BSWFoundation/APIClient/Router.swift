@@ -3,7 +3,12 @@
 //  Copyright © 2018 TheLeftBit SL. All rights reserved.
 //
 
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 // MARK:- Router
 

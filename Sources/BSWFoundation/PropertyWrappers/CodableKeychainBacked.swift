@@ -1,8 +1,15 @@
 //
 //  Created by Michele Restuccia on 07/09/2020.
 //
+#if os(Android)
+#else
 
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 import KeychainAccess
 
 /// Stores the given `T` type on the Keychain (as long as it's `Codable`)
@@ -45,3 +52,4 @@ private extension Encodable {
         return string
     }
 }
+#endif

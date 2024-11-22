@@ -1,4 +1,9 @@
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 public struct FailableCodableArray<Element : Decodable> : Decodable {
 

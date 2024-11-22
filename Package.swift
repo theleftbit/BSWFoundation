@@ -6,10 +6,7 @@ import PackageDescription
 let package = Package(
     name: "BSWFoundation",
     platforms: [
-        .iOS(.v15),
-        .tvOS(.v15),
-        .macOS(.v12),
-        .watchOS(.v8),
+        .iOS(.v17), .macOS(.v14), .tvOS(.v17), .watchOS(.v10), .macCatalyst(.v17)
     ],
     products: [
         .library(
@@ -18,12 +15,16 @@ let package = Package(
         ),
     ],
     dependencies: [
+        .package(url: "https://github.com/skiptools/swift-android-native.git", from: "1.0.0"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
     ],
     targets: [
         .target(
             name: "BSWFoundation",
-            dependencies: ["KeychainAccess"]
+            dependencies: [
+                .product(name: "KeychainAccess", package: "KeychainAccess", condition: .when(platforms: [.iOS, .macOS, .macCatalyst, .tvOS, .watchOS])),
+                .product(name: "AndroidLogging", package: "swift-android-native", condition: .when(platforms: [.android])),
+            ]
         ),
         .testTarget(
             name: "BSWFoundationTests",

@@ -2,8 +2,9 @@
 //  Created by Pierluigi Cifani on 13/06/2019.
 //
 
+#if os(Android)
+#else
 import Foundation
-
 /// Stores the given `T` type on User Defaults.
 ///
 /// The value parameter can be only property list objects: `NSData`, `NSString`, `NSNumber`, `NSDate`, `NSArray`, or `NSDictionary`.
@@ -89,3 +90,4 @@ public extension CodableUserDefaultsBacked {
         self.store.removeObject(forKey: key)
     }
 }
+#endif

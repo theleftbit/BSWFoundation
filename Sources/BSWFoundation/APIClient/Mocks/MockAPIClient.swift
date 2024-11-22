@@ -2,7 +2,11 @@
 //  Created by Pierluigi Cifani on 20/03/2019.
 //
 
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
 
 public actor MockNetworkFetcher: APIClientNetworkFetcher {
     

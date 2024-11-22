@@ -1,8 +1,15 @@
 //
 //  Created by Pierluigi Cifani on 20/06/2019.
 //
+#if os(Android)
+#else
 
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 import KeychainAccess
 
 /// Stores a String on the Keychain
@@ -36,3 +43,4 @@ public extension KeychainBacked {
         wrappedValue = nil
     }
 }
+#endif

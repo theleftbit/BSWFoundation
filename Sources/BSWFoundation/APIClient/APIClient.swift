@@ -3,7 +3,12 @@
 //  Copyright © 2018 TheLeftBit. All rights reserved.
 //
 
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -238,7 +243,12 @@ private extension APIClient {
     }
 }
 
+
+#if os(Android)
+import AndroidLogging
+#else
 import os.log
+#endif
 
 //MARK: Logging
 

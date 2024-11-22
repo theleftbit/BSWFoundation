@@ -1,5 +1,7 @@
 
 import Testing
+#if os(Android)
+#else
 import Foundation
 import BSWFoundation
 
@@ -98,3 +100,4 @@ actor UserDefaultsBackedTests {
 
 
 private let UserDefaultsKey = "Key"
+#endif

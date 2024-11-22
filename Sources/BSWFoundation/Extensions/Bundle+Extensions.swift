@@ -5,7 +5,12 @@
 //  Created by Pierluigi Cifani on 07/05/2018.
 //
 
+#if os(Android)
+import FoundationEssentials
+#else
 import Foundation
+#endif
+
 
 extension Bundle {
     var displayName: String {

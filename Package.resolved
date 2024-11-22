@@ -1,16 +1,24 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "KeychainAccess",
-        "repositoryURL": "https://github.com/kishikawakatsumi/KeychainAccess.git",
-        "state": {
-          "branch": null,
-          "revision": "84e546727d66f1adc5439debad16270d0fdd04e7",
-          "version": "4.2.2"
-        }
+  "originHash" : "2617bd09fa05a5a0587dcf0286d0e41ff14d22a57fc7e5c8b990462d4d8d8ebe",
+  "pins" : [
+    {
+      "identity" : "keychainaccess",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kishikawakatsumi/KeychainAccess.git",
+      "state" : {
+        "revision" : "84e546727d66f1adc5439debad16270d0fdd04e7",
+        "version" : "4.2.2"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "swift-android-native",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/skiptools/swift-android-native.git",
+      "state" : {
+        "revision" : "1e2d8f4ccaea806d0a47d2136b02ea33a33b0afe",
+        "version" : "1.0.1"
+      }
+    }
+  ],
+  "version" : 3
 }
