@@ -3,11 +3,7 @@
 //  Copyright (c) 2016 TheLeftBit SL. All rights reserved.
 //
 
-#if canImport(FoundationInternationalization)
-import FoundationInternationalization
-#endif
 import Foundation
-
 
 public enum JSONParser {
     

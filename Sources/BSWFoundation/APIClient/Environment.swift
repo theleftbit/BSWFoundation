@@ -5,10 +5,8 @@
 
 #if os(Android)
 import FoundationEssentials
-#else
-import Foundation
 #endif
-
+import Foundation
 
 /// Describes an environment to attack using a `APIClient`
 public protocol Environment: Sendable {

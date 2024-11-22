@@ -3,7 +3,6 @@ import FoundationInternationalization
 #endif
 import Foundation
 
-
 public struct FailableCodableArray<Element : Decodable> : Decodable {
 
     public let elements: [Element]

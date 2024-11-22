@@ -4,11 +4,7 @@
 //
 #if os(Android)
 #else
-#if os(Android)
-import FoundationEssentials
-#else
 import Foundation
-#endif
 
 @preconcurrency import KeychainAccess
 

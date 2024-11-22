@@ -1,14 +1,10 @@
 //
 //  Created by Michele Restuccia on 07/09/2020.
 //
-#if os(Android)
-#else
 
 #if os(Android)
-import FoundationEssentials
 #else
 import Foundation
-#endif
 
 import KeychainAccess
 

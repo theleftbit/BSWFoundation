@@ -3,6 +3,9 @@
 
 import PackageDescription
 
+let applePlatforms = TargetDependencyCondition.when(platforms: [.iOS, .macOS, .macCatalyst, .tvOS, .watchOS])
+let androidPlatforms = TargetDependencyCondition.when(platforms: [.android])
+
 let package = Package(
     name: "BSWFoundation",
     platforms: [
@@ -22,8 +25,8 @@ let package = Package(
         .target(
             name: "BSWFoundation",
             dependencies: [
-                .product(name: "KeychainAccess", package: "KeychainAccess", condition: .when(platforms: [.iOS, .macOS, .macCatalyst, .tvOS, .watchOS])),
-                .product(name: "AndroidLogging", package: "swift-android-native", condition: .when(platforms: [.android])),
+                .product(name: "KeychainAccess", package: "KeychainAccess", condition: applePlatforms),
+                .product(name: "AndroidLogging", package: "swift-android-native", condition: androidPlatforms),
             ]
         ),
         .testTarget(
