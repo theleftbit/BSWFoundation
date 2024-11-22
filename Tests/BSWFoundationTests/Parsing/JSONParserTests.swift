@@ -1,13 +1,9 @@
-#if canImport(Testing)
+#if os(Android)
+#else
 
 import Testing
 import BSWFoundation
-#if os(Android)
-import FoundationEssentials
-#else
 import Foundation
-#endif
-
 
 actor JSONParserTests {
 

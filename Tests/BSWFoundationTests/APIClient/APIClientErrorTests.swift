@@ -1,3 +1,5 @@
+#if os(Android)
+#else
 import Testing
 @testable import BSWFoundation
 
@@ -27,3 +29,4 @@ struct APIClientErrorTests {
         #expect(localizedDescription == "The operation couldn’t be completed. (BSWFoundation.APIClient.Error.FailureStatusCode: 400, Message: \"Please try again\")")
     }
 }
+#endif

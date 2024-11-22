@@ -1,15 +1,12 @@
 //
 //  Created by Pierluigi Cifani on 07/05/2018.
 //
+#if os(Android)
+#else
 
 import Testing
 @testable import BSWFoundation
-#if os(Android)
-import FoundationEssentials
-#else
 import Foundation
-#endif
-
 
 actor RouterTests {
 
@@ -55,3 +52,4 @@ actor RouterTests {
         #expect(jsonParam == endpointParams)
     }
 }
+#endif

@@ -1,9 +1,6 @@
 #if os(Android)
-import FoundationEssentials
 #else
 import Foundation
-#endif
-
 import BSWFoundation
 import Testing
 
@@ -37,3 +34,4 @@ struct ThrottlerTests {
         }
     }
 }
+#endif

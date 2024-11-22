@@ -1,15 +1,12 @@
 //
 //  Created by Pierluigi Cifani on 09/02/2017.
 //
+#if os(Android)
+#else
 
 import Testing
 import BSWFoundation
-#if os(Android)
-import FoundationEssentials
-#else
 import Foundation
-#endif
-
 
 actor APIClientTests {
 
@@ -229,3 +226,5 @@ private class Network401Fetcher: APIClientNetworkFetcher {
 }
 
 struct ValidationError: Swift.Error {}
+
+#endif

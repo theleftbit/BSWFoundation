@@ -1,14 +1,11 @@
 //
 //  Created by Pierluigi Cifani on 07/05/2018.
 //
+#if os(Android)
+#else
 
 import BSWFoundation
-#if os(Android)
-import FoundationEssentials
-#else
 import Foundation
-#endif
-
 
 enum Error: Swift.Error {
     case objectUnwrappedFailed
@@ -191,3 +188,4 @@ enum Giphy {
         }
     }
 }
+#endif

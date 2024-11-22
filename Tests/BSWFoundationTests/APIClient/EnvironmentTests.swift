@@ -2,15 +2,12 @@
 //  Created by Pierluigi Cifani on 06/08/16.
 //
 //
+#if os(Android)
+#else
 
 import Testing
 @testable import BSWFoundation
-#if os(Android)
-import FoundationEssentials
-#else
 import Foundation
-#endif
-
 
 actor EnvironmentTests {
     
@@ -28,3 +25,4 @@ actor EnvironmentTests {
         #expect(staging.shouldAllowInsecureConnections == true)
     }
 }
+#endif

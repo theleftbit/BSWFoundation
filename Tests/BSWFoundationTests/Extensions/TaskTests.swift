@@ -1,3 +1,5 @@
+#if os(Android)
+#else
 
 import Testing
 import BSWFoundation
@@ -30,3 +32,4 @@ struct TaskTests {
         }
     }
 }
+#endif

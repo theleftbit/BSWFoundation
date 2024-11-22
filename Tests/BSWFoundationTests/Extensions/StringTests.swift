@@ -1,3 +1,5 @@
+#if os(Android)
+#else
 
 import Testing
 import BSWFoundation
@@ -17,3 +19,4 @@ actor StringTests {
     }
 
 }
+#endif

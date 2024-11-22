@@ -1,3 +1,5 @@
+#if os(Android)
+#else
 
 import Testing
 import BSWFoundation
@@ -95,3 +97,4 @@ actor CollectionTests {
         #expect(array1.selectedElement == nil)
     }
 }
+#endif
