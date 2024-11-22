@@ -3,11 +3,8 @@
 //
 //
 #if os(Android)
-import FoundationEssentials
 #else
 import Foundation
-#endif
-
 
 //MARK: - Random generation
 
@@ -51,3 +48,4 @@ public extension Int {
         }
     }
 }
+#endif

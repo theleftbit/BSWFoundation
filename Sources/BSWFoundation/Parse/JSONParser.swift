@@ -3,11 +3,10 @@
 //  Copyright (c) 2016 TheLeftBit SL. All rights reserved.
 //
 
-#if os(Android)
-import FoundationEssentials
-#else
-import Foundation
+#if canImport(FoundationInternationalization)
+import FoundationInternationalization
 #endif
+import Foundation
 
 
 public enum JSONParser {

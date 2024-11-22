@@ -3,7 +3,7 @@
 //
 
 #if os(Android)
-import FoundationEssentials
+import FoundationEssentials; import FoundationNetworking
 #else
 import Foundation
 #endif

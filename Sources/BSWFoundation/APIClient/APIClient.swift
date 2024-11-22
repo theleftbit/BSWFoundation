@@ -2,11 +2,10 @@
 //  Created by Pierluigi Cifani on 02/03/2018.
 //  Copyright © 2018 TheLeftBit. All rights reserved.
 //
-
-#if os(Android)
-import FoundationEssentials; import FoundationNetworking
-#else
 import Foundation
+
+#if canImport(FoundationNetworking)
+import FoundationNetworking
 #endif
 
 #if canImport(UIKit)
@@ -233,12 +232,17 @@ private extension APIClient {
             super.init()
         }
         
-        public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
+#if os(Android)
+            return (.performDefaultHandling, nil)
+            
+#else
             if self.environment.shouldAllowInsecureConnections {
-                completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+                return (.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
             } else {
-                completionHandler(.performDefaultHandling, nil)
+                return (.performDefaultHandling, nil)
             }
+#endif
         }
     }
 }
@@ -254,6 +258,9 @@ import os.log
 
 private extension APIClient {
     private func logRequest(request: URLRequest) {
+#if os(Android)
+#warning("Todo")
+#else
         switch loggingConfiguration.requestBehaviour {
         case .all:
             let customLog = OSLog(subsystem: submoduleName("APIClient"), category: "APIClient.Request")
@@ -266,9 +273,13 @@ private extension APIClient {
         default:
             break
         }
+#endif
     }
     
     private func logResponse(_ response: Response) {
+#if os(Android)
+#warning("Todo")
+#else
         let isError = !(200..<300).contains(response.httpResponse.statusCode)
         let shouldLogThis: Bool = {
             switch loggingConfiguration.responseBehaviour {
@@ -288,6 +299,7 @@ private extension APIClient {
         if isError, let errorString = String(data: response.data, encoding: .utf8) {
             os_log("Error Message: %{public}@", log: customLog, type: .error, errorString)
         }
+#endif
     }
 }
 

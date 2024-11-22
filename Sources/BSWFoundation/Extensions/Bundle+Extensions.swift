@@ -6,7 +6,7 @@
 //
 
 #if os(Android)
-import FoundationEssentials
+import FoundationEssentials; import FoundationInternationalization
 #else
 import Foundation
 #endif
@@ -27,7 +27,11 @@ extension Bundle {
 
     public var osName: String {
         let version = ProcessInfo.processInfo.operatingSystemVersion
+#if os(Android)
+        let osName = "Android"
+#else
         let osName = ProcessInfo.processInfo.isCatalystOriIOSAppOnMac ? "macOS" : "iOS"
+#endif
         return "\(osName) \(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
     }
 }

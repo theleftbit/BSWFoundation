@@ -4,11 +4,8 @@
 //
 
 #if os(Android)
-import FoundationEssentials
 #else
 import Foundation
-#endif
-
 
 public extension Error {
     var isURLCancelled: Bool {
@@ -16,3 +13,4 @@ public extension Error {
         return nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled
     }
 }
+#endif

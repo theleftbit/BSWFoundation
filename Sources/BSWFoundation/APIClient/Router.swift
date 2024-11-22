@@ -4,7 +4,7 @@
 //
 
 #if os(Android)
-import FoundationEssentials
+import FoundationEssentials; import FoundationInternationalization; import FoundationNetworking
 #else
 import Foundation
 #endif
@@ -80,19 +80,23 @@ private enum URLEncoding {
             for (nestedKey, value) in dictionary {
                 components += queryComponents(fromKey: "\(key)[\(nestedKey)]", value: value)
             }
-        } else if let array = value as? [Any] {
+        }
+        else if let array = value as? [Any] {
             for value in array {
                 components += queryComponents(fromKey: "\(key)[]", value: value)
             }
-        } else if let value = value as? NSNumber {
+        }
+        else if let value = value as? NSNumber {
             if value.isBool {
                 components.append((escape(key), escape((value.boolValue ? "1" : "0"))))
             } else {
                 components.append((escape(key), escape("\(value)")))
             }
-        } else if let bool = value as? Bool {
+        }
+        else if let bool = value as? Bool {
             components.append((escape(key), escape((bool ? "1" : "0"))))
-        } else {
+        }
+        else {
             components.append((escape(key), escape("\(value)")))
         }
 

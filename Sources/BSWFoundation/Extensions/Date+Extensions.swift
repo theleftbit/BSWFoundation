@@ -3,11 +3,8 @@
 //
 
 #if os(Android)
-import FoundationEssentials
 #else
 import Foundation
-#endif
-
 
 extension Date {
     
@@ -19,3 +16,4 @@ extension Date {
         return UInt64(floor(self.timeIntervalSince1970 * (includeMiliseconds ? 1000 : 1)))
     }
 }
+#endif

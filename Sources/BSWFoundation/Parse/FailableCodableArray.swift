@@ -1,8 +1,7 @@
-#if os(Android)
-import FoundationEssentials
-#else
-import Foundation
+#if canImport(FoundationInternationalization)
+import FoundationInternationalization
 #endif
+import Foundation
 
 
 public struct FailableCodableArray<Element : Decodable> : Decodable {
