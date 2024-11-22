@@ -4,7 +4,7 @@ on:
   push
 
 jobs:
-  build:
+  ios-build:
 
     runs-on: ios
 
