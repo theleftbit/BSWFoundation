@@ -4,7 +4,7 @@
 //
 import Foundation
 
-#if canImport(FoundationNetworking)
+#if os(Android)
 import FoundationNetworking
 #endif
 
@@ -48,7 +48,7 @@ open class APIClient: Identifiable, @unchecked Sendable {
     private let router: Router
     private let networkFetcher: APIClientNetworkFetcher
     private let sessionDelegate: SessionDelegate
-    
+
     /// An optional closure that allows you to map an error before it's thrown
     open var mapError: (Swift.Error) -> (Swift.Error) = { $0 }
     
@@ -155,8 +155,9 @@ extension APIClient {
         }
         
         public static func `default`() -> LoggingConfiguration {
-            LoggingConfiguration(requestBehaviour: .none, responseBehaviour: .onlyFailing)
+            LoggingConfiguration(requestBehaviour: .all, responseBehaviour: .all)
         }
+        
         public enum Behavior: Sendable {
             case none
             case all
@@ -233,16 +234,16 @@ private extension APIClient {
         }
         
         public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
-#if os(Android)
-            return (.performDefaultHandling, nil)
-            
-#else
             if self.environment.shouldAllowInsecureConnections {
+#if os(Android)
+                return (.useCredential, nil)
+
+#else
                 return (.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+#endif
             } else {
                 return (.performDefaultHandling, nil)
             }
-#endif
         }
     }
 }
@@ -251,35 +252,29 @@ private extension APIClient {
 #if os(Android)
 import AndroidLogging
 #else
-import os.log
+import OSLog
 #endif
 
 //MARK: Logging
 
 private extension APIClient {
     private func logRequest(request: URLRequest) {
-#if os(Android)
-#warning("Todo")
-#else
+        let logger = Logger(subsystem: submoduleName("APIClient"), category: "APIClient.Request")
         switch loggingConfiguration.requestBehaviour {
         case .all:
-            let customLog = OSLog(subsystem: submoduleName("APIClient"), category: "APIClient.Request")
             let httpMethod = request.httpMethod ?? "GET"
             let path = request.url?.path ?? ""
-            os_log("Method: %{public}@ Path: %{public}@", log: customLog, type: .debug, httpMethod, path)
+            logger.debug("Method: \(httpMethod) Path: \(path)")
             if let data = request.httpBody, let prettyString = String(data: data, encoding: .utf8) {
-                os_log("Body: %{public}@", log: customLog, type: .debug, prettyString)
+                logger.debug("Body: \(prettyString)")
             }
         default:
             break
         }
-#endif
     }
     
     private func logResponse(_ response: Response) {
-#if os(Android)
-#warning("Todo")
-#else
+        let logger = Logger(subsystem: submoduleName("APIClient"), category: "APIClient.Response")
         let isError = !(200..<300).contains(response.httpResponse.statusCode)
         let shouldLogThis: Bool = {
             switch loggingConfiguration.responseBehaviour {
@@ -292,14 +287,11 @@ private extension APIClient {
             }
         }()
         guard shouldLogThis else { return }
-        let customLog = OSLog(subsystem: submoduleName("APIClient"), category: "APIClient.Response")
-        let statusCode = NSNumber(value: response.httpResponse.statusCode)
         let path = response.httpResponse.url?.path ?? ""
-        os_log("StatusCode: %{public}@ Path: %{public}@", log: customLog, type: .debug, statusCode, path)
+        logger.debug("StatusCode: \(response.httpResponse.statusCode) Path: \(path)")
         if isError, let errorString = String(data: response.data, encoding: .utf8) {
-            os_log("Error Message: %{public}@", log: customLog, type: .error, errorString)
+            logger.debug("Error Message: \(errorString)")
         }
-#endif
     }
 }
 
