@@ -9,11 +9,20 @@ let androidPlatforms = TargetDependencyCondition.when(platforms: [.android])
 let package = Package(
     name: "BSWFoundation",
     platforms: [
-        .iOS(.v17), .macOS(.v14), .tvOS(.v17), .watchOS(.v10), .macCatalyst(.v17)
+        .iOS(.v15),
+        .tvOS(.v15),
+        .macOS(.v12),
+        .macCatalyst(.v15),
+        .watchOS(.v8),
     ],
     products: [
         .library(
             name: "BSWFoundation",
+            targets: ["BSWFoundation"]
+        ),
+        .library(
+            name: "BSWFoundationDynamic",
+            type: .dynamic,
             targets: ["BSWFoundation"]
         ),
     ],
