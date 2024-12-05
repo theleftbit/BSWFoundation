@@ -1,4 +1,5 @@
- 
+
+ [![](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fwww.emergetools.com%2Fapi%2Fv2%2Fpublic_new_build%3FexampleId%3Dbswfoundation.BSWFoundation%26platform%3Dios%26badgeOption%3Dversion_and_max_install_size%26buildType%3Drelease&query=$.badgeMetadata&label=BSWFoundation&logo=apple)](https://www.emergetools.com/app/example/ios/bswfoundation.BSWFoundation/release)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Ftheleftbit%2FBSWFoundation%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/theleftbit/BSWFoundation)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Ftheleftbit%2FBSWFoundation%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/theleftbit/BSWFoundation)
 
