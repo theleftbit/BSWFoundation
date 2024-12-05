@@ -41,17 +41,17 @@ open class APIClient: Identifiable, @unchecked Sendable {
     /// Defines how this object will log to the console the requests and responses.
     open var loggingConfiguration = LoggingConfiguration.default()
     
-    private let router: Router
-    private let networkFetcher: APIClientNetworkFetcher
-    private let sessionDelegate: SessionDelegate
-    
     /// An optional closure that allows you to map an error before it's thrown
-    open var mapError: (Swift.Error) -> (Swift.Error) = { $0 }
+    open var mapError: @Sendable (Swift.Error) -> (Swift.Error) = { $0 }
     
     /// An optional closure that allows you customize a `URLRequest` before it's sent over the network.
     ///
     /// This is useful for example to add an HTTP Header to authenticate with the Server.
-    open var customizeRequest: (URLRequest) -> (URLRequest) = { $0 }
+    open var customizeRequest: @Sendable (URLRequest) -> (URLRequest) = { $0 }
+    
+    private let router: Router
+    private let networkFetcher: APIClientNetworkFetcher
+    private let sessionDelegate: SessionDelegate
     
     /// Initializes the `APIClient`
     /// - Parameters:
@@ -228,30 +228,30 @@ private extension APIClient {
             super.init()
         }
         
-        public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
             if self.environment.shouldAllowInsecureConnections {
-                completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+                return (.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
             } else {
-                completionHandler(.performDefaultHandling, nil)
+                return (.performDefaultHandling, nil)
             }
         }
     }
 }
 
-import os.log
+import OSLog
 
 //MARK: Logging
 
 private extension APIClient {
     private func logRequest(request: URLRequest) {
+        let logger = Logger(subsystem: submoduleName("APIClient"), category: "APIClient.Request")
         switch loggingConfiguration.requestBehaviour {
         case .all:
-            let customLog = OSLog(subsystem: submoduleName("APIClient"), category: "APIClient.Request")
             let httpMethod = request.httpMethod ?? "GET"
             let path = request.url?.path ?? ""
-            os_log("Method: %{public}@ Path: %{public}@", log: customLog, type: .debug, httpMethod, path)
+            logger.debug("Method: \(httpMethod) Path: \(path)")
             if let data = request.httpBody, let prettyString = String(data: data, encoding: .utf8) {
-                os_log("Body: %{public}@", log: customLog, type: .debug, prettyString)
+                logger.debug("Body: \(prettyString)")
             }
         default:
             break
@@ -259,6 +259,7 @@ private extension APIClient {
     }
     
     private func logResponse(_ response: Response) {
+        let logger = Logger(subsystem: submoduleName("APIClient"), category: "APIClient.Response")
         let isError = !(200..<300).contains(response.httpResponse.statusCode)
         let shouldLogThis: Bool = {
             switch loggingConfiguration.responseBehaviour {
@@ -271,12 +272,10 @@ private extension APIClient {
             }
         }()
         guard shouldLogThis else { return }
-        let customLog = OSLog(subsystem: submoduleName("APIClient"), category: "APIClient.Response")
-        let statusCode = NSNumber(value: response.httpResponse.statusCode)
         let path = response.httpResponse.url?.path ?? ""
-        os_log("StatusCode: %{public}@ Path: %{public}@", log: customLog, type: .debug, statusCode, path)
+        logger.debug("StatusCode: \(response.httpResponse.statusCode) Path: \(path)")
         if isError, let errorString = String(data: response.data, encoding: .utf8) {
-            os_log("Error Message: %{public}@", log: customLog, type: .error, errorString)
+            logger.debug("Error Message: \(errorString)")
         }
     }
 }

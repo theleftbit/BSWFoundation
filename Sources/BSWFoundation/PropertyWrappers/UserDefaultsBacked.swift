@@ -8,10 +8,10 @@ import Foundation
 ///
 /// The value parameter can be only property list objects: `NSData`, `NSString`, `NSNumber`, `NSDate`, `NSArray`, or `NSDictionary`.
 @propertyWrapper
-public final class UserDefaultsBacked<T: Sendable>: @unchecked Sendable {
+public final class UserDefaultsBacked<T: Sendable>: Sendable {
     private let key: String
     private let defaultValue: T?
-    private let store: UserDefaults
+    private nonisolated(unsafe) let store: UserDefaults
     
     public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
@@ -51,10 +51,10 @@ public extension UserDefaultsBacked {
 
 /// Stores the given `T` type on User Defaults (as long as it's `Codable`)
 @propertyWrapper
-public final class CodableUserDefaultsBacked<T: Codable>: @unchecked Sendable {
+public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
     private let key: String
     private let defaultValue: T?
-    private let store: UserDefaults
+    private nonisolated(unsafe) let store: UserDefaults
 
     public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
