@@ -45,17 +45,17 @@ open class APIClient: Identifiable, @unchecked Sendable {
     /// Defines how this object will log to the console the requests and responses.
     open var loggingConfiguration = LoggingConfiguration.default()
     
-    private let router: Router
-    private let networkFetcher: APIClientNetworkFetcher
-    private let sessionDelegate: SessionDelegate
-
     /// An optional closure that allows you to map an error before it's thrown
-    open var mapError: (Swift.Error) -> (Swift.Error) = { $0 }
+    open var mapError: @Sendable (Swift.Error) -> (Swift.Error) = { $0 }
     
     /// An optional closure that allows you customize a `URLRequest` before it's sent over the network.
     ///
     /// This is useful for example to add an HTTP Header to authenticate with the Server.
-    open var customizeRequest: (URLRequest) -> (URLRequest) = { $0 }
+    open var customizeRequest: @Sendable (URLRequest) -> (URLRequest) = { $0 }
+    
+    private let router: Router
+    private let networkFetcher: APIClientNetworkFetcher
+    private let sessionDelegate: SessionDelegate
     
     /// Initializes the `APIClient`
     /// - Parameters:
