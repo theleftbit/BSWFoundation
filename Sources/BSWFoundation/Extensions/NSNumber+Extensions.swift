@@ -3,10 +3,13 @@
 //
 
 import Foundation
-#if os(Android)
-import FoundationEssentials
-#endif
 
 extension NSNumber {
-    var isBool: Bool { return CFBooleanGetTypeID() == CFGetTypeID(self) }
+    var isBool: Bool {
+#if canImport(Darwin)
+        return CFBooleanGetTypeID() == CFGetTypeID(self)
+#else
+        fatalError()
+#endif
+    }
 }
