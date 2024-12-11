@@ -151,7 +151,7 @@ extension APIClient {
         }
         
         public static func `default`() -> LoggingConfiguration {
-            LoggingConfiguration(requestBehaviour: .all, responseBehaviour: .all)
+            LoggingConfiguration(requestBehaviour: .none, responseBehaviour: .onlyFailing)
         }
         
         public enum Behavior: Sendable {
