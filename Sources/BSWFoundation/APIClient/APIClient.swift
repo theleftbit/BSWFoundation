@@ -330,8 +330,8 @@ private extension Swift.Error {
 }
 
 // MARK: UIApplicationWrapper
-/// This is here just to make sure that on non-UIKit platforms
-/// we have a nice API to call to.
+/// This is here just to make sure that on non-UIKit
+/// platforms we have a nice API to call to.
 #if canImport(UIKit)
 import UIKit
 private extension APIClient {
