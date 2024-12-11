@@ -20,11 +20,6 @@ let package = Package(
             name: "BSWFoundation",
             targets: ["BSWFoundation"]
         ),
-        .library(
-            name: "BSWFoundationDynamic",
-            type: .dynamic,
-            targets: ["BSWFoundation"]
-        ),
     ],
     dependencies: [
         .package(url: "https://github.com/skiptools/swift-android-native.git", from: "1.0.0"),
