@@ -3,7 +3,7 @@
 
 import PackageDescription
 
-let applePlatforms = TargetDependencyCondition.when(platforms: [.iOS, .macOS, .macCatalyst, .tvOS, .watchOS])
+let applePlatforms = TargetDependencyCondition.when(platforms: [.iOS, .macOS, .macCatalyst, .tvOS, .watchOS, .visionOS])
 let androidPlatforms = TargetDependencyCondition.when(platforms: [.android])
 
 let package = Package(
@@ -22,7 +22,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/skiptools/swift-android-native.git", from: "1.0.1"),
+        .package(url: "https://github.com/skiptools/swift-android-native.git", from: "1.1.0"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
     ],
     targets: [

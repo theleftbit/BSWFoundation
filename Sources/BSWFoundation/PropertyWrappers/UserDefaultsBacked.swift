@@ -2,8 +2,6 @@
 //  Created by Pierluigi Cifani on 13/06/2019.
 //
 
-#if os(Android)
-#else
 import Foundation
 /// Stores the given `T` type on User Defaults.
 ///
@@ -90,4 +88,3 @@ public extension CodableUserDefaultsBacked {
         self.store.removeObject(forKey: key)
     }
 }
-#endif
