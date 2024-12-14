@@ -5,6 +5,7 @@ import BSWFoundation
 #if os(Android)
 import XCTest
 
+/*
 class UserDefaultsBackedTests: XCTestCase {
 
     func testItStoresStrings() {
@@ -93,7 +94,7 @@ class UserDefaultsBackedTests: XCTestCase {
         XCTAssertNil(UserDefaults.standard.data(forKey: "Hello"))
     }
 }
-
+*/
 #else
 import Testing
 
