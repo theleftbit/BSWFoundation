@@ -1,5 +1,5 @@
 {
-  "originHash" : "7cd33709458c4c1e966ffc3bef1896c2526919789d8881890fe26597695692fd",
+  "originHash" : "6aaf99e8da31ec069cc6194031d8db742dfd8464b031f3835540fdf0beb5b31d",
   "pins" : [
     {
       "identity" : "keychainaccess",
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/skiptools/skip-keychain.git",
       "state" : {
-        "revision" : "674914d193ec608a085cdb1a8cbcde3bbd5f2369",
-        "version" : "0.1.2"
+        "revision" : "cf8135d4a454f7cfc3446deafa881f95a1977452",
+        "version" : "0.1.3"
       }
     },
     {

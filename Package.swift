@@ -23,7 +23,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/skiptools/swift-android-native.git", from: "1.1.0"),
-        .package(url: "https://github.com/skiptools/skip-keychain.git", from: "0.1.2"),
+        .package(url: "https://github.com/skiptools/skip-keychain.git", from: "0.1.3"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
     ],
     targets: [
