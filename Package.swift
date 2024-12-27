@@ -9,11 +9,11 @@ let androidPlatforms = TargetDependencyCondition.when(platforms: [.android])
 let package = Package(
     name: "BSWFoundation",
     platforms: [
-        .iOS(.v15),
-        .tvOS(.v15),
-        .macOS(.v12),
-        .macCatalyst(.v15),
-        .watchOS(.v8),
+        .iOS(.v16),
+        .tvOS(.v16),
+        .macOS(.v13),
+        .macCatalyst(.v16),
+        .watchOS(.v9),
     ],
     products: [
         .library(
@@ -23,6 +23,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/skiptools/swift-android-native.git", from: "1.1.0"),
+        .package(url: "https://github.com/skiptools/skip-keychain.git", from: "0.1.3"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
     ],
     targets: [
@@ -30,6 +31,7 @@ let package = Package(
             name: "BSWFoundation",
             dependencies: [
                 .product(name: "KeychainAccess", package: "KeychainAccess", condition: applePlatforms),
+                .product(name: "SkipKeychain", package: "skip-keychain", condition: androidPlatforms),
                 .product(name: "AndroidLogging", package: "swift-android-native", condition: androidPlatforms),
             ]
         ),

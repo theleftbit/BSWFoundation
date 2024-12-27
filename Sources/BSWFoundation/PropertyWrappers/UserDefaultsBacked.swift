@@ -115,9 +115,9 @@ extension UserDefaults: PreferencesStore {
     }
 }
 
-extension PlistManager: PreferencesStore {}
+#if os(Android)
 
-private class PlistManager {
+private class PlistManager: PreferencesStore {
     private let fileName: String
     private let fileURL: URL
     
@@ -204,3 +204,4 @@ private class PlistManager {
         return decodedData
     }
 }
+#endif

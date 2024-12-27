@@ -1,12 +1,13 @@
 //
 //  Created by Pierluigi Cifani on 20/06/2019.
 //
-
-#if os(Android)
-#else
 import Foundation
 
+#if canImport(Darwin)
 import KeychainAccess
+#else
+import SkipKeychain
+#endif
 
 /// Stores a String on the Keychain
 @propertyWrapper
@@ -16,6 +17,7 @@ public class KeychainBacked {
 
     public init(key: String, appGroupID: String? = nil) {
         self.key = key
+#if canImport(Darwin)
         self.keychain = {
             if let appGroupID = appGroupID {
                 return Keychain(service: Bundle.main.bundleIdentifier!, accessGroup: appGroupID)
@@ -23,8 +25,12 @@ public class KeychainBacked {
                 return Keychain(service: Bundle.main.bundleIdentifier!)
             }
         }()
+#else
+        self.keychain = Keychain.shared
+#endif
     }
     
+#if canImport(Darwin)
     public var wrappedValue: String? {
         get {
             return keychain[key]
@@ -32,6 +38,19 @@ public class KeychainBacked {
             keychain[key] = newValue
         }
     }
+#else
+    public var wrappedValue: String? {
+        get {
+            return try? keychain.string(forKey: key)
+        } set {
+            if let newValue {
+                try? keychain.set(newValue, forKey: key)
+            } else {
+                try? keychain.removeValue(forKey: key)
+            }
+        }
+    }
+#endif
 }
 
 public extension KeychainBacked {
@@ -44,12 +63,18 @@ public extension KeychainBacked {
 @propertyWrapper
 public class CodableKeychainBacked<T: Codable> {
     private let key: String
-    private let keychain = Keychain(service: Bundle.main.bundleIdentifier!)
+    private let keychain: Keychain
 
     public init(key: String) {
         self.key = key
+#if canImport(Darwin)
+        self.keychain = Keychain(service: Bundle.main.bundleIdentifier!)
+#else
+        self.keychain = Keychain.shared
+#endif
     }
     
+#if canImport(Darwin)
     public var wrappedValue: T? {
         get {
             return keychain[key]?.decoded()
@@ -57,6 +82,19 @@ public class CodableKeychainBacked<T: Codable> {
             keychain[key] = newValue.encodedAsString()
         }
     }
+#else
+    public var wrappedValue: T? {
+        get {
+            return try? keychain.string(forKey: key)?.decoded()
+        } set {
+            if let newValue, let stringValue = newValue.encodedAsString() {
+                try? keychain.set(stringValue, forKey: key)
+            } else {
+                try? keychain.removeValue(forKey: key)
+            }
+        }
+    }
+#endif
 }
 
 public extension CodableKeychainBacked {
@@ -80,4 +118,3 @@ private extension Encodable {
         return string
     }
 }
-#endif
