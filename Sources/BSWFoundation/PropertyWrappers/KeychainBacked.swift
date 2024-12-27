@@ -41,9 +41,13 @@ public class KeychainBacked {
 #else
     public var wrappedValue: String? {
         get {
-            return keychain.string(forKey: key)
+            return try? keychain.string(forKey: key)
         } set {
-            try? keychain.set(newValue, forKey: key)
+            if let newValue {
+                try? keychain.set(newValue, forKey: key)
+            } else {
+                try? keychain.removeValue(forKey: key)
+            }
         }
     }
 #endif
@@ -81,9 +85,13 @@ public class CodableKeychainBacked<T: Codable> {
 #else
     public var wrappedValue: T? {
         get {
-            return keychain.string(forKey: key)?.decoded()
+            return try? keychain.string(forKey: key)?.decoded()
         } set {
-            try? keychain.set(newValue.encodedAsString(), forKey: key)
+            if let newValue, let stringValue = newValue.encodedAsString() {
+                try? keychain.set(stringValue, forKey: key)
+            } else {
+                try? keychain.removeValue(forKey: key)
+            }
         }
     }
 #endif
