@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip.git",
       "state" : {
-        "revision" : "cfa9f2550205ede7126c2284be150c0c48399002",
-        "version" : "1.2.14"
+        "revision" : "cedd32b2c0a21f6e950b1f7d37d7b85862d91993",
+        "version" : "1.2.16"
       }
     },
     {
