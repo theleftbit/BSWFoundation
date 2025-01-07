@@ -25,11 +25,13 @@ let package = Package(
         .package(url: "https://github.com/skiptools/swift-android-native.git", from: "1.1.0"),
         .package(url: "https://github.com/skiptools/skip-keychain.git", from: "0.1.3"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
+        .package(url: "https://github.com/apple/swift-crypto.git", from: "3.10.0"),
     ],
     targets: [
         .target(
             name: "BSWFoundation",
             dependencies: [
+                .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "KeychainAccess", package: "KeychainAccess", condition: applePlatforms),
                 .product(name: "SkipKeychain", package: "skip-keychain", condition: androidPlatforms),
                 .product(name: "AndroidLogging", package: "swift-android-native", condition: androidPlatforms),

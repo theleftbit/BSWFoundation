@@ -3,8 +3,6 @@
 //  Copyright © 2018 TheLeftBit SL SL. All rights reserved.
 //
 
-#if os(Android)
-#else
 import Foundation
 
 public extension String {
@@ -24,4 +22,3 @@ public extension String {
         return self.replacingOccurrences(of: "\n", with: " ").trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     }
 }
-#endif
