@@ -1,16 +1,18 @@
-#if os(Android)
-#else
 import Foundation
 
 public extension ProcessInfo {
     /// Detects if the current process is running on a Mac.
     @inlinable
     var isCatalystOriIOSAppOnMac: Bool {
-        #if targetEnvironment(macCatalyst)
+#if canImport(Darwin)
+#if targetEnvironment(macCatalyst)
         return true
-        #else
+#else
         return isiOSAppOnMac
-        #endif
+#endif
+#else
+        return false
+#endif
     }
     
     @inlinable
@@ -22,5 +24,3 @@ public extension ProcessInfo {
         #endif
     }
 }
-
-#endif

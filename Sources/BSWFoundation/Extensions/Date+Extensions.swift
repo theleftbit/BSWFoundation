@@ -2,8 +2,6 @@
 //  Created by Pierluigi Cifani on 11/30/15.
 //
 
-#if os(Android)
-#else
 import Foundation
 
 extension Date {
@@ -16,4 +14,3 @@ extension Date {
         return UInt64(floor(self.timeIntervalSince1970 * (includeMiliseconds ? 1000 : 1)))
     }
 }
-#endif

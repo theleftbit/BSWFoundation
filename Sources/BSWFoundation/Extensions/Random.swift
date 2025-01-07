@@ -2,8 +2,6 @@
 //  Created by Pierluigi Cifani on 12/2/15.
 //
 //
-#if os(Android)
-#else
 import Foundation
 
 //MARK: - Random generation
@@ -48,4 +46,3 @@ public extension Int {
         }
     }
 }
-#endif

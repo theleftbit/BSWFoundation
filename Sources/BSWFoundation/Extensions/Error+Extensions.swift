@@ -3,9 +3,10 @@
 //  Created by Pierluigi Cifani on 11/07/2019.
 //
 
-#if os(Android)
-#else
 import Foundation
+#if os(Android)
+import FoundationNetworking
+#endif
 
 public extension Error {
     var isURLCancelled: Bool {
@@ -13,4 +14,3 @@ public extension Error {
         return nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorCancelled
     }
 }
-#endif
