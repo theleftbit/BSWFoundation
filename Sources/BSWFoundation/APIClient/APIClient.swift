@@ -230,92 +230,21 @@ private extension APIClient {
         }
         
         public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
-            if self.environment.shouldAllowInsecureConnections {
-#if os(Android)
-                return (.useCredential, nil)
-
-#else
-                return (.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
-#endif
+            if environment.shouldAllowInsecureConnections {
+                let credential: URLCredential? = {
+                    #if os(Android)
+                    return (nil)
+                    #else
+                    return (URLCredential(trust: challenge.protectionSpace.serverTrust!))
+                    #endif
+                }()
+                return (.useCredential, credential)
             } else {
                 return (.performDefaultHandling, nil)
             }
         }
     }
 }
-
-
-#if os(Android)
-import AndroidLogging
-#else
-import OSLog
-#endif
-
-//MARK: Logging
-
-private extension APIClient {
-    private func logRequest(request: URLRequest) {
-        let logger = Logger(subsystem: submoduleName("APIClient"), category: "APIClient.Request")
-        switch loggingConfiguration.requestBehaviour {
-        case .all:
-            let httpMethod = request.httpMethod ?? "GET"
-            let path = request.url?.path ?? ""
-            logger.debug("Method: \(httpMethod) Path: \(path)")
-            if let data = request.httpBody, let prettyString = String(data: data, encoding: .utf8) {
-                logger.debug("Body: \(prettyString)")
-            }
-        default:
-            break
-        }
-    }
-    
-    private func logResponse(_ response: Response) {
-        let logger = Logger(subsystem: submoduleName("APIClient"), category: "APIClient.Response")
-        let isError = !(200..<300).contains(response.httpResponse.statusCode)
-        let shouldLogThis: Bool = {
-            switch loggingConfiguration.responseBehaviour {
-            case .all:
-                return true
-            case .none:
-                return false
-            case .onlyFailing:
-                return isError
-            }
-        }()
-        guard shouldLogThis else { return }
-        let path = response.httpResponse.url?.path ?? ""
-        logger.debug("StatusCode: \(response.httpResponse.statusCode) Path: \(path)")
-        if isError, let errorString = String(data: response.data, encoding: .utf8) {
-            logger.debug("Error Message: \(errorString)")
-        }
-    }
-}
-
-extension URLSession: APIClientNetworkFetcher {
-
-    public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
-        let tuple = try await data(for: urlRequest)
-        guard let httpResponse = tuple.1 as? HTTPURLResponse else {
-            throw APIClient.Error.malformedResponse
-        }
-        return .init(data: tuple.0, httpResponse: httpResponse)
-    }
-    
-    public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
-        let cancelTask: @Sendable () -> () = {}
-        let wrapper = APIClient.ApplicationWrapper()
-        let backgroundTaskID = await wrapper.generateBackgroundTaskID(cancelTask: cancelTask)
-        let (data, response) = try await upload(for: urlRequest, fromFile: fileURL)
-        await wrapper.endBackgroundTask(id: backgroundTaskID)
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw APIClient.Error.malformedResponse
-        }
-        return .init(data: data, httpResponse: httpResponse)
-    }
-}
-
-public typealias HTTPHeaders = [String: String]
-public struct VoidResponse: Decodable, Hashable, Sendable {}
 
 private extension Swift.Error {
     var is401: Bool {
@@ -328,34 +257,3 @@ private extension Swift.Error {
         return true
     }
 }
-
-// MARK: UIApplicationWrapper
-/// This is here just to make sure that on non-UIKit
-/// platforms we have a nice API to call to.
-#if canImport(UIKit)
-import UIKit
-private extension APIClient {
-    class ApplicationWrapper {
-        func generateBackgroundTaskID(cancelTask: @escaping (@MainActor @Sendable () -> Void)) async -> UIBackgroundTaskIdentifier {
-            return await UIApplication.shared.beginBackgroundTask(expirationHandler: cancelTask)
-        }
-        
-        func endBackgroundTask(id: UIBackgroundTaskIdentifier) async {
-            await UIApplication.shared.endBackgroundTask(id)
-        }
-    }
-}
-#else
-private extension APIClient {
-    class ApplicationWrapper {
-        func generateBackgroundTaskID(cancelTask: @escaping (@MainActor @Sendable () -> Void)) async -> Int {
-            return 0
-        }
-        
-        func endBackgroundTask(id: Int) async {
-
-        }
-    }
-}
-#endif
-
