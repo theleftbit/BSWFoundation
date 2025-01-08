@@ -4,7 +4,7 @@
 
 import Foundation
 #if os(Android)
-import SkipAndroidBridge
+import SkipFuse
 #endif
 /// Stores the given `T` type on User Defaults.
 ///
