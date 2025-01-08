@@ -14,8 +14,10 @@ jobs:
       run: swift test
 
   android-build:
-    runs-on: ios
+    # Runner must be macos-13, since lack of nested virtualization support on macos-14 prevents the Android emulator from working
+    # see: https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#limitations-for-arm64-macos-runners
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
       - name: "Test Swift Package on Android"
-        uses: skiptools/swift-android-action@v1
+        uses: skiptools/swift-android-action@v2
