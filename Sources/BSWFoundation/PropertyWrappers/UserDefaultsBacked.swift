@@ -3,6 +3,9 @@
 //
 
 import Foundation
+#if os(Android)
+import SkipAndroidBridge
+#endif
 /// Stores the given `T` type on User Defaults.
 ///
 /// The value parameter can be only property list objects: `NSData`, `NSString`, `NSNumber`, `NSDate`, `NSArray`, or `NSDictionary`.
@@ -10,7 +13,7 @@ import Foundation
 public final class UserDefaultsBacked<T: Sendable>: Sendable {
     private let key: String
     private let defaultValue: T?
-    private nonisolated(unsafe) let store: PreferencesStore
+    private nonisolated(unsafe) let store: UserDefaults
     
     public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
@@ -24,7 +27,7 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
             }
         }()
 #else
-        self.store = PlistManager(plistName: "UserDefaults")
+        self.store = UserDefaults.bridged
 #endif
     }
     
@@ -57,7 +60,7 @@ public extension UserDefaultsBacked {
 public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
     private let key: String
     private let defaultValue: T?
-    private nonisolated(unsafe) let store: PreferencesStore
+    private nonisolated(unsafe) let store: UserDefaults
 
     public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
@@ -71,7 +74,7 @@ public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
             }
         }()
 #else
-        self.store = PlistManager(plistName: "UserDefaults")
+        self.store = UserDefaults.bridged
 #endif
     }
     
@@ -82,10 +85,11 @@ public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
             }
             return try? JSONDecoder().decode(T.self, from: data)
         } set {
-            guard let data = try? JSONEncoder().encode(newValue) else {
-                return
+            if let newValue, let data = try? JSONEncoder().encode(newValue) {
+                store.set(data, forKey: key)
+            } else {
+                store.set(nil, forKey: key)
             }
-            store.writeData(data, forKey: key)
             _ = store.synchronize()
         }
     }
@@ -96,112 +100,3 @@ public extension CodableUserDefaultsBacked {
         self.store.removeObject(forKey: key)
     }
 }
-
-// MARK: Private
-
-private protocol PreferencesStore {
-    func set(_ value: Any?, forKey defaultName: String)
-    func object(forKey defaultName: String) -> Any?
-    func removeObject(forKey defaultName: String)
-    
-    func writeData(_ data: Data, forKey key: String)
-    func data(forKey key: String) -> Data?
-    func synchronize() -> Bool
-}
-
-extension UserDefaults: PreferencesStore {
-    func writeData(_ data: Data, forKey key: String) {
-        self.set(data, forKey: key)
-    }
-}
-
-#if os(Android)
-
-private class PlistManager: PreferencesStore {
-    private let fileName: String
-    private let fileURL: URL
-    
-    // Initializer
-    init(plistName: String) {
-        self.fileName = plistName.hasSuffix(".plist") ? plistName : "\(plistName).plist"
-        
-        // Determine the file path in the Documents directory
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        self.fileURL = documentsDirectory.appendingPathComponent(fileName)
-        
-        // Create the plist file if it doesn't exist
-        if !FileManager.default.fileExists(atPath: fileURL.path) {
-            let emptyDictionary: [String: Any] = [:]
-            do {
-                let data = try PropertyListSerialization.data(fromPropertyList: emptyDictionary, format: .xml, options: 0)
-                try data.write(to: fileURL)
-                print("Plist created at: \(fileURL.path)")
-            } catch {
-                print("Error creating plist: \(error)")
-            }
-        }
-    }
-    
-    // Read value for a given key
-    func object(forKey key: String) -> Any? {
-        guard let data = try? Data(contentsOf: fileURL),
-              let plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any] else {
-            return nil
-        }
-        return plist[key]
-    }
-    
-    // Write value for a given key
-    func set(_ value: Any?, forKey key: String) {
-        guard let data = try? Data(contentsOf: fileURL),
-              var plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any] else {
-            print("Failed to load or parse plist")
-            return
-        }
-        
-        plist[key] = value
-        
-        do {
-            let updatedData = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
-            try updatedData.write(to: fileURL)
-            print("Value for key '\(key)' written successfully.")
-        } catch {
-            print("Error writing to plist: \(error)")
-        }
-    }
-    
-    // Delete value for a given key
-    func removeObject(forKey key: String) {
-        guard let data = try? Data(contentsOf: fileURL),
-              var plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any] else {
-            print("Failed to load or parse plist")
-            return
-        }
-        
-        plist.removeValue(forKey: key)
-        
-        do {
-            let updatedData = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
-            try updatedData.write(to: fileURL)
-            print("Key '\(key)' deleted successfully.")
-        } catch {
-            print("Error deleting value from plist: \(error)")
-        }
-    }
-    
-    func synchronize() -> Bool { true }
-    
-    func writeData(_ data: Data, forKey key: String) {
-        let base64String = data.base64EncodedString()
-        set(base64String, forKey: key)
-    }
-
-    func data(forKey key: String) -> Data? {
-        guard let base64String = object(forKey: key) as? String,
-              let decodedData = Data(base64Encoded: base64String) else {
-            return nil
-        }
-        return decodedData
-    }
-}
-#endif
