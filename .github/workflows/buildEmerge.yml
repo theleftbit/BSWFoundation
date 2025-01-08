@@ -5,7 +5,7 @@ on:
 jobs:
   build:
     name: Build XCFramework
-    runs-on: macos-latest
+    runs-on: ios
     env:
       PRODUCT_NAME: BSWFoundation
     steps:
