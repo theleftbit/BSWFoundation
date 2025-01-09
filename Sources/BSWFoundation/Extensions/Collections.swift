@@ -3,8 +3,6 @@
 //  Copyright © 2018 TheLeftBit SL SL. All rights reserved.
 //
 
-import Foundation
-
 public extension Sequence {
     func find(predicate: (Self.Iterator.Element) throws -> Bool) rethrows -> Self.Iterator.Element? {
         for element in self {
@@ -27,20 +25,6 @@ public extension Collection {
         return index >= startIndex && index < endIndex
             ? self[index]
             : nil
-    }
-}
-
-public extension MutableCollection where Index == Int {
-    /// Shuffle the elements of `self` in-place.
-    mutating func shuffle() {
-        // empty and single-element collections don't shuffle
-        if count < 2 { return }
-        
-        for i in startIndex ..< endIndex - 1 {
-            let j = Int(arc4random_uniform(UInt32(endIndex - i))) + i
-            guard i != j else { continue }
-            self.swapAt(i, j)
-        }
     }
 }
 

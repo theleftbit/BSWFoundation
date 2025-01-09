@@ -77,7 +77,7 @@ public enum JSONParser {
                 throw Error.malformedSchema
             case .dataCorrupted(let context):
                 print("*ERROR* Data Corrupted \"\(context)\")")
-                if let string = NSString(data: data, encoding: String.Encoding.utf8.rawValue) {
+                if let string = String(data: data, encoding: .utf8) {
                     print("*ERROR* incoming JSON: \(string)")
                 }
                 throw Error.malformedJSON
