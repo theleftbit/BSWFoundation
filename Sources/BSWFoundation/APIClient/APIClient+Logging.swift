@@ -39,10 +39,11 @@ extension APIClient {
             }
         }()
         guard shouldLogThis else { return }
+        let logType: OSLogType = isError ? .error : .debug
         let path = response.httpResponse.url?.path ?? ""
-        logger.debug("StatusCode: \(response.httpResponse.statusCode) Path: \(path)")
+        logger.log(level: logType, "StatusCode: \(response.httpResponse.statusCode) Path: \(path)")
         if isError, let errorString = String(data: response.data, encoding: .utf8) {
-            logger.debug("Error Message: \(errorString)")
+            logger.log(level: logType, "Error Message: \(errorString)")
         }
     }
 }
