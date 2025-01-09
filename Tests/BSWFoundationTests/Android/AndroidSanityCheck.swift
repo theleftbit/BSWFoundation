@@ -15,6 +15,11 @@ class SomeTest: XCTestCase {
         array.appendOption(4, andSelectIt: true)
         XCTAssert(array.selectedElement == 4)
     }
+    
+    func testSomeStuff2() {
+        let sut = BSWEnvironment.production
+        XCTAssert(sut.routeURL("login") == "https://theleftbit.com/login")
+    }
 }
 
 #endif

@@ -1,9 +1,6 @@
 //
 //  Created by Pierluigi Cifani on 07/05/2018.
 //
-#if os(Android)
-#else
-
 import BSWFoundation
 import Foundation
 
@@ -188,4 +185,3 @@ enum Giphy {
         }
     }
 }
-#endif
