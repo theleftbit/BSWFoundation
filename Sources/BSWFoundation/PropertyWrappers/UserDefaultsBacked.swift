@@ -37,7 +37,7 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
             } else {
                 self.store.removeObject(forKey: key)
             }
-            self.store.synchronize()
+            _ = self.store.synchronize()
         }
     }
 }
@@ -70,16 +70,17 @@ public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
     
     public var wrappedValue: T? {
         get {
-            guard let data = self.store.data(forKey: key) else {
+            guard let data = store.data(forKey: key) else {
                 return defaultValue
             }
             return try? JSONDecoder().decode(T.self, from: data)
         } set {
-            guard let data = try? JSONEncoder().encode(newValue) else {
-                return
+            if let newValue, let data = try? JSONEncoder().encode(newValue) {
+                store.set(data, forKey: key)
+            } else {
+                store.set(nil, forKey: key)
             }
-            self.store.set(data, forKey: key)
-            self.store.synchronize()
+            _ = store.synchronize()
         }
     }
 }
