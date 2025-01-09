@@ -40,7 +40,7 @@ public struct VoidResponse: Decodable, Hashable, Sendable {}
 // MARK: UIApplicationWrapper
 /// This is here just to make sure that on non-UIKit
 /// platforms we have a nice API to call to.
-#if canImport(UIKit)
+#if canImport(UIKit.UIApplication)
 import UIKit
 private extension APIClient {
     class ApplicationWrapper {
