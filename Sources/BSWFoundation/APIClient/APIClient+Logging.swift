@@ -37,7 +37,7 @@ extension APIClient {
         let logType: OSLogType = isError ? .error : .debug
         let path = response.httpResponse.url?.path ?? ""
         logger.log(level: logType, "StatusCode: \(response.httpResponse.statusCode) Path: \(path)")
-        if isError, let errorString = String(data: response.data, encoding: .utf8) {
+        if isError, let errorString = String(data: response.data, encoding: .utf8), !errorString.isEmpty {
             logger.log(level: logType, "Error Message: \(errorString)")
         }
     }
