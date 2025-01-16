@@ -181,7 +181,12 @@ private extension APIClient {
     func sendNetworkRequest(_ urlRequest: URLRequest) async throws -> APIClient.Response {
         try Task.checkCancellation()
         logRequest(request: urlRequest)
-        return try await networkFetcher.fetchData(with: urlRequest)
+        do {
+            return try await networkFetcher.fetchData(with: urlRequest)
+        } catch {
+            logNetworkError(error, forRequest: urlRequest)
+            throw error
+        }
     }
 
     func validateResponse(_ response: Response) async throws -> Data {
