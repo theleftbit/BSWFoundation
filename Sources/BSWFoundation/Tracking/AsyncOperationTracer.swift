@@ -57,6 +57,10 @@ public enum AsyncOperationTracer {
     public private(set) static var operationDidFail: OperationFailedHandler = { _, _ in }
 }
 
+#if os(Android)
+typealias AsyncOperationTracerStorageActor = MainActor
+#else
 @globalActor actor AsyncOperationTracerStorageActor: GlobalActor {
     static let shared = AsyncOperationTracerStorageActor()
 }
+#endif
