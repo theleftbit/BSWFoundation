@@ -43,12 +43,13 @@ public enum AsyncOperationTracer {
     }
     
     @AsyncOperationTracerStorageActor
-    static var operationDidBegin: OperationHandler = { _ in }
+    public private(set) static var operationDidBegin: OperationHandler = { _ in }
+    
     @AsyncOperationTracerStorageActor
-    static var operationDidEnd: OperationHandler = { _ in }
+    public private(set) static var operationDidEnd: OperationHandler = { _ in }
 
     @AsyncOperationTracerStorageActor
-    static var operationDidFail: OperationFailedHandler = { _, _ in }
+    public private(set) static var operationDidFail: OperationFailedHandler = { _, _ in }
 }
 
 @globalActor actor AsyncOperationTracerStorageActor: GlobalActor {
