@@ -25,6 +25,11 @@ public enum AsyncOperationTracer {
 
     public struct Operation: Sendable {
         
+        public init(kind: AsyncOperationTracer.Operation.Kind, id: any (Equatable & Sendable)) {
+            self.kind = kind
+            self.id = id
+        }
+        
         public let kind: Kind
         public let id: any (Equatable & Sendable)
         public enum Kind: Sendable {
