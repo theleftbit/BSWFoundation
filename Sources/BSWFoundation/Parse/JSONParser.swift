@@ -31,6 +31,16 @@ public enum JSONParser {
         return String(data: prettyPrintedData, encoding: .utf8)
     }
     
+    public static func parseDataAsBSWCustomMessage(_ data: Data) -> String? {
+        guard let j = try? JSONSerialization.jsonObject(with: data, options: JSONParser.Options) else {
+            return nil
+        }
+        guard let dictionary = j as? [String: String] else {
+            return nil
+        }
+        return dictionary[APIClientErrorConstants.BSWCustomMessage]
+    }
+    
     /// Attempts to extract an error string from the passed JSON data.
     /// - Parameter data: The JSON data that should include an `"error"` key
     /// - Returns: The error string if found

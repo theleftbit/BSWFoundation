@@ -26,4 +26,13 @@ struct APIClientErrorTests {
         let localizedDescription = APIClient.Error.failureStatusCode(400, errorMessageData).localizedDescription
         #expect(localizedDescription == "The operation couldn’t be completed. (BSWFoundation.APIClient.Error.FailureStatusCode: 400, Message: \"Please try again\")")
     }
+    
+    @Test
+    func errorPrinting_serverStatusCode_3() {
+        let errorMessageData =  """
+        {"\(APIClientErrorConstants.BSWCustomMessage)" : "Please try again"}
+        """.data(using: .utf8)
+        let localizedDescription = APIClient.Error.failureStatusCode(400, errorMessageData).localizedDescription
+        #expect(localizedDescription == "Please try again")
+    }
 }
