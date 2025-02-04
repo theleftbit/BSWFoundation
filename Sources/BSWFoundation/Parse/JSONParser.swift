@@ -31,14 +31,14 @@ public enum JSONParser {
         return String(data: prettyPrintedData, encoding: .utf8)
     }
     
-    public static func parseDataAsBSWCustomMessage(_ data: Data) -> String? {
+    public static func parseDataAsBSWServerErrorMessage(_ data: Data) -> String? {
         guard let j = try? JSONSerialization.jsonObject(with: data, options: JSONParser.Options) else {
             return nil
         }
         guard let dictionary = j as? [String: String] else {
             return nil
         }
-        return dictionary[APIClientErrorConstants.BSWCustomMessage]
+        return dictionary[APIClient.Error.ServerMessage]
     }
     
     /// Attempts to extract an error string from the passed JSON data.

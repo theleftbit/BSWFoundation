@@ -30,7 +30,7 @@ struct APIClientErrorTests {
     @Test
     func errorPrinting_serverStatusCode_3() {
         let errorMessageData =  """
-        {"\(APIClientErrorConstants.BSWCustomMessage)" : "Please try again"}
+        {"\(APIClient.Error.ServerMessage)" : "Please try again"}
         """.data(using: .utf8)
         let localizedDescription = APIClient.Error.failureStatusCode(400, errorMessageData).localizedDescription
         #expect(localizedDescription == "Please try again")

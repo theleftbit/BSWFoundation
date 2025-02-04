@@ -1,10 +1,12 @@
 import Foundation
 
-public enum APIClientErrorConstants {
-    static let BSWCustomMessage = "bsw_error_message"
-}
-
 extension APIClient.Error: LocalizedError {
+    
+    /// If a dictionary with this key is present in the
+    /// `data` contained  in `.failureStatusCode`,
+    /// then that will be the message shown to the user
+    public static let ServerMessage = "bsw_server_error_message"
+
     public var errorDescription: String? {
         switch self {
         case .malformedURL:
@@ -14,12 +16,16 @@ extension APIClient.Error: LocalizedError {
         case .encodingRequestFailed:
             return replaceErrorDescription(with: "encodingRequestFailed")
         case .failureStatusCode(let statusCode, let data):
-            if let data, let bswMessage = JSONParser.parseDataAsBSWCustomMessage(data) {
+            let defaultMessage = replaceErrorDescription(with: "FailureStatusCode: \(statusCode)")
+            guard let data else {
+                return defaultMessage
+            }
+            if let bswMessage = JSONParser.parseDataAsBSWServerErrorMessage(data) {
                 return bswMessage
-            } else if let data, let prettyError = JSONParser.parseDataAsJSONPrettyPrint(data) {
+            } else if let prettyError = JSONParser.parseDataAsJSONPrettyPrint(data) {
                 return replaceErrorDescription(with: "FailureStatusCode: \(statusCode), Message: \(prettyError)")
             } else {
-                return replaceErrorDescription(with: "FailureStatusCode: \(statusCode)")
+                return defaultMessage
             }
         }
     }
