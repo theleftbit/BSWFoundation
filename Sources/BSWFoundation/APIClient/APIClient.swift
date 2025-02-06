@@ -33,6 +33,11 @@ public extension APIClientDelegate {
 /// This type allows you to simplify the communications with HTTP servers using the `Environment` protocol and `Request` type.
 open class APIClient: Identifiable, @unchecked Sendable {
     
+    #if os(Android)
+    /// Workaround for https://github.com/skiptools/skip-bridge/issues/49
+    public typealias ID = String
+    #endif
+    
     public var id: String { router.environment.baseURL.absoluteString }
     
     /// Sets the `delegate` for this class
