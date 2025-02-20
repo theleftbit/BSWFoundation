@@ -2,8 +2,7 @@
 //  Created by Pierluigi Cifani on 09/02/2017.
 //  Copyright (c) 2017 TheLeftBit SL. All rights reserved.
 //
-#if os(Android)
-#else
+#if !os(Android)
 import Foundation
 
 @preconcurrency import KeychainAccess

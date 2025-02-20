@@ -3,8 +3,7 @@
 //  Created by Pierluigi Cifani on 29/01/2020.
 //
 
-#if os(Android)
-#else
+#if !os(Android)
 import Foundation
 
 /// Makes sure that the given job is not executed more than once every `seconds`

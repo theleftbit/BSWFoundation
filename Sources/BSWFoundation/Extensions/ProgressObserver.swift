@@ -3,8 +3,7 @@
 //  Copyright © 2018 TheLeftBit SL SL. All rights reserved.
 //
 
-#if os(Android)
-#else
+#if !os(Android)
 import Foundation
 
 /// A simple wrapper on top of `Foundation.Progress` that makes it easier to observe it's progress.

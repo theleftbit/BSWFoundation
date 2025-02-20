@@ -2,9 +2,7 @@
 //  Created by Pierluigi Cifani on 06/08/16.
 //
 //
-#if os(Android)
-#else
-
+#if canImport(Testing)
 import Testing
 @testable import BSWFoundation
 import Foundation

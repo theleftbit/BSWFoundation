@@ -1,5 +1,4 @@
-#if os(Android)
-#else
+#if canImport(Testing)
 import Testing
 @testable import BSWFoundation
 

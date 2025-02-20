@@ -1,5 +1,4 @@
-#if os(Android)
-#else
+#if !os(Android)
 import Foundation
 import BSWFoundation
 import Testing
