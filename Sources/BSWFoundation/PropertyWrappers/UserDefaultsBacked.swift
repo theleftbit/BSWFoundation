@@ -17,7 +17,7 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
     public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
         self.defaultValue = defaultValue
-#if canImport(Darwin)
+        #if canImport(Darwin)
         self.store = {
             if let appGroupID = appGroupID {
                 return UserDefaults(suiteName: appGroupID)!
@@ -25,17 +25,27 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
                 return UserDefaults.standard
             }
         }()
-#else
+        #else
         self.store = UserDefaults.bridged
-#endif
+        #endif
     }
     
     public var wrappedValue: T? {
         get {
+            #if canImport(Darwin)
             guard let value = self.store.object(forKey: key) as? T else {
                 return defaultValue
             }
             return value
+            #else
+            if T.self == Bool.self {
+                return self.store.bool(forKey: key) as? T
+            } else if T.self == String.self, let value = self.store.string(forKey: key) {
+                return value as? T
+            } else {
+                return defaultValue
+            }
+            #endif
         } set {
             if newValue != nil {
                 self.store.set(newValue, forKey: key)
@@ -64,7 +74,7 @@ public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
     public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
         self.defaultValue = defaultValue
-#if canImport(Darwin)
+        #if canImport(Darwin)
         self.store = {
             if let appGroupID = appGroupID {
                 return UserDefaults(suiteName: appGroupID)!
@@ -72,9 +82,9 @@ public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
                 return UserDefaults.standard
             }
         }()
-#else
+        #else
         self.store = UserDefaults.bridged
-#endif
+        #endif
     }
     
     public var wrappedValue: T? {
