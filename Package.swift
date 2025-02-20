@@ -33,8 +33,8 @@ let package = Package(
             dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "KeychainAccess", package: "KeychainAccess", condition: applePlatforms),
-                .product(name: "SkipKeychain", package: "skip-keychain", condition: androidPlatforms),
-                .product(name: "SkipFuse", package: "skip-fuse", condition: androidPlatforms),
+                .product(name: "SkipKeychain", package: "skip-keychain"),
+                .product(name: "SkipFuse", package: "skip-fuse"),
             ]
         ),
         .testTarget(
