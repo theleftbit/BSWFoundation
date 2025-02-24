@@ -22,7 +22,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.0"),
+        .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.1"),
         .package(url: "https://source.skip.tools/skip-keychain.git", from: "0.2.0"),
         .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "3.10.0"),
