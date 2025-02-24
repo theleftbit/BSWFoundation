@@ -17,8 +17,8 @@ extension URLSession: APIClientNetworkFetcher {
     }
     
     public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
-        let task = Task.detached {
-            try await self.upload(for: urlRequest, fromFile: fileURL)
+        let task = Task {
+            try await upload(for: urlRequest, fromFile: fileURL)
         }
         let cancelTask: @Sendable () -> () = {
             task.cancel()
