@@ -30,6 +30,9 @@ public protocol Endpoint: Sendable {
 
     /// How long before the request is timed out
     var timeoutInterval: TimeInterval? { get }
+    
+    /// A file to upload
+    var fileToUpload: URL? { get }
 }
 
 public enum HTTPMethod: String, Sendable {
@@ -62,6 +65,8 @@ extension Endpoint {
     public var timeoutInterval: TimeInterval? {
         return nil
     }
+    
+    public var fileToUpload: URL? { return nil }
 }
 
 
