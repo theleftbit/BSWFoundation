@@ -21,20 +21,28 @@ extension URLSession: APIClientNetworkFetcher {
     }
     
     public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
-        let task = Task.detached {
-            try await self.upload(for: urlRequest, fromFile: fileURL)
+        let task = Task {
+            try await upload(for: urlRequest, fromFile: fileURL)
         }
         let cancelTask: @Sendable () -> () = {
             task.cancel()
         }
         let wrapper = APIClient.ApplicationWrapper()
         let backgroundTaskID = await wrapper.generateBackgroundTaskID(cancelTask: cancelTask)
-        let (data, response) = try await task.value
+        let result: Swift.Result<APIClient.Response, Swift.Error> = await {
+            do {
+                let (data, response) = try await task.value
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    throw APIClient.Error.malformedResponse
+                }
+                return .success(APIClient.Response(data: data, httpResponse: httpResponse))
+            } catch {
+                return .failure(error)
+            }
+        }()
+
         await wrapper.endBackgroundTask(id: backgroundTaskID)
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw APIClient.Error.malformedResponse
-        }
-        return .init(data: data, httpResponse: httpResponse)
+        return try result.get()
     }
 }
 

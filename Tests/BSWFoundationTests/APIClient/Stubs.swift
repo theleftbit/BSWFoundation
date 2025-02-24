@@ -4,10 +4,6 @@
 import BSWFoundation
 import Foundation
 
-enum Error: Swift.Error {
-    case objectUnwrappedFailed
-}
-
 /// Full-suite tests are courtesy of our good friends of HTTPBin
 
 enum HTTPBin {
@@ -28,7 +24,7 @@ enum HTTPBin {
     enum API: Endpoint {
         case ip
         case orderPizza
-        case upload(Data)
+        case upload(fileURL: URL)
 
         var path: String {
             switch self {
@@ -67,6 +63,15 @@ enum HTTPBin {
                 return [
                     "topping": ["peperoni", "olives"]
                 ]
+            default:
+                return nil
+            }
+        }
+        
+        var fileToUpload: URL? {
+            switch self {
+            case .upload(let fileURL):
+                return fileURL
             default:
                 return nil
             }

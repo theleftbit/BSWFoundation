@@ -14,8 +14,15 @@ jobs:
     - name: "Run tests"
       run: swift test
 
-  linux-android:
+  android-build:
     runs-on: ubuntu-latest
+    container:
+      image: swift:6.0-jammy
+    timeout-minutes: 10
     steps:
-      - name: "Test Swift Package on Android"
+      - uses: actions/checkout@v4
+      - name: "Build for Android"
         uses: skiptools/swift-android-action@v2
+        with:
+          build-tests: true
+          run-tests: true

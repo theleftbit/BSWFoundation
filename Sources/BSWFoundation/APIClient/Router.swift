@@ -110,10 +110,20 @@ private enum URLEncoding {
 }
 
 private extension String {
+    /// Cleans the string to be used in the User-Agent header by:
+    /// 1. Removing specific test environment suffixes like "-β" or "-test".
+    /// 2. Filtering out any characters that are not part of `urlPathAllowed` or whitespaces.
     var cleanForUserAgent: String {
         var allowed = CharacterSet()
         allowed.formUnion(.urlPathAllowed)
         allowed.formUnion(.whitespaces)
-        return String(unicodeScalars.filter { allowed.contains($0) })
+        
+        // Step 1: Remove specific suffixes
+        let cleanedSuffix = self
+            .replacingOccurrences(of: "-β", with: "")
+            .replacingOccurrences(of: "-test", with: "")
+        
+        // Step 2: Filter remaining characters
+        return String(cleanedSuffix.unicodeScalars.filter { allowed.contains($0) })
     }
 }

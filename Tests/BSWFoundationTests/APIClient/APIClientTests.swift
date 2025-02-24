@@ -61,18 +61,23 @@ actor APIClientTests {
     }
 
     @Test
+    @available(iOS 16.0, *)
     func upload() async throws {
+        let file = try Self.generateRandomFile()
         let uploadRequest = BSWFoundation.APIClient.Request<VoidResponse>(
-            endpoint: HTTPBin.API.upload(generateRandomData())
+            endpoint: HTTPBin.API.upload(fileURL: file)
         )
 
         let _ = try await sut.perform(uploadRequest)
+        try FileManager.default.removeItem(at: file)
     }
 
     @Test
+    @available(iOS 16.0, *)
     func uploadCancel() async throws {
+        let file = try Self.generateRandomFile()
         let uploadRequest = BSWFoundation.APIClient.Request<VoidResponse>(
-            endpoint: HTTPBin.API.upload(generateRandomData())
+            endpoint: HTTPBin.API.upload(fileURL: file)
         )
 
         let uploadTask = Task { try await sut.perform(uploadRequest) }
@@ -83,13 +88,14 @@ actor APIClientTests {
             Issue.record("This should fail here")
         } catch let error {
             if error is CancellationError {
-                return
+            
             } else {
                 let nsError = error as NSError
                 #expect(nsError.domain == NSURLErrorDomain)
                 #expect(nsError.code == NSURLErrorCancelled)
             }
         }
+        try FileManager.default.removeItem(at: file)
     }
     
     @Test
@@ -194,12 +200,20 @@ actor APIClientTests {
         }
         #expect(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
     }
-}
+    
+    
+    @available(iOS 16.0, *)
+    static func generateRandomFile() throws -> URL {
+        let length = 2048
+        let bytes = [UInt32](repeating: 0, count: length).map { _ in arc4random() }
+        let data = Data(bytes: bytes, count: length)
 
-private func generateRandomData() -> Data {
-    let length = 2048
-    let bytes = [UInt32](repeating: 0, count: length).map { _ in arc4random() }
-    return Data(bytes: bytes, count: length)
+        let url = URL.cachesDirectory
+            .appending(path: "randomData-\(Int.random(in: 0...10000))")
+        try data.write(to: url)
+        
+        return url
+    }
 }
 
 @MainActor

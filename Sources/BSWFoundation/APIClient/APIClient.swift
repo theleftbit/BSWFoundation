@@ -76,7 +76,7 @@ open class APIClient: Identifiable, @unchecked Sendable {
         do {
             let urlRequest = try await router.urlRequest(forEndpoint: request.endpoint)
             let customizedURLRequest = customizeRequest(urlRequest)
-            let response = try await sendNetworkRequest(customizedURLRequest)
+            let response = try await sendNetworkRequest(customizedURLRequest, fileURL: request.endpoint.fileToUpload)
             try request.validator(response)
             let validatedResponse = try await validateResponse(response)
             return try JSONParser.parseData(validatedResponse)
@@ -95,7 +95,7 @@ open class APIClient: Identifiable, @unchecked Sendable {
     public func performSimpleRequest(forEndpoint endpoint: Endpoint) async throws -> APIClient.Response {
         let request             = try await router.urlRequest(forEndpoint: endpoint)
         let customizedRequest   = self.customizeRequest(request)
-        return try await sendNetworkRequest(customizedRequest)
+        return try await sendNetworkRequest(customizedRequest, fileURL: endpoint.fileToUpload)
     }
     
     /// Returns the environment configured for this `APIClient`
@@ -184,11 +184,15 @@ extension APIClient {
 
 private extension APIClient {
     
-    func sendNetworkRequest(_ urlRequest: URLRequest) async throws -> APIClient.Response {
+    func sendNetworkRequest(_ urlRequest: URLRequest, fileURL: URL?) async throws -> APIClient.Response {
         try Task.checkCancellation()
         logRequest(request: urlRequest)
         do {
-            return try await networkFetcher.fetchData(with: urlRequest)
+            if let fileURL {
+                return try await networkFetcher.uploadFile(with: urlRequest, fileURL: fileURL)
+            } else {
+                return try await networkFetcher.fetchData(with: urlRequest)
+            }
         } catch {
             logNetworkError(error, forRequest: urlRequest)
             throw error
