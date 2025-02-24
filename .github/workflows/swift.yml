@@ -6,7 +6,7 @@ on:
 jobs:
   build:
 
-    runs-on: ios
+    runs-on: mobile
 
     steps:
     - uses: actions/checkout@v4
