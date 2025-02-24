@@ -40,10 +40,10 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
             #else
             if T.self == Bool.self {
                 return self.store.bool(forKey: key) as? T
-            } else if T.self == String.self, let value = self.store.string(forKey: key) {
-                return value as? T
+            } else if T.self == String.self {
+                return (self.store.string(forKey: key) as? T) ?? defaultValue
             } else {
-                return defaultValue
+                fatalError("Type not yet supported on non-Darwin platforms")
             }
             #endif
         } set {

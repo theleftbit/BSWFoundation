@@ -17,7 +17,7 @@ public class KeychainBacked {
 
     public init(key: String, appGroupID: String? = nil) {
         self.key = key
-#if canImport(Darwin)
+        #if canImport(Darwin)
         self.keychain = {
             if let appGroupID = appGroupID {
                 return Keychain(service: Bundle.main.bundleIdentifier!, accessGroup: appGroupID)
@@ -25,12 +25,12 @@ public class KeychainBacked {
                 return Keychain(service: Bundle.main.bundleIdentifier!)
             }
         }()
-#else
+        #else
         self.keychain = Keychain.shared
-#endif
+        #endif
     }
     
-#if canImport(Darwin)
+    #if canImport(Darwin)
     public var wrappedValue: String? {
         get {
             return keychain[key]
@@ -38,7 +38,7 @@ public class KeychainBacked {
             keychain[key] = newValue
         }
     }
-#else
+    #else
     public var wrappedValue: String? {
         get {
             return try? keychain.string(forKey: key)
@@ -50,7 +50,7 @@ public class KeychainBacked {
             }
         }
     }
-#endif
+    #endif
 }
 
 public extension KeychainBacked {
