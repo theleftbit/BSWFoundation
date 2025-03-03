@@ -17,13 +17,13 @@ jobs:
   android-build:
     strategy:
       fail-fast: false
-    runs-on: macos-13
+    runs-on: mobile
     timeout-minutes: 10
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
       - name: "Build for Android"
-        uses: skiptools/swift-android-action@v2.2.8
+        uses: skiptools/swift-android-action@main
         with:
           build-tests: true
           run-tests: true
