@@ -5,7 +5,7 @@ on:
 
 jobs:
 
-  apple-platforms-build:
+  macos-build:
     runs-on: mobile
     steps:
       - uses: actions/checkout@v4
@@ -13,6 +13,13 @@ jobs:
         run: swift package clean; swift build
       - name: Run tests
         run: swift test
+
+  ios-build:
+    runs-on: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests
+        run: set -o pipefail && xcodebuild test -scheme BSWFoundation -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' | xcbeautify --renderer github-actions
 
   android-build:
     runs-on: mobile
