@@ -7,6 +7,8 @@ public extension ProcessInfo {
 #if canImport(Darwin)
 #if targetEnvironment(macCatalyst)
         return true
+#elseif os(macOS)
+        return true
 #else
         return isiOSAppOnMac
 #endif

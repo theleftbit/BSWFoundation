@@ -12,28 +12,24 @@ import Foundation
 
 extension Bundle {
     var displayName: String {
-#if os(Android)
-        return "BSWFoundation-Android"
-#else
-        return object(forInfoDictionaryKey: kCFBundleNameKey as String) as? String ?? "BSWFoundation"
-#endif
+        return object(forInfoDictionaryKey: "CFBundleName") as? String ?? "BSWFoundation"
     }
     
     var appVersion: String {
-        return (infoDictionary?["CFBundleShortVersionString"] as? String) ?? ""
+        return object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
     }
     
     var appBuild: String {
-        return (infoDictionary?["CFBundleVersion"] as? String) ?? ""
+        return object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0"
     }
 
     public var osName: String {
         let version = ProcessInfo.processInfo.operatingSystemVersion
-#if os(Android)
+        #if os(Android)
         let osName = "Android"
-#else
+        #else
         let osName = ProcessInfo.processInfo.isCatalystOriIOSAppOnMac ? "macOS" : "iOS"
-#endif
+        #endif
         return "\(osName) \(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
     }
 }

@@ -1,6 +1,6 @@
 #if os(Android)
 
-import BSWFoundation
+@testable import BSWFoundation
 import XCTest
 
 class SomeTest: XCTestCase {
@@ -20,6 +20,9 @@ class SomeTest: XCTestCase {
         let sut = BSWEnvironment.production
         XCTAssert(sut.routeURL("login") == "https://theleftbit.com/login")
     }
+    
+    func testBundleAPIs() {        
+        XCTAssert(Bundle.main.osName.contains("Android"))
+    }
 }
-
 #endif
