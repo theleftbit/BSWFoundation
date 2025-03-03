@@ -9,10 +9,13 @@ struct BundleTests {
     
     @Test
     func osName() async throws {
+        let name = Bundle.main.osName
         #if os(macOS)
-        #expect(Bundle.main.osName.contains("macOS"))
+        #expect(name.contains("macOS"))
+        #elseif os(watchOS)
+        #expect(name.contains("watchOS"))
         #else
-        #expect(Bundle.main.osName.contains("iOS"))
+        #expect(name.contains("iOS"))
         #endif
     }
 }

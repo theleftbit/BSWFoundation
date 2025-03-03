@@ -27,6 +27,8 @@ extension Bundle {
         let version = ProcessInfo.processInfo.operatingSystemVersion
         #if os(Android)
         let osName = "Android"
+        #elseif os(watchOS)
+        let osName = "watchOS"
         #else
         let osName = ProcessInfo.processInfo.isCatalystOriIOSAppOnMac ? "macOS" : "iOS"
         #endif
