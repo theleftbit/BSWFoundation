@@ -3,8 +3,12 @@
 //
 
 import Foundation
-import SkipFuse
 
+#if os(Android)
+import SkipFuse
+#endif
+
+#if !os(Linux)
 /// Stores the given `T` type on User Defaults.
 ///
 /// The value parameter can be only property list objects: `NSData`, `NSString`, `NSNumber`, `NSDate`, `NSArray`, or `NSDictionary`.
@@ -109,3 +113,4 @@ public extension CodableUserDefaultsBacked {
         self.store.removeObject(forKey: key)
     }
 }
+#endif
