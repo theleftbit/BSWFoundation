@@ -1,4 +1,4 @@
-#if !os(Android)
+#if canImport(Darwin)
 import Foundation
 import BSWFoundation
 import Testing

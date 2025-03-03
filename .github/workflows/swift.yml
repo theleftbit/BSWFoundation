@@ -15,14 +15,15 @@ jobs:
       run: swift test
 
   android-build:
+    strategy:
+      fail-fast: false
     runs-on: ubuntu-latest
-    container:
-      image: swift:6.0-jammy
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - name: "Checkout"
+        uses: actions/checkout@v4
       - name: "Build for Android"
-        uses: skiptools/swift-android-action@v2
+        uses: skiptools/swift-android-action@v2.2.8
         with:
           build-tests: true
           run-tests: true

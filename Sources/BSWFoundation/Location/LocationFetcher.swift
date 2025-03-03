@@ -3,7 +3,7 @@
 //  Copyright (c) 2016 TheLeftBit SL. All rights reserved.
 //
 
-#if !os(Android)
+#if canImport(Darwin)
 import Foundation
 import CoreLocation
 

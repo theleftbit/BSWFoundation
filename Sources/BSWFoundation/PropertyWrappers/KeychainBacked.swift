@@ -3,11 +3,14 @@
 //
 import Foundation
 
-#if canImport(Darwin)
-import KeychainAccess
-#else
+#if os(Android)
 import SkipKeychain
+#else
+import KeychainAccess
 #endif
+
+/// This is supported anywhere but Linux
+#if !os(Linux)
 
 /// Stores a String on the Keychain
 @propertyWrapper
@@ -67,14 +70,14 @@ public class CodableKeychainBacked<T: Codable> {
 
     public init(key: String) {
         self.key = key
-#if canImport(Darwin)
+        #if canImport(Darwin)
         self.keychain = Keychain(service: Bundle.main.bundleIdentifier!)
-#else
+        #else
         self.keychain = Keychain.shared
-#endif
+        #endif
     }
     
-#if canImport(Darwin)
+    #if canImport(Darwin)
     public var wrappedValue: T? {
         get {
             return keychain[key]?.decoded()
@@ -82,7 +85,7 @@ public class CodableKeychainBacked<T: Codable> {
             keychain[key] = newValue.encodedAsString()
         }
     }
-#else
+    #else
     public var wrappedValue: T? {
         get {
             return try? keychain.string(forKey: key)?.decoded()
@@ -94,7 +97,7 @@ public class CodableKeychainBacked<T: Codable> {
             }
         }
     }
-#endif
+    #endif
 }
 
 public extension CodableKeychainBacked {
@@ -118,3 +121,5 @@ private extension Encodable {
         return string
     }
 }
+
+#endif
