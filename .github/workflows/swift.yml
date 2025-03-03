@@ -17,7 +17,7 @@ jobs:
   android-build:
     strategy:
       fail-fast: false
-    runs-on: ubuntu-latest
+    runs-on: macos-13
     timeout-minutes: 10
     steps:
       - name: "Checkout"
