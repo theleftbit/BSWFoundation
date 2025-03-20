@@ -4,11 +4,17 @@ public extension ProcessInfo {
     /// Detects if the current process is running on a Mac.
     @inlinable
     var isCatalystOriIOSAppOnMac: Bool {
-        #if targetEnvironment(macCatalyst)
+#if canImport(Darwin)
+#if targetEnvironment(macCatalyst)
         return true
-        #else
+#elseif os(macOS)
+        return true
+#else
         return isiOSAppOnMac
-        #endif
+#endif
+#else
+        return false
+#endif
     }
     
     @inlinable

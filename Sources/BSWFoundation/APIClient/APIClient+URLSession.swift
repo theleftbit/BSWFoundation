@@ -4,6 +4,10 @@
 
 import Foundation
 
+#if os(Android)
+import FoundationNetworking
+#endif
+
 //MARK: APIClientNetworkFetcher
 
 extension URLSession: APIClientNetworkFetcher {

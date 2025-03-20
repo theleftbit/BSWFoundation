@@ -3,6 +3,7 @@
 //  Copyright (c) 2016 TheLeftBit SL. All rights reserved.
 //
 
+#if canImport(Darwin)
 import Foundation
 import CoreLocation
 
@@ -135,3 +136,4 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
         }
     }
 }
+#endif

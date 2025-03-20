@@ -1,3 +1,6 @@
+#if canImport(FoundationInternationalization)
+import FoundationInternationalization
+#endif
 import Foundation
 
 public struct FailableCodableArray<Element : Decodable> : Decodable {

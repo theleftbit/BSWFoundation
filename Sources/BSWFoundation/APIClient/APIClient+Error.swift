@@ -1,4 +1,8 @@
+#if os(Android)
+import FoundationEssentials
+#endif
 import Foundation
+
 
 extension APIClient.Error: LocalizedError {
     

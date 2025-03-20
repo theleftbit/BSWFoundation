@@ -1,7 +1,8 @@
+#if canImport(Darwin)
 
-import Testing
 import Foundation
 import BSWFoundation
+import Testing
 
 @Suite(.serialized)
 actor UserDefaultsBackedTests {
@@ -96,5 +97,5 @@ actor UserDefaultsBackedTests {
     }
 }
 
-
 private let UserDefaultsKey = "Key"
+#endif

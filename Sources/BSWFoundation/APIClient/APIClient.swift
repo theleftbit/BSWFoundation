@@ -2,10 +2,10 @@
 //  Created by Pierluigi Cifani on 02/03/2018.
 //  Copyright © 2018 TheLeftBit. All rights reserved.
 //
-
 import Foundation
-#if canImport(UIKit)
-import UIKit
+
+#if os(Android)
+import FoundationNetworking
 #endif
 
 /// Types conforming to this protocol will perform network requests on behalf of `APIClient`
@@ -32,6 +32,11 @@ public extension APIClientDelegate {
 
 /// This type allows you to simplify the communications with HTTP servers using the `Environment` protocol and `Request` type.
 open class APIClient: Identifiable, @unchecked Sendable {
+    
+    #if os(Android)
+    /// Workaround for https://github.com/skiptools/skip-bridge/issues/49
+    public typealias ID = String
+    #endif
     
     public var id: String { router.environment.baseURL.absoluteString }
     
@@ -153,6 +158,7 @@ extension APIClient {
         public static func `default`() -> LoggingConfiguration {
             LoggingConfiguration(requestBehaviour: .none, responseBehaviour: .onlyFailing)
         }
+        
         public enum Behavior: Sendable {
             case none
             case all
@@ -238,8 +244,15 @@ private extension APIClient {
         }
         
         public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
-            if self.environment.shouldAllowInsecureConnections {
-                return (.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+            if environment.shouldAllowInsecureConnections {
+                let credential: URLCredential? = {
+                    #if os(Android)
+                    return (nil)
+                    #else
+                    return (URLCredential(trust: challenge.protectionSpace.serverTrust!))
+                    #endif
+                }()
+                return (.useCredential, credential)
             } else {
                 return (.performDefaultHandling, nil)
             }

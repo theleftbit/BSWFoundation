@@ -4,6 +4,9 @@
 //
 
 import Foundation
+#if os(Android)
+import FoundationNetworking
+#endif
 
 public extension Error {
     var isURLCancelled: Bool {

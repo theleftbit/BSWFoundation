@@ -1,3 +1,4 @@
+#if canImport(Darwin)
 import Foundation
 import BSWFoundation
 import Testing
@@ -32,3 +33,4 @@ struct ThrottlerTests {
         }
     }
 }
+#endif

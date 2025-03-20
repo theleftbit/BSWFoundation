@@ -1,3 +1,4 @@
+#if canImport(Testing)
 import Testing
 @testable import BSWFoundation
 
@@ -36,3 +37,4 @@ struct APIClientErrorTests {
         #expect(localizedDescription == "Please try again")
     }
 }
+#endif

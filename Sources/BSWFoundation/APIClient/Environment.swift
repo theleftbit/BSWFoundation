@@ -3,6 +3,9 @@
 //  Copyright © 2018 TheLeftBit SL. All rights reserved.
 //
 
+#if os(Android)
+import FoundationEssentials
+#endif
 import Foundation
 
 /// Describes an environment to attack using a `APIClient`

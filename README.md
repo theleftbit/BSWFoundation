@@ -3,7 +3,7 @@
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Ftheleftbit%2FBSWFoundation%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/theleftbit/BSWFoundation)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Ftheleftbit%2FBSWFoundation%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/theleftbit/BSWFoundation)
 
-# About
+## About
 
  These are collection of types that are use throughout all TheLeftBit's iOS projects and that allow us to write better apps, faster.
  
@@ -12,3 +12,9 @@
 ## Documentation
 
 Please checkout [the documentation](https://swiftpackageindex.com/theleftbit/BSWFoundation/documentation/) generated with DocC and hosted generously by Swift Package Index
+
+## Android Support
+
+Android support is in an ongoing effort, and it's' built on top of the [Skip Native toolchain](https://skip.tools/docs/native/). All features of this package except for `AuthStorage` and `LocationFetcher` are available and ready to use. 
+
+If you find any issue, please report it using GitHub.

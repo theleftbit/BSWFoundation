@@ -3,6 +3,7 @@
 //  Created by Pierluigi Cifani on 29/01/2020.
 //
 
+#if canImport(Darwin)
 import Foundation
 
 /// Makes sure that the given job is not executed more than once every `seconds`
@@ -29,3 +30,4 @@ public class Throttler {
         queue.asyncAfter(deadline: .now() + Double(maxInterval), execute: job)
     }
 }
+#endif

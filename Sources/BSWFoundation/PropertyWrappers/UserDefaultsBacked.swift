@@ -4,6 +4,11 @@
 
 import Foundation
 
+#if os(Android)
+import SkipFuse
+#endif
+
+#if !os(Linux)
 /// Stores the given `T` type on User Defaults.
 ///
 /// The value parameter can be only property list objects: `NSData`, `NSString`, `NSNumber`, `NSDate`, `NSArray`, or `NSDictionary`.
@@ -27,10 +32,20 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
     
     public var wrappedValue: T? {
         get {
+            #if canImport(Darwin)
             guard let value = self.store.object(forKey: key) as? T else {
                 return defaultValue
             }
             return value
+            #else
+            if T.self == Bool.self {
+                return self.store.bool(forKey: key) as? T
+            } else if T.self == String.self {
+                return (self.store.string(forKey: key) as? T) ?? defaultValue
+            } else {
+                fatalError("Type not yet supported on non-Darwin platforms")
+            }
+            #endif
         } set {
             if newValue != nil {
                 self.store.set(newValue, forKey: key)
@@ -90,3 +105,4 @@ public extension CodableUserDefaultsBacked {
         self.store.removeObject(forKey: key)
     }
 }
+#endif

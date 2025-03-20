@@ -3,6 +3,10 @@
 //  Copyright (c) 2016 TheLeftBit SL. All rights reserved.
 //
 
+#if os(Android)
+import FoundationEssentials
+#endif
+
 import Foundation
 
 // MARK: - Endpoint

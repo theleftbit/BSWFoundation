@@ -1,3 +1,4 @@
+#if canImport(Darwin)
 import Foundation
 import BSWFoundation
 import Testing
@@ -34,3 +35,4 @@ struct ProgressObserverTests {
         #expect(weakSUT == nil) //This is to test that it is indeed dealloc
     }
 }
+#endif
