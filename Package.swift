@@ -4,7 +4,6 @@
 import PackageDescription
 
 let applePlatforms = TargetDependencyCondition.when(platforms: [.iOS, .macOS, .macCatalyst, .tvOS, .watchOS, .visionOS])
-let androidPlatform = TargetDependencyCondition.when(platforms: [.android])
 
 let package = Package(
     name: "BSWFoundation",
@@ -33,8 +32,8 @@ let package = Package(
             dependencies: [
                 .product(name: "Crypto", package: "swift-crypto"),
                 .product(name: "KeychainAccess", package: "KeychainAccess", condition: applePlatforms),
-                .product(name: "SkipKeychain", package: "skip-keychain", condition: androidPlatform),
-                .product(name: "SkipFuse", package: "skip-fuse", condition: androidPlatform),
+                .product(name: "SkipKeychain", package: "skip-keychain"),
+                .product(name: "SkipFuse", package: "skip-fuse"),
             ]
         ),
         .testTarget(
