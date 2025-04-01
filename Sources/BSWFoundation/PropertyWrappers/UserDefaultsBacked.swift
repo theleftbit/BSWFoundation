@@ -3,10 +3,7 @@
 //
 
 import Foundation
-
-#if os(Android)
 import SkipFuse
-#endif
 
 #if !os(Linux)
 /// Stores the given `T` type on User Defaults.
