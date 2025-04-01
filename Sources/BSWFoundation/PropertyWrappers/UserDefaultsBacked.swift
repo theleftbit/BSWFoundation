@@ -9,6 +9,7 @@ import SkipFuse
 import OSLog
 #elseif os(Android)
 import AndroidLogging
+import SkipAndroidBridge
 #endif
     
 #if !os(Linux)
@@ -24,6 +25,7 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
     public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
         self.defaultValue = defaultValue
+        #if canImport(Darwin)
         self.store = {
             if let appGroupID = appGroupID {
                 return UserDefaults(suiteName: appGroupID)!
@@ -31,7 +33,10 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
                 return UserDefaults.standard
             }
         }()
-        
+        #else
+        self.store = SkipAndroidBridge.AndroidUserDefaults.standard
+        #endif
+
         let logger = Logger(subsystem: "DEBUG", category: "UserDefaultsBacked")
         logger.debug("UserDefaults: \(self.store)")
     }
@@ -80,6 +85,7 @@ public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
     public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
         self.defaultValue = defaultValue
+        #if canImport(Darwin)
         self.store = {
             if let appGroupID = appGroupID {
                 return UserDefaults(suiteName: appGroupID)!
@@ -87,6 +93,9 @@ public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
                 return UserDefaults.standard
             }
         }()
+        #else
+        self.store = SkipAndroidBridge.AndroidUserDefaults.standard
+        #endif
     }
     
     public var wrappedValue: T? {
