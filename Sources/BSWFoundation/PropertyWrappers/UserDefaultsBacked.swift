@@ -4,14 +4,11 @@
 
 import Foundation
 import SkipFuse
-
-#if canImport(Darwin)
-import OSLog
-#elseif os(Android)
-import AndroidLogging
+    
+#if os(Android)
 import SkipAndroidBridge
 #endif
-    
+
 #if !os(Linux)
 /// Stores the given `T` type on User Defaults.
 ///
@@ -36,9 +33,6 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
         #else
         self.store = SkipAndroidBridge.AndroidUserDefaults.standard
         #endif
-
-        let logger = Logger(subsystem: "DEBUG", category: "UserDefaultsBacked")
-        logger.debug("UserDefaults: \(self.store)")
     }
     
     public var wrappedValue: T? {
