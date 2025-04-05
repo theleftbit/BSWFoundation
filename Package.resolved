@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip.git",
       "state" : {
-        "revision" : "94f2c1e8aeb5e405eecce17326b8ed360c86ea89",
-        "version" : "1.3.11"
+        "revision" : "1e8382169b6da187cf7a10dced268d5ca7f1899b",
+        "version" : "1.4.1"
       }
     },
     {
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip-foundation.git",
       "state" : {
-        "revision" : "039bed3a00a019f3608efbd7a6d0404e2939865f",
-        "version" : "1.3.2"
+        "revision" : "1f3aa51ed5cff2c62f1e6a22a44c61198deefa5c",
+        "version" : "1.3.3"
       }
     },
     {
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip-fuse.git",
       "state" : {
-        "revision" : "5e4811f05d483be0a586fbd4a3fee7febfb5d1d3",
-        "version" : "1.0.1"
+        "revision" : "8f3295094ad29075730284c5197c7f1d94c0f2d9",
+        "version" : "1.0.2"
       }
     },
     {
@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/skip-unit.git",
       "state" : {
-        "revision" : "b7717b7a75e1965111f4909fe6a1bc8229f439ec",
-        "version" : "1.1.1"
+        "revision" : "d7988bf16a3cfb6d0956bf378044cb258ea9312e",
+        "version" : "1.1.2"
       }
     },
     {
@@ -87,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://source.skip.tools/swift-android-native.git",
       "state" : {
-        "revision" : "39f2ecb239d614fe3f1e23c795202172d0dc3622",
-        "version" : "1.2.1"
+        "revision" : "04415c097c73455a31a9553ddf7a85711ebd3b97",
+        "version" : "1.4.0"
       }
     },
     {

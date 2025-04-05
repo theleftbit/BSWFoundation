@@ -14,6 +14,8 @@ struct BundleTests {
         #expect(name.contains("macOS"))
         #elseif os(watchOS)
         #expect(name.contains("watchOS"))
+        #elseif os(Android)
+        #expect(name.contains("Android"))
         #else
         #expect(name.contains("iOS"))
         #endif

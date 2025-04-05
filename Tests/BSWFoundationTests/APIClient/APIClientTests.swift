@@ -5,6 +5,9 @@
 import Testing
 import BSWFoundation
 import Foundation
+#if os(Android)
+import FoundationNetworking
+#endif
 
 actor APIClientTests {
 
@@ -200,7 +203,6 @@ actor APIClientTests {
         }
         #expect(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
     }
-    
     
     @available(iOS 16.0, *)
     static func generateRandomFile() throws -> URL {
