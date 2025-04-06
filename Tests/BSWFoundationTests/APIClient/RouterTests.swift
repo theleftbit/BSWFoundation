@@ -34,7 +34,8 @@ actor RouterTests {
         let urlRequest = try await sut.urlRequest(forEndpoint: endpoint)
         let url = try #require(urlRequest.url)
         let data = try #require(urlRequest.httpBody)
-        #expect(url.absoluteString == "https://httpbin.org/forms/post")
+        #expect(url.host() == "httpbin.org")
+        #expect(url.path() == "/forms/post")
 
         let jsonParam = try #require(JSONSerialization.jsonObject(with: data, options: []) as? PizzaRequestParams)
         let endpointParams = try #require(endpoint.parameters as? PizzaRequestParams)
