@@ -87,11 +87,10 @@ actor UserDefaultsBackedTests {
         var sut: Mock! = Mock()
         #expect(sut.someValue != nil)
         
-        guard let data = UserDefaults.standard.data(forKey: UserDefaultsKey) else {
+        guard let _ = UserDefaults.standard.data(forKey: UserDefaultsKey) else {
             Issue.record("Failed to retrieve the stored Codable value")
             return
         }
-        #expect(data != nil)
         sut = nil
         #expect(UserDefaults.standard.data(forKey: UserDefaultsKey) == nil)
     }

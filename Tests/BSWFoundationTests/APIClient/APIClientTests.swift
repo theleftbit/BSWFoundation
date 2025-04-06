@@ -139,7 +139,8 @@ actor APIClientTests {
         class SignatureCheckingNetworkFetcher: APIClientNetworkFetcher {
             
             public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
-                guard let _ = urlRequest.allHTTPHeaderFields?["JWT"] else {
+                let isSigned: Bool = (urlRequest.allHTTPHeaderFields?["JWT"] ?? urlRequest.allHTTPHeaderFields?["Jwt"]) != nil
+                guard isSigned else {
                     return APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!)
                 }
                 
@@ -194,7 +195,7 @@ actor APIClientTests {
             var mutableURLRequest = $0
             mutableURLRequest.setValue("hello", forHTTPHeaderField: "Signature")
             return mutableURLRequest
-        }
+    }
         
         let _ = try await sut.performSimpleRequest(forEndpoint: HTTPBin.API.ip)
         
