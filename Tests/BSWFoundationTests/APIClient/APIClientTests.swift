@@ -64,7 +64,6 @@ actor APIClientTests {
     }
 
     @Test
-    @available(iOS 16.0, *)
     func upload() async throws {
         let file = try Self.generateRandomFile()
         let uploadRequest = BSWFoundation.APIClient.Request<VoidResponse>(
@@ -76,7 +75,6 @@ actor APIClientTests {
     }
 
     @Test
-    @available(iOS 16.0, *)
     func uploadCancel() async throws {
         let file = try Self.generateRandomFile()
         let uploadRequest = BSWFoundation.APIClient.Request<VoidResponse>(
@@ -205,7 +203,6 @@ actor APIClientTests {
         #expect(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
     }
     
-    @available(iOS 16.0, *)
     static func generateRandomFile() throws -> URL {
         let length = 2048
         let bytes = [UInt32](repeating: 0, count: length).map { _ in arc4random() }
