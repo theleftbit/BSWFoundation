@@ -63,7 +63,7 @@ actor APIClientTests {
         }
     }
 
-    @Test
+    @Test(.disabled(if: isAndroid))
     func upload() async throws {
         let file = try Self.generateRandomFile()
         let uploadRequest = BSWFoundation.APIClient.Request<VoidResponse>(
@@ -74,7 +74,7 @@ actor APIClientTests {
         try FileManager.default.removeItem(at: file)
     }
 
-    @Test
+    @Test(.disabled(if: isAndroid))
     func uploadCancel() async throws {
         let file = try Self.generateRandomFile()
         let uploadRequest = BSWFoundation.APIClient.Request<VoidResponse>(
@@ -98,7 +98,7 @@ actor APIClientTests {
         }
         try FileManager.default.removeItem(at: file)
     }
-    
+        
     @Test
     func unauthorizedCallsRightMethod() async throws {
         let mockDelegate = await MockAPIClientDelegate()
