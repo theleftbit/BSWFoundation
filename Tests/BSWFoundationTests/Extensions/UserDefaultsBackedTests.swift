@@ -1,10 +1,9 @@
-#if canImport(Darwin)
 
 import Foundation
 import BSWFoundation
 import Testing
 
-@Suite(.serialized)
+@Suite(.serialized, .disabled(if: isAndroid))
 actor UserDefaultsBackedTests {
     
     @Test
@@ -97,4 +96,3 @@ actor UserDefaultsBackedTests {
 }
 
 private let UserDefaultsKey = "Key"
-#endif
