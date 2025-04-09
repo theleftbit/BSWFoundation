@@ -1,9 +1,45 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
+import Foundation
 
-let applePlatforms = TargetDependencyCondition.when(platforms: [.iOS, .macOS, .macCatalyst, .tvOS, .watchOS, .visionOS])
+let zero = ProcessInfo.processInfo.environment["SKIP_ZERO"] != nil
+
+let applePlatforms = TargetDependencyCondition.when(
+    platforms: [
+        .iOS,
+        .macOS,
+        .macCatalyst,
+        .tvOS,
+        .watchOS,
+        .visionOS
+    ]
+)
+
+var packageDependencies: [Package.Dependency] = [
+    .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
+    .package(url: "https://github.com/apple/swift-crypto.git", from: "3.12.2"),
+]
+
+if !zero {
+    packageDependencies.append(contentsOf: [
+        .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.1"),
+        .package(url: "https://source.skip.tools/skip-keychain.git", from: "0.2.0"),
+    ])
+}
+
+var targetDependencies: [Target.Dependency] = [
+    .product(name: "Crypto", package: "swift-crypto"),
+    .product(name: "KeychainAccess", package: "KeychainAccess", condition: applePlatforms),
+]
+
+if !zero {
+    targetDependencies.append(contentsOf: [
+        .product(name: "SkipKeychain", package: "skip-keychain"),
+        .product(name: "SkipFuse", package: "skip-fuse"),
+    ])
+}
 
 let package = Package(
     name: "BSWFoundation",
@@ -20,21 +56,11 @@ let package = Package(
             targets: ["BSWFoundation"]
         ),
     ],
-    dependencies: [
-        .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.1"),
-        .package(url: "https://source.skip.tools/skip-keychain.git", from: "0.2.0"),
-        .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
-        .package(url: "https://github.com/apple/swift-crypto.git", from: "3.12.2"),
-    ],
+    dependencies: packageDependencies,
     targets: [
         .target(
             name: "BSWFoundation",
-            dependencies: [
-                .product(name: "Crypto", package: "swift-crypto"),
-                .product(name: "KeychainAccess", package: "KeychainAccess", condition: applePlatforms),
-                .product(name: "SkipKeychain", package: "skip-keychain"),
-                .product(name: "SkipFuse", package: "skip-fuse"),
-            ]
+            dependencies: targetDependencies
         ),
         .testTarget(
             name: "BSWFoundationTests",
