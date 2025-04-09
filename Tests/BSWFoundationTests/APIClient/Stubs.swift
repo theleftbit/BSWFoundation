@@ -12,12 +12,21 @@ enum HTTPBin {
         case development
 
         var baseURL: URL {
+            #if os(Android)
+            switch self {
+            case .production:
+                return URL(string: "http://httpbin.org")!
+            case .development:
+                return URL(string: "http://dev.httpbin.org")!
+            }
+            #else
             switch self {
             case .production:
                 return URL(string: "https://httpbin.org")!
             case .development:
                 return URL(string: "https://dev.httpbin.org")!
             }
+            #endif
         }
     }
 

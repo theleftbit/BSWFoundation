@@ -2,6 +2,8 @@
 
 set -e
 
+export SKIP_ZERO=1
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd -P)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 

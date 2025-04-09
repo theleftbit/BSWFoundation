@@ -3,9 +3,9 @@
 //
 
 import Foundation
-import SkipFuse
-    
+
 #if os(Android)
+import SkipFuse
 import SkipAndroidBridge
 #endif
 

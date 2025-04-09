@@ -5,6 +5,9 @@
 import Testing
 import BSWFoundation
 import Foundation
+#if os(Android)
+import FoundationNetworking
+#endif
 
 actor APIClientTests {
 
@@ -60,8 +63,7 @@ actor APIClientTests {
         }
     }
 
-    @Test
-    @available(iOS 16.0, *)
+    @Test(.disabled(if: isAndroid))
     func upload() async throws {
         let file = try Self.generateRandomFile()
         let uploadRequest = BSWFoundation.APIClient.Request<VoidResponse>(
@@ -72,8 +74,7 @@ actor APIClientTests {
         try FileManager.default.removeItem(at: file)
     }
 
-    @Test
-    @available(iOS 16.0, *)
+    @Test(.disabled(if: isAndroid))
     func uploadCancel() async throws {
         let file = try Self.generateRandomFile()
         let uploadRequest = BSWFoundation.APIClient.Request<VoidResponse>(
@@ -97,7 +98,7 @@ actor APIClientTests {
         }
         try FileManager.default.removeItem(at: file)
     }
-    
+        
     @Test
     func unauthorizedCallsRightMethod() async throws {
         let mockDelegate = await MockAPIClientDelegate()
@@ -136,7 +137,8 @@ actor APIClientTests {
         class SignatureCheckingNetworkFetcher: APIClientNetworkFetcher {
             
             public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
-                guard let _ = urlRequest.allHTTPHeaderFields?["JWT"] else {
+                let isSigned: Bool = (urlRequest.allHTTPHeaderFields?["JWT"] ?? urlRequest.allHTTPHeaderFields?["Jwt"]) != nil
+                guard isSigned else {
                     return APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!)
                 }
                 
@@ -191,7 +193,7 @@ actor APIClientTests {
             var mutableURLRequest = $0
             mutableURLRequest.setValue("hello", forHTTPHeaderField: "Signature")
             return mutableURLRequest
-        }
+    }
         
         let _ = try await sut.performSimpleRequest(forEndpoint: HTTPBin.API.ip)
         
@@ -201,8 +203,6 @@ actor APIClientTests {
         #expect(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
     }
     
-    
-    @available(iOS 16.0, *)
     static func generateRandomFile() throws -> URL {
         let length = 2048
         let bytes = [UInt32](repeating: 0, count: length).map { _ in arc4random() }

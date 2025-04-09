@@ -5,7 +5,6 @@ import Testing
 
 struct ProgressObserverTests {
     
-    @available(iOS 16.0, *)
     @Test
     func progressObserving() async throws {
         var sut: ProgressObserver!

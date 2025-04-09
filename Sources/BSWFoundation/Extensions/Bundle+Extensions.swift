@@ -7,6 +7,7 @@
 
 #if os(Android)
 import FoundationEssentials; import FoundationInternationalization
+import Android
 #endif
 import Foundation
 
@@ -23,6 +24,16 @@ extension Bundle {
         return object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0"
     }
 
+    /// Returns the current OS Version. On Android, it'll return the API Level.
+    public var operatingSystemVersion: String {
+        #if os(Android)
+        return "\(android_get_device_api_level())"
+        #else
+        let version = ProcessInfo.processInfo.operatingSystemVersion
+        return "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
+        #endif
+    }
+    
     public var osName: String {
         let version = ProcessInfo.processInfo.operatingSystemVersion
         #if os(Android)
