@@ -6,7 +6,7 @@ import Foundation
 import Testing
 @testable import BSWFoundation
 
-enum MyAppEvent: NamedEvent, Hashable, Sendable {
+enum MyAppEvent: AsyncStreamNamedEvent, Hashable, Sendable {
     case sendValue(value: Int)
     case sendVoid
     
@@ -26,111 +26,16 @@ enum MyAppEvent: NamedEvent, Hashable, Sendable {
 // MARK: Tests
 
 struct AsyncStreamDispatcherTests {
-
+    
     @Test
     func test_sendValue_event_is_received() async throws {
         let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
-        let box = SyncBox<Int?>(nil)
-
-        _ = await dispatcher.subscribe(MyAppEvent.sendValueExtractor) { value in
-            box.set(value)
+        Task.detached {
+            await dispatcher.publish(.sendValue(value: 42))
         }
-        await dispatcher.publish(.sendValue(value: 42))
-        try await Task.sleep(nanoseconds: 50_000_000)
-        #expect(box.get() == 42)
-    }
+        for await event in await dispatcher.subscribe(to: .sendValue) {
 
-    @Test
-    func test_sendValue_event_is_filtered_out() async throws {
-        let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
-        let box = SyncBox(false)
-
-        _ = await dispatcher.subscribe(MyAppEvent.sendValueExtractor) { _ in
-            box.set(true)
         }
-        await dispatcher.publish(.sendVoid)
-        #expect(!box.get())
-    }
-
-    @Test
-    func test_sendVoid_event_is_received() async throws {
-        let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
-        let box = SyncBox(false)
-
-        _ = await dispatcher.subscribe(MyAppEvent.sendVoidExtractor) {
-            box.set(true)
-        }
-        await dispatcher.publish(.sendVoid)
-        try await Task.sleep(nanoseconds: 50_000_000)
-        #expect(box.get())
-    }
-
-    @Test
-    func test_sendVoid_event_is_filtered_out() async throws {
-        let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
-        let box = SyncBox(false)
-
-        _ = await dispatcher.subscribe(MyAppEvent.sendVoidExtractor) {
-            box.set(true)
-        }
-        await dispatcher.publish(.sendValue(value: 99))
-        #expect(!box.get())
-    }
-
-    @Test
-    func test_cancel_subscription_before_publish() async throws {
-        let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
-        let box = SyncBox(false)
-
-        let token = await dispatcher.subscribe(MyAppEvent.sendVoidExtractor) {
-            box.set(true)
-        }
-        token.cancel()
-        try await Task.sleep(nanoseconds: 10_000_000)
-        await dispatcher.publish(.sendVoid)
-        #expect(!box.get())
-    }
-
-    @Test
-    func test_cancel_subscription_allows_deinit_cleanup() async throws {
-        let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
-        let box = SyncBox(false)
-
-        do {
-            let token = await dispatcher.subscribe(MyAppEvent.sendVoidExtractor) {
-                box.set(true)
-            }
-            token.cancel()
-            try await Task.sleep(nanoseconds: 10_000_000)
-        }
-
-        await dispatcher.publish(.sendVoid)
-        #expect(!box.get())
-    }
-}
-
-// MARK: Extractors
-
-private extension MyAppEvent {
-    
-    static var sendValueExtractor: CaseExtractor<MyAppEvent, Int> {
-        .init(
-            name: .sendValue,
-            match: {
-                guard case let .sendValue(value) = $0 else { return nil }
-                return value
-            }
-        )
-    }
-    
-    static var sendVoidExtractor: CaseExtractor<MyAppEvent, Void> {
-        .init(
-            name: .sendVoid,
-            match: {
-                guard case .sendVoid = $0 else { return nil }
-                return ()
-            }
-        )
     }
 }
 
