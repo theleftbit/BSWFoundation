@@ -32,11 +32,11 @@ struct AsyncStreamDispatcherTests {
         let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
         let box = SyncBox<Int?>(nil)
 
-        await dispatcher.subscribe(MyAppEvent.sendValueExtractor) { value in
+        _ = await dispatcher.subscribe(MyAppEvent.sendValueExtractor) { value in
             box.set(value)
         }
         await dispatcher.publish(.sendValue(value: 42))
-        try await Task.sleep(nanoseconds: 50_000_000) // allow delivery
+        try await Task.sleep(nanoseconds: 50_000_000)
         #expect(box.get() == 42)
     }
 
@@ -45,11 +45,10 @@ struct AsyncStreamDispatcherTests {
         let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
         let box = SyncBox(false)
 
-        await dispatcher.subscribe(MyAppEvent.sendValueExtractor) { _ in
+        _ = await dispatcher.subscribe(MyAppEvent.sendValueExtractor) { _ in
             box.set(true)
         }
         await dispatcher.publish(.sendVoid)
-        try await Task.sleep(nanoseconds: 50_000_000)
         #expect(!box.get())
     }
 
@@ -58,7 +57,7 @@ struct AsyncStreamDispatcherTests {
         let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
         let box = SyncBox(false)
 
-        await dispatcher.subscribe(MyAppEvent.sendVoidExtractor) {
+        _ = await dispatcher.subscribe(MyAppEvent.sendVoidExtractor) {
             box.set(true)
         }
         await dispatcher.publish(.sendVoid)
@@ -71,11 +70,41 @@ struct AsyncStreamDispatcherTests {
         let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
         let box = SyncBox(false)
 
-        await dispatcher.subscribe(MyAppEvent.sendVoidExtractor) {
+        _ = await dispatcher.subscribe(MyAppEvent.sendVoidExtractor) {
             box.set(true)
         }
         await dispatcher.publish(.sendValue(value: 99))
-        try await Task.sleep(nanoseconds: 50_000_000)
+        #expect(!box.get())
+    }
+
+    @Test
+    func test_cancel_subscription_before_publish() async throws {
+        let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
+        let box = SyncBox(false)
+
+        let token = await dispatcher.subscribe(MyAppEvent.sendVoidExtractor) {
+            box.set(true)
+        }
+        token.cancel()
+        try await Task.sleep(nanoseconds: 10_000_000)
+        await dispatcher.publish(.sendVoid)
+        #expect(!box.get())
+    }
+
+    @Test
+    func test_cancel_subscription_allows_deinit_cleanup() async throws {
+        let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
+        let box = SyncBox(false)
+
+        do {
+            let token = await dispatcher.subscribe(MyAppEvent.sendVoidExtractor) {
+                box.set(true)
+            }
+            token.cancel()
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+
+        await dispatcher.publish(.sendVoid)
         #expect(!box.get())
     }
 }

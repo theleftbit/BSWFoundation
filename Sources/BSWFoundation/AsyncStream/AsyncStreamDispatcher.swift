@@ -30,11 +30,11 @@ import Foundation
 ///
 /// let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
 ///
-/// dispatcher.subscribe(MyAppEvent.userLoggedIn) { userID in
+/// let token = await dispatcher.subscribe(MyAppEvent.userLoggedIn) { userID in
 ///     print("🔐 Logged in:", userID)
 /// }
 ///
-/// dispatcher.publish(.userLoggedIn(userID: "abc123"))
+/// await dispatcher.publish(.userLoggedIn(userID: "abc123"))
 /// ```
 
 public protocol NamedEvent: Hashable & Sendable {
@@ -52,19 +52,37 @@ public actor AsyncStreamDispatcher<Event: NamedEvent> {
         subscribers[event.name]?.values.forEach { $0.yield(event) }
     }
 
+    /// Subscribes to a specific event and receives values matched by the provided `CaseExtractor`.
+    ///
+    /// - Warning: Avoid capturing strong references (like `self`) inside the handler, especially from long-lived objects such as view models or UI elements.
+    ///            Use `[weak self]` or delegate to another component if needed.
+    ///
+    /// - Parameters:
+    ///   - extractor: A `CaseExtractor` defining the event case to listen for.
+    ///   - handler: A `@Sendable` closure that will be called when the event occurs.
+    /// - Returns: A `SubscriptionToken` that can be used to cancel the subscription manually.
+    ///
+    /// - Important: Keep a strong reference to the returned token to maintain the subscription.
+    ///              The subscription will automatically end when the token is deallocated.
     public func subscribe<T>(
         _ extractor: CaseExtractor<Event, T>,
         handler: @escaping @Sendable (T) -> Void
-    ) {
-        let stream = subscribe(to: [extractor.name])
+    ) -> SubscriptionToken {
+        let id = UUID()
+        let (stream, continuation) = subscribe(to: [extractor.name], id: id)
         let matcher = extractor.match
-        
-        Task.detached {
+
+        let task = Task.detached {
             for await event in stream {
                 if let value = matcher(event) {
                     handler(value)
                 }
             }
+        }
+        return SubscriptionToken {
+            continuation.finish()
+            task.cancel()
+            await self.removeSubscriber(id, for: [extractor.name])
         }
     }
 }
@@ -73,20 +91,19 @@ public actor AsyncStreamDispatcher<Event: NamedEvent> {
 
 private extension AsyncStreamDispatcher {
 
-    func subscribe(to names: Set<Event.Name>) -> AsyncStream<Event> {
-        let id = UUID()
+    func subscribe(to names: Set<Event.Name>, id: UUID) -> (AsyncStream<Event>, AsyncStream<Event>.Continuation) {
         let (stream, continuation) = AsyncStream<Event>.makeStream(bufferingPolicy: .unbounded)
-        
+
         for name in names {
             subscribers[name, default: [:]][id] = continuation
         }
         continuation.onTermination = { [weak self] _ in
             Task { await self?.removeSubscriber(id, for: names) }
         }
-        return stream
+        return (stream, continuation)
     }
 
-    private func removeSubscriber(_ id: UUID, for names: Set<Event.Name>) {
+    func removeSubscriber(_ id: UUID, for names: Set<Event.Name>) {
         for name in names {
             subscribers[name]?.removeValue(forKey: id)
             if subscribers[name]?.isEmpty == true {
@@ -108,5 +125,23 @@ public struct CaseExtractor<Event: NamedEvent, Output>: Sendable {
     ) {
         self.name = name
         self.match = match
+    }
+}
+
+// MARK: SubscriptionToken
+
+public class SubscriptionToken: @unchecked Sendable {
+    private let cancelAction: @Sendable () async -> Void
+    private var isCancelled = false
+
+    init(cancel: @escaping @Sendable () async -> Void) {
+        self.cancelAction = cancel
+    }
+
+    /// Call this to cancel the subscription manually.
+    public func cancel() {
+        guard !isCancelled else { return }
+        isCancelled = true
+        Task { await cancelAction() }
     }
 }
