@@ -30,11 +30,13 @@ struct AsyncStreamDispatcherTests {
     @Test
     func test_sendValue_event_is_received() async throws {
         let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
+        let sentEvent = MyAppEvent.sendValue(value: 42)
         Task.detached {
-            await dispatcher.publish(.sendValue(value: 42))
+            await dispatcher.publish(sentEvent)
         }
-        for await event in await dispatcher.subscribe(to: .sendValue) {
-
+        for await receivedEvent in await dispatcher.subscribe(to: .sendValue) {
+            #expect(receivedEvent == sentEvent)
+            break
         }
     }
 }
