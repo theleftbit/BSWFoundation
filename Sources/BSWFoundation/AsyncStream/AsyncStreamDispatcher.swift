@@ -58,8 +58,14 @@ public actor AsyncStreamDispatcher<Event: AsyncStreamNamedEvent> {
 
     private var subscribers: [Event.Name: [UUID: AsyncStream<Event>.Continuation]] = [:]
     
-    public func subscribe(to event: Event.Name) -> AsyncStream<Event> {
-        subscribe(to: [event])
+    public func subscribe(to eventName: Event.Name, onEventReceived: @escaping (Event) -> ()) async -> Task<(), Never> {
+        Task {
+            for await event in subscribe(to: [eventName]) {
+                if event.name == eventName {
+                    onEventReceived(event)
+                }
+            }
+        }
     }
     
     public func subscribe(to events: Set<Event.Name>) -> AsyncStream<Event> {
