@@ -4,69 +4,16 @@
 
 import Foundation
 
-/// Example usage:
-///
-/// ```swift
-/// // 1. Define your event enum
-/// enum NotificationEvent: NamedEvent, Hashable, Sendable {
-///     case userLoggedIn(userID: String)
-///
-///     var name: Name {
-///         switch self {
-///         case .userLoggedIn: return .userLoggedIn
-///         }
-///     }
-///
-///     enum Name: Hashable, Sendable {
-///         case userLoggedIn
-///     }
-///
-///     static let userLoggedIn = CaseExtractor<NotificationEvent, String>(
-///         name: .userLoggedIn,
-///         match: {
-///             guard case let .userLoggedIn(userID) = $0 else { return nil }
-///             return userID
-///         }
-///     )
-/// }
-///
-/// // 2. Your app should expose a shared `Current` instance containing a dispatcher:
-/// @MainActor var Current: World
-/// struct World {
-///     let notifications = AsyncStreamDispatcher<NotificationEvent>()
-/// }
-///
-/// // 3. Subscribe from anywhere (e.g. UIKit view controller)
-/// Task {
-///     let token = await Current.notifications.subscribe(NotificationEvent.userLoggedIn) { userID in
-///         print("Logged in:", userID)
-///     }
-/// }
-///
-/// // 4. Publish from any part of the app
-/// Current.notifications.publish(.userLoggedIn(userID: "abc123"))
-/// ```
-
-/// A protocol representing events that have a name used for filtering.
-/// Used in combination with `AsyncStreamDispatcher` to create strongly-typed event systems.
 public protocol AsyncStreamNamedEvent: Hashable & Sendable {
     associatedtype Name: Hashable & Sendable
     var name: Name { get }
 }
 
 public actor AsyncStreamDispatcher<Event: AsyncStreamNamedEvent> {
-
-    private var subscribers: [Event.Name: [UUID: AsyncStream<Event>.Continuation]] = [:]
     
-    public func subscribe(to eventName: Event.Name, onEventReceived: @escaping (Event) -> ()) async -> Task<(), Never> {
-        Task {
-            for await event in subscribe(to: [eventName]) {
-                if event.name == eventName {
-                    onEventReceived(event)
-                }
-            }
-        }
-    }
+    public init() {}
+    
+    private var subscribers: [Event.Name: [UUID: AsyncStream<Event>.Continuation]] = [:]
     
     public func subscribe(to events: Set<Event.Name>) -> AsyncStream<Event> {
         let id = UUID()

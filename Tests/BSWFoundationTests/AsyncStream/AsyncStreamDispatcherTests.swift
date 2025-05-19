@@ -6,42 +6,70 @@ import Foundation
 import Testing
 @testable import BSWFoundation
 
-// MARK: Tests
-
 struct AsyncStreamDispatcherTests {
-
+    
+    private let dispatcher: AsyncStreamDispatcher<Events>
+    
+    init() {
+        dispatcher = AsyncStreamDispatcher<Events>()
+    }
+    
     @Test
-    func subscribeToEvents() async throws {
-        let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
-        let sentEvent = MyAppEvent.sendValue(value: 42)
+    func subscribeToEvent() async throws {
+        let expectedEvent = Events.sendValue(value: 42)
+        let stream = await dispatcher.subscribe(to: [.sendValue])
+        
         Task.detached {
-            await dispatcher.publish(sentEvent)
+            await dispatcher.publish(expectedEvent)
         }
-        for await receivedEvent in await dispatcher.subscribe(to: [.sendValue]) {
-            #expect(receivedEvent == sentEvent)
+        for await e in stream {
+            #expect(e == expectedEvent)
             break
         }
     }
     
-    @Test(.disabled())
-    func subscribeToSingleEvent() async throws {
-        let dispatcher = AsyncStreamDispatcher<MyAppEvent>()
-        let sentEvent = MyAppEvent.sendValue(value: 42)
+    @Test
+    func subscribeToEventAndOtherEventsAreFilteredOut() async throws {
+        let unexpectedEvent = Events.sendVoid
+        let stream = await dispatcher.subscribe(to: [.sendValue])
+        
         Task.detached {
-            await dispatcher.publish(sentEvent)
+            await dispatcher.publish(unexpectedEvent)
         }
-        var receivedEvent: MyAppEvent?
-        let task = await dispatcher.subscribe(to: .sendValue, onEventReceived: { event in
-            receivedEvent = sentEvent
-            print("Receiving stuff")
-        })
-        try await Task.sleep(for: .seconds(1))
-        print("When is this done?")
+        
+        var didReceive = false
+        let task = Task {
+            for await _ in stream {
+                didReceive = true
+            }
+        }
+        try await Task.sleep(for: .seconds(2)) // Cancel this task to exit the test
         task.cancel()
-        try #expect(#require(receivedEvent) == sentEvent)
+        #expect(!didReceive)
     }
-
-    enum MyAppEvent: AsyncStreamNamedEvent, Hashable, Sendable {
+    
+    @Test
+    func multipleSubscribersReceiveSameEvent() async throws {
+        let expectedEvent = Events.sendValue(value: 42)
+        let stream1 = await dispatcher.subscribe(to: [.sendValue])
+        let stream2 = await dispatcher.subscribe(to: [.sendValue])
+        
+        Task.detached {
+            await dispatcher.publish(expectedEvent)
+        }
+        for await e in stream1 {
+            #expect(e == expectedEvent)
+            break
+        }
+        for await e in stream2 {
+            #expect(e == expectedEvent)
+            break
+        }
+    }
+    
+    // MARK: Events
+    
+    enum Events: AsyncStreamNamedEvent, Hashable, Sendable {
         case sendValue(value: Int)
         case sendVoid
         
