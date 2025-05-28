@@ -3,6 +3,12 @@ import FoundationInternationalization
 #endif
 import Foundation
 
+#if os(Android)
+import AndroidLogging
+#else
+import OSLog
+#endif
+
 public struct FailableCodableArray<Element : Decodable> : Decodable {
 
     public let elements: [Element]
@@ -32,7 +38,8 @@ private struct FailableDecodable<Base : Decodable> : Decodable {
             do {
                 return try container.decode(Base.self)
             } catch let error {
-                print(error)
+                let logger = Logger(subsystem: submoduleName("FailableDecodable"), category: "error")
+                logger.warning("Error decoding \(Base.self): \(error)")
                 return nil
             }
         }()

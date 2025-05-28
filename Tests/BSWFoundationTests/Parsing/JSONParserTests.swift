@@ -69,12 +69,19 @@ actor JSONParserTests {
         """
         #expect(string == sampleString)
     }
-
+    
     @Test
     func emptyResponseParsing() throws {
-        let jsonData = """
-        """.data(using: .utf8)!
+        let jsonData = "".data(using: .utf8)!
         let _: VoidResponse = try JSONParser.parseData(jsonData)
+    }
+
+    @Test
+    func throwsError() throws {
+        let jsonData = "".data(using: .utf8)!
+        #expect(throws: JSONParser.Error.self, performing: {
+            let _: SampleModel = try JSONParser.parseData(jsonData)
+        })
     }
 }
 
