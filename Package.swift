@@ -24,7 +24,7 @@ var packageDependencies: [Package.Dependency] = [
 
 if !zero {
     packageDependencies.append(contentsOf: [
-        .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.1"),
+        .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.2"),
         .package(url: "https://source.skip.tools/skip-keychain.git", from: "0.3.0"),
     ])
 }
