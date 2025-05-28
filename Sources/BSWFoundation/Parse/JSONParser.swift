@@ -83,18 +83,18 @@ public enum JSONParser {
             let logger = Logger(subsystem: submoduleName("JSONParser"), category: "parseData<\(T.self)>")
             switch decodingError {
             case .keyNotFound(let missingKey, let context):
-                logger.warning("Decoding error: key \(String(describing: missingKey), privacy: .public) is missing, Context: \(context.debugDescription, privacy: .public)")
+                logger.warning("Decoding error: key \(String(describing: missingKey)) is missing, Context: \(context.debugDescription)")
                 throw Error.malformedSchema
             case .typeMismatch(let type, let context):
-                logger.warning("Decoding error: type \(String(describing: type), privacy: .public) mismatched, context: \(context.debugDescription, privacy: .public)")
+                logger.warning("Decoding error: type \(String(describing: type)) mismatched, context: \(context.debugDescription)")
                 throw Error.malformedSchema
             case .valueNotFound(let type, let context):
-                logger.warning("Decoding error: value not found \(String(describing: type), privacy: .public), context: \(context.debugDescription, privacy: .public)")
+                logger.warning("Decoding error: value not found \(String(describing: type)), context: \(context.debugDescription)")
                 throw Error.malformedSchema
             case .dataCorrupted(let context):
-                logger.warning("Data corrupted: \(context.debugDescription, privacy: .public)")
+                logger.warning("Data corrupted: \(context.debugDescription)")
                 if let string = String(data: data, encoding: .utf8) {
-                    logger.warning("Incoming JSON: \(string, privacy: .public)")
+                    logger.warning("Incoming JSON: \(string)")
                 }
                 throw Error.malformedJSON
             @unknown default:
