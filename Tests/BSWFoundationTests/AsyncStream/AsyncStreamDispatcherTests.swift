@@ -33,19 +33,25 @@ struct AsyncStreamDispatcherTests {
         let unexpectedEvent = Events.sendVoid
         let stream = await dispatcher.subscribe(to: [.sendValue])
         
+        actor StateHolder {
+            var didReceive = false
+            func setDidReceive(_ didReceive: Bool = true) {
+                self.didReceive = didReceive
+            }
+        }
+        let stateHolder = StateHolder()
+        
         Task.detached {
             await dispatcher.publish(unexpectedEvent)
         }
-        
-        var didReceive = false
         let task = Task {
             for await _ in stream {
-                didReceive = true
+                await stateHolder.setDidReceive(true)
             }
         }
         try await Task.sleep(for: .seconds(2)) // Cancel this task to exit the test
         task.cancel()
-        #expect(!didReceive)
+        #expect(await !stateHolder.didReceive)
     }
     
     @Test
