@@ -6,10 +6,10 @@ import Foundation
 
 extension NSNumber {
     var isBool: Bool {
-#if canImport(Darwin)
+        #if canImport(Darwin)
         return CFBooleanGetTypeID() == CFGetTypeID(self)
-#else
-        fatalError()
-#endif
+        #else
+        return false
+        #endif
     }
 }
