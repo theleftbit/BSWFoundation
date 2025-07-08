@@ -4,7 +4,8 @@
 //
 
 #if os(Android)
-import FoundationEssentials; import FoundationInternationalization; import FoundationNetworking
+import FoundationEssentials; import FoundationInternationalization; import FoundationNetworking;
+import SkipFuse
 #endif
 import Foundation
 
@@ -29,7 +30,12 @@ extension APIClient {
 
             urlRequest.httpMethod = endpoint.method.rawValue
             urlRequest.allHTTPHeaderFields = endpoint.httpHeaderFields
-            let userAgentValue = "\(Bundle.main.osName) - \(Bundle.main.displayName) \(Bundle.main.appVersion) (\(Bundle.main.appBuild))"
+            #if os(Android)
+            let bundle = AndroidBundle.main
+            #else
+            let bundle = Bundle.main
+            #endif
+            let userAgentValue = "\(bundle.osName) - \(bundle.displayName) \(bundle.appVersion) (\(bundle.appBuild))"
             urlRequest.setValue(userAgentValue.cleanForUserAgent, forHTTPHeaderField: "User-Agent")
             if let timeout = endpoint.timeoutInterval {
                 urlRequest.timeoutInterval = timeout
