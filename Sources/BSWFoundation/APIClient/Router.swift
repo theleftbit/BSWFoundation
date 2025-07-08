@@ -73,7 +73,6 @@ extension APIClient {
 enum URLEncoding {
     static func query(_ parameters: [String: Any]) -> String {
         var components: [(String, String)] = []
-
         for key in parameters.keys.sorted(by: <) {
             let value = parameters[key]!
             components += queryComponents(fromKey: key, value: value)
@@ -93,15 +92,15 @@ enum URLEncoding {
                 components += queryComponents(fromKey: "\(key)[]", value: value)
             }
         }
-        else if let value = value as? NSNumber {
-            if value.isBool {
-                components.append((escape(key), escape((value.boolValue ? "1" : "0"))))
-            } else {
-                components.append((escape(key), escape("\(value)")))
-            }
+        else if let value = value as? Int {
+            components.append((escape(key), escape("\(value)")))
         }
         else if let bool = value as? Bool {
             components.append((escape(key), escape((bool ? "1" : "0"))))
+        }
+        else if let date = value as? Date {
+            let dateString = isoFormatter.string(from: date)
+            components.append((escape(key), escape(dateString)))
         }
         else {
             components.append((escape(key), escape("\(value)")))
@@ -137,3 +136,5 @@ private extension String {
         return String(cleanedSuffix.unicodeScalars.filter { allowed.contains($0) })
     }
 }
+
+private nonisolated(unsafe) let isoFormatter = ISO8601DateFormatter()

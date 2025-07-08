@@ -13,9 +13,11 @@ actor RouterTests {
         let result = URLEncoding.query([
             "hello": true, 
             "cruel": 1,
-            "world": "asda"
+            "world": "asda",
+            "what": "https://www.theleftbit.com/",
+            "are": Date(timeIntervalSince1970: 1751979655),
         ])
-        #expect(result == "cruel=1&hello=1&world=asda")
+        #expect(result == "are=2025-07-08T13%3A00%3A55Z&cruel=1&hello=1&what=https%3A//www.theleftbit.com/&world=asda")
     }
     
     @Test
