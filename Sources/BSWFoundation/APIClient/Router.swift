@@ -19,7 +19,12 @@ extension APIClient {
 
         init(environment: Environment) {
             self.environment = environment
-            self.userAgentValue = "\(Bundle.main.osName) - \(Bundle.main.displayName) \(Bundle.main.appVersion) (\(Bundle.main.appBuild))"
+            let bundle = Bundle.main
+            #if os(Android)
+            self.userAgentValue = "\(bundle.osName)"
+            #else
+            self.userAgentValue = "\(bundle.osName) - \(bundle.displayName) \(bundle.appVersion) (\(bundle.appBuild))"
+            #endif
         }
         
         func setUserAgentValue(_ userAgentValue: String) {
