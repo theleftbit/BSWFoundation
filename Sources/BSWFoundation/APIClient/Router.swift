@@ -70,7 +70,7 @@ extension APIClient {
     }
 }
 
-private enum URLEncoding {
+enum URLEncoding {
     static func query(_ parameters: [String: Any]) -> String {
         var components: [(String, String)] = []
 
@@ -81,7 +81,7 @@ private enum URLEncoding {
         return components.map { "\($0)=\($1)" }.joined(separator: "&")
     }
 
-    static func queryComponents(fromKey key: String, value: Any) -> [(String, String)] {
+    private static func queryComponents(fromKey key: String, value: Any) -> [(String, String)] {
         var components: [(String, String)] = []
         if let dictionary = value as? [String: Any] {
             for (nestedKey, value) in dictionary {

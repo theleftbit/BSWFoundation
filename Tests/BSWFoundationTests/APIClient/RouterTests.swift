@@ -9,6 +9,16 @@ import Foundation
 actor RouterTests {
 
     @Test
+    func queryParams() async throws {
+        let result = URLEncoding.query([
+            "hello": true, 
+            "cruel": 1,
+            "world": "asda"
+        ])
+        #expect(result == "cruel=1&hello=1&world=asda")
+    }
+    
+    @Test
     func defaultUserAgentGeneration() async throws {
         let sut = APIClient.Router(environment: Giphy.Hosts.production)
         let urlRequest = try await sut.urlRequest(forEndpoint: Giphy.API.search("hola"))
