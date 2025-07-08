@@ -100,7 +100,11 @@ open class APIClient: Identifiable, @unchecked Sendable {
     
     /// Returns the environment configured for this `APIClient`
     public var currentEnvironment: Environment {
-        return self.router.environment
+        return router.environment
+    }
+    
+    public func setCustomUserAgent(_ userAgent: String) async {
+        await router.setUserAgentValue(userAgent)
     }
 }
 
