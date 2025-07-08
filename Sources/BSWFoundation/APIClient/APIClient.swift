@@ -100,7 +100,14 @@ open class APIClient: Identifiable, @unchecked Sendable {
     
     /// Returns the environment configured for this `APIClient`
     public var currentEnvironment: Environment {
-        return self.router.environment
+        return router.environment
+    }
+    
+    /// Sets a custom User Agent for the HTTP requests that are sent.
+    /// - Note: Specially useful for Android clients since the default User Agent
+    /// does not contain the App's name or version.
+    public func setCustomUserAgent(_ userAgent: String) async {
+        await router.setUserAgentValue(userAgent)
     }
 }
 

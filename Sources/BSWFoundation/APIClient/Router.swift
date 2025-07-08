@@ -15,9 +15,20 @@ extension APIClient {
     actor Router {
         
         let environment: Environment
-        
+        var userAgentValue: String
+
         init(environment: Environment) {
             self.environment = environment
+            let bundle = Bundle.main
+            #if os(Android)
+            self.userAgentValue = "\(bundle.osName)"
+            #else
+            self.userAgentValue = "\(bundle.osName) - \(bundle.displayName) \(bundle.appVersion) (\(bundle.appBuild))"
+            #endif
+        }
+        
+        func setUserAgentValue(_ userAgentValue: String) {
+            self.userAgentValue = userAgentValue
         }
         
         func urlRequest(forEndpoint endpoint: Endpoint) throws -> URLRequest {
@@ -29,7 +40,6 @@ extension APIClient {
 
             urlRequest.httpMethod = endpoint.method.rawValue
             urlRequest.allHTTPHeaderFields = endpoint.httpHeaderFields
-            let userAgentValue = "\(Bundle.main.osName) - \(Bundle.main.displayName) \(Bundle.main.appVersion) (\(Bundle.main.appBuild))"
             urlRequest.setValue(userAgentValue.cleanForUserAgent, forHTTPHeaderField: "User-Agent")
             if let timeout = endpoint.timeoutInterval {
                 urlRequest.timeoutInterval = timeout
