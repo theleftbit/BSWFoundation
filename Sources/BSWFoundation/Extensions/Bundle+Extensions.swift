@@ -36,7 +36,7 @@ extension Bundle {
     
     public var osName: String {
         #if os(Android)
-        let osName = "Android"
+        return "Android API \(operatingSystemVersion)"
         #elseif os(watchOS)
         let osName = "watchOS"
         #else
