@@ -35,7 +35,6 @@ extension Bundle {
     }
     
     public var osName: String {
-        let version = ProcessInfo.processInfo.operatingSystemVersion
         #if os(Android)
         let osName = "Android"
         #elseif os(watchOS)
@@ -43,6 +42,6 @@ extension Bundle {
         #else
         let osName = ProcessInfo.processInfo.isCatalystOriIOSAppOnMac ? "macOS" : "iOS"
         #endif
-        return "\(osName) \(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
+        return "\(osName) \(operatingSystemVersion)"
     }
 }
