@@ -17,7 +17,7 @@ public actor AsyncStreamDispatcher<Event: AsyncStreamNamedEvent> {
     
     public func subscribe(to events: Set<Event.Name>) -> AsyncStream<Event> {
         let id = UUID()
-        let (stream, continuation) = AsyncStream<Event>.makeStream(bufferingPolicy: .unbounded)
+        let (stream, continuation) = AsyncStream<Event>.makeStream(bufferingPolicy: .bufferingNewest(1))
         
         for eventName in events {
             var subscriber: [UUID: AsyncStream<Event>.Continuation]
