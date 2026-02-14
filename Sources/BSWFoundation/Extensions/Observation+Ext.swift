@@ -1,7 +1,6 @@
 import Foundation
 import Observation
 
-@MainActor
 extension Observable where Self: AnyObject & Sendable {
     
     public func stream<Value: Sendable>(

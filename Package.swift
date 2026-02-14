@@ -44,11 +44,11 @@ if !zero {
 let package = Package(
     name: "BSWFoundation",
     platforms: [
-        .iOS(.v16),
-        .tvOS(.v16),
-        .macOS(.v14),
-        .macCatalyst(.v16),
-        .watchOS(.v9),
+        .iOS(.v17),
+        .tvOS(.v17),
+        .macOS(.v15),
+        .macCatalyst(.v17),
+        .watchOS(.v10),
     ],
     products: [
         .library(
