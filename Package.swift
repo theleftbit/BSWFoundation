@@ -4,7 +4,7 @@
 import PackageDescription
 import Foundation
 
-let zero = ProcessInfo.processInfo.environment["SKIP_ZERO"] != nil
+let skipIsEnabled = (ProcessInfo.processInfo.environment["SKIP_ENABLED"] != nil)
 
 let applePlatforms = TargetDependencyCondition.when(
     platforms: [
@@ -22,7 +22,7 @@ var packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/apple/swift-crypto.git", from: "3.12.3"),
 ]
 
-if !zero {
+if skipIsEnabled {
     packageDependencies.append(contentsOf: [
         .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.2"),
         .package(url: "https://source.skip.tools/skip-keychain.git", from: "0.3.0"),
@@ -34,7 +34,7 @@ var targetDependencies: [Target.Dependency] = [
     .product(name: "KeychainAccess", package: "KeychainAccess", condition: applePlatforms),
 ]
 
-if !zero {
+if skipIsEnabled {
     targetDependencies.append(contentsOf: [
         .product(name: "SkipKeychain", package: "skip-keychain"),
         .product(name: "SkipFuse", package: "skip-fuse"),
