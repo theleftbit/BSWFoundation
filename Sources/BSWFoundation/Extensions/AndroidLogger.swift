@@ -1,46 +1,19 @@
-#if os(Android)
-import Foundation
-
+#if os(Android) && !SKIP
 public struct OSLogType: Equatable, Sendable {
-    let label: String
+    public init() {}
 
-    private init(_ label: String) {
-        self.label = label
-    }
-
-    public static let debug = OSLogType("DEBUG")
-    public static let info = OSLogType("INFO")
-    public static let error = OSLogType("ERROR")
-    public static let fault = OSLogType("FAULT")
+    public static let debug = OSLogType()
+    public static let info = OSLogType()
+    public static let error = OSLogType()
+    public static let fault = OSLogType()
 }
 
 public struct Logger: Sendable {
-    public let subsystem: String
-    public let category: String
+    public init(subsystem: String, category: String) {}
 
-    public init(subsystem: String, category: String) {
-        self.subsystem = subsystem
-        self.category = category
-    }
-
-    public func debug(_ message: String) {
-        emit(.debug, message)
-    }
-
-    public func warning(_ message: String) {
-        emit(.error, message)
-    }
-
-    public func error(_ message: String) {
-        emit(.error, message)
-    }
-
-    public func log(level: OSLogType, _ message: String) {
-        emit(level, message)
-    }
-
-    private func emit(_ level: OSLogType, _ message: String) {
-        print("[\(level.label)] \(subsystem)/\(category): \(message)")
-    }
+    public func debug(_ message: String) {}
+    public func warning(_ message: String) {}
+    public func error(_ message: String) {}
+    public func log(level: OSLogType, _ message: String) {}
 }
 #endif

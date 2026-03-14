@@ -2,6 +2,9 @@
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
+import Foundation
+
+let skipIsEnabled = (ProcessInfo.processInfo.environment["SKIP_ENABLED"] != nil)
 
 let applePlatforms = TargetDependencyCondition.when(
     platforms: [
@@ -19,10 +22,24 @@ var packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/apple/swift-crypto.git", from: "3.12.3"),
 ]
 
+if skipIsEnabled {
+    packageDependencies.append(contentsOf: [
+        .package(url: "https://source.skip.tools/skip-fuse.git", from: "1.0.2"),
+        .package(url: "https://source.skip.tools/skip-keychain.git", from: "0.3.2"),
+    ])
+}
+
 var targetDependencies: [Target.Dependency] = [
     .product(name: "Crypto", package: "swift-crypto"),
     .product(name: "KeychainAccess", package: "KeychainAccess", condition: applePlatforms),
 ]
+
+if skipIsEnabled {
+    targetDependencies.append(contentsOf: [
+        .product(name: "SkipKeychain", package: "skip-keychain"),
+        .product(name: "SkipFuse", package: "skip-fuse"),
+    ])
+}
 
 let package = Package(
     name: "BSWFoundation",

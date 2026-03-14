@@ -1,5 +1,5 @@
 import Foundation
-#if os(Android)
+#if !SKIP && os(Android)
 import FoundationNetworking
 #else
 import OSLog

@@ -3,15 +3,16 @@
 //
 import Foundation
 
-#if os(Android)
-#else
+#if SKIP
+import SkipKeychain
+#elseif !os(Android)
 import KeychainAccess
 #endif
 
 /// This is supported anywhere but Linux
 #if !os(Linux)
 
-#if os(Android)
+#if os(Android) && !SKIP
 private final class Keychain: @unchecked Sendable {
     static let shared = Keychain()
 
@@ -43,7 +44,9 @@ public class KeychainBacked {
 
     public init(key: String, appGroupID: String? = nil) {
         self.key = key
-        #if canImport(Darwin)
+        #if SKIP
+        self.keychain = Keychain.shared
+        #elseif canImport(Darwin)
         self.keychain = {
             if let appGroupID = appGroupID {
                 return Keychain(service: Bundle.main.bundleIdentifier!, accessGroup: appGroupID)
@@ -56,7 +59,19 @@ public class KeychainBacked {
         #endif
     }
     
-    #if canImport(Darwin)
+    #if SKIP
+    public var wrappedValue: String? {
+        get {
+            return try? keychain.string(forKey: key)
+        } set {
+            if let newValue {
+                try? keychain.set(newValue, forKey: key)
+            } else {
+                try? keychain.removeValue(forKey: key)
+            }
+        }
+    }
+    #elseif canImport(Darwin)
     public var wrappedValue: String? {
         get {
             return keychain[key]
@@ -93,14 +108,28 @@ public class CodableKeychainBacked<T: Codable> {
 
     public init(key: String) {
         self.key = key
-        #if canImport(Darwin)
+        #if SKIP
+        self.keychain = Keychain.shared
+        #elseif canImport(Darwin)
         self.keychain = Keychain(service: Bundle.main.bundleIdentifier!)
         #else
         self.keychain = Keychain.shared
         #endif
     }
     
-    #if canImport(Darwin)
+    #if SKIP
+    public var wrappedValue: T? {
+        get {
+            return try? keychain.string(forKey: key)?.decoded()
+        } set {
+            if let newValue, let stringValue = newValue.encodedAsString() {
+                try? keychain.set(stringValue, forKey: key)
+            } else {
+                try? keychain.removeValue(forKey: key)
+            }
+        }
+    }
+    #elseif canImport(Darwin)
     public var wrappedValue: T? {
         get {
             return keychain[key]?.decoded()

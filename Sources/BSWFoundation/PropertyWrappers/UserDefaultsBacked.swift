@@ -4,6 +4,10 @@
 
 import Foundation
 
+#if SKIP
+import SkipFuse
+#endif
+
 #if !os(Linux)
 /// Stores the given `T` type on User Defaults.
 ///
@@ -17,7 +21,9 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
     public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
         self.defaultValue = defaultValue
-        #if canImport(Darwin)
+        #if SKIP
+        self.store = AndroidUserDefaults.standard
+        #elseif canImport(Darwin)
         self.store = {
             if let appGroupID = appGroupID {
                 return UserDefaults(suiteName: appGroupID)!
@@ -32,7 +38,7 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
     
     public var wrappedValue: T? {
         get {
-            #if canImport(Darwin)
+            #if SKIP || !os(Android)
             guard let value = self.store.object(forKey: key) as? T else {
                 return defaultValue
             }
@@ -74,7 +80,9 @@ public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
     public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
         self.defaultValue = defaultValue
-        #if canImport(Darwin)
+        #if SKIP
+        self.store = AndroidUserDefaults.standard
+        #elseif canImport(Darwin)
         self.store = {
             if let appGroupID = appGroupID {
                 return UserDefaults(suiteName: appGroupID)!
