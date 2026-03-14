@@ -4,9 +4,7 @@
 //
 
 import Foundation
-#if os(Android)
-import AndroidLogging
-#else
+#if !os(Android)
 import OSLog
 #endif
 

@@ -4,11 +4,6 @@
 
 import Foundation
 
-#if os(Android)
-import SkipFuse
-import SkipAndroidBridge
-#endif
-
 #if !os(Linux)
 /// Stores the given `T` type on User Defaults.
 ///
@@ -31,7 +26,7 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
             }
         }()
         #else
-        self.store = SkipAndroidBridge.AndroidUserDefaults.standard
+        self.store = UserDefaults.standard
         #endif
     }
     
@@ -88,7 +83,7 @@ public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
             }
         }()
         #else
-        self.store = SkipAndroidBridge.AndroidUserDefaults.standard
+        self.store = UserDefaults.standard
         #endif
     }
     

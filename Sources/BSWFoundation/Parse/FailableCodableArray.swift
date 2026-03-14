@@ -3,9 +3,7 @@ import FoundationInternationalization
 #endif
 import Foundation
 
-#if os(Android)
-import AndroidLogging
-#else
+#if !os(Android)
 import OSLog
 #endif
 
@@ -45,4 +43,3 @@ private struct FailableDecodable<Base : Decodable> : Decodable {
         }()
     }
 }
-

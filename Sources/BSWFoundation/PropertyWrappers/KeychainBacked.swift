@@ -4,13 +4,36 @@
 import Foundation
 
 #if os(Android)
-import SkipKeychain
 #else
 import KeychainAccess
 #endif
 
 /// This is supported anywhere but Linux
 #if !os(Linux)
+
+#if os(Android)
+private final class Keychain: @unchecked Sendable {
+    static let shared = Keychain()
+
+    private let store: UserDefaults = .standard
+
+    private init() {}
+
+    func string(forKey key: String) throws -> String? {
+        store.string(forKey: key)
+    }
+
+    func set(_ value: String, forKey key: String) throws {
+        store.set(value, forKey: key)
+        _ = store.synchronize()
+    }
+
+    func removeValue(forKey key: String) throws {
+        store.removeObject(forKey: key)
+        _ = store.synchronize()
+    }
+}
+#endif
 
 /// Stores a String on the Keychain
 @propertyWrapper

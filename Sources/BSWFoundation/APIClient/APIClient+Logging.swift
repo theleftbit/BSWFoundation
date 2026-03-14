@@ -1,7 +1,6 @@
 import Foundation
 #if os(Android)
 import FoundationNetworking
-import AndroidLogging
 #else
 import OSLog
 #endif
