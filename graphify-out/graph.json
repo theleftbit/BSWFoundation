@@ -4565,7 +4565,7 @@
         "kind": "bash_entrypoint"
       },
       "_origin": "ast",
-      "id": "users_marchidalgo_developer_bswfoundation_build_sh__entry",
+      "id": "bswfoundation_build_sh__entry",
       "community": 14,
       "norm_label": "build.sh script"
     },
@@ -15194,7 +15194,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "build",
-      "target": "users_marchidalgo_developer_bswfoundation_build_sh__entry"
+      "target": "bswfoundation_build_sh__entry"
     },
     {
       "relation": "calls",
@@ -15204,7 +15204,7 @@
       "weight": 1.0,
       "context": "call",
       "confidence_score": 1.0,
-      "source": "users_marchidalgo_developer_bswfoundation_build_sh__entry",
+      "source": "bswfoundation_build_sh__entry",
       "target": "build_backup_package_swift"
     },
     {
@@ -15215,7 +15215,7 @@
       "weight": 1.0,
       "context": "call",
       "confidence_score": 1.0,
-      "source": "users_marchidalgo_developer_bswfoundation_build_sh__entry",
+      "source": "bswfoundation_build_sh__entry",
       "target": "build_build_framework"
     },
     {
@@ -15226,7 +15226,7 @@
       "weight": 1.0,
       "context": "call",
       "confidence_score": 1.0,
-      "source": "users_marchidalgo_developer_bswfoundation_build_sh__entry",
+      "source": "bswfoundation_build_sh__entry",
       "target": "build_modify_package_swift"
     },
     {
@@ -15237,7 +15237,7 @@
       "weight": 1.0,
       "context": "call",
       "confidence_score": 1.0,
-      "source": "users_marchidalgo_developer_bswfoundation_build_sh__entry",
+      "source": "bswfoundation_build_sh__entry",
       "target": "build_restore_package_swift"
     },
     {
