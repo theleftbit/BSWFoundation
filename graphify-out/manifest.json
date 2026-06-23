@@ -1,0 +1,342 @@
+{
+  "Package.swift": {
+    "mtime": 1782223718.0050862,
+    "ast_hash": "cc502e0143fb108604ffe9aa008796cf",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/APIClient/APIClient+Error.swift": {
+    "mtime": 1772536646.3585665,
+    "ast_hash": "f38f95e8fefd6942b5fa0afba6d1dc3e",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/APIClient/APIClient+Logging.swift": {
+    "mtime": 1772536646.358629,
+    "ast_hash": "26f915589fb47bf551463a7955cb9f41",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/APIClient/APIClient+URLSession.swift": {
+    "mtime": 1772536646.3586936,
+    "ast_hash": "7a00bb4f7d3149928272778f82fa8b98",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/APIClient/APIClient.swift": {
+    "mtime": 1772536646.3588092,
+    "ast_hash": "c5026dde5089c7dd4aec3b63b876683c",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/APIClient/Endpoint.swift": {
+    "mtime": 1772536646.358866,
+    "ast_hash": "4890324b0017a5de4a23cbb508a765d4",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/APIClient/Environment.swift": {
+    "mtime": 1772536646.3589227,
+    "ast_hash": "dc42df2385a8a6a3dbbb340df135774a",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/APIClient/Mocks/MockAPIClient.swift": {
+    "mtime": 1772536646.359017,
+    "ast_hash": "688d0e590cff43ecb685c8e2ca8c98ed",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/APIClient/Router.swift": {
+    "mtime": 1772536646.3590755,
+    "ast_hash": "b6346854c0bd994901227fd4e9e3ee8b",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/AsyncStream/AsyncStreamDispatcher.swift": {
+    "mtime": 1772536646.3591678,
+    "ast_hash": "5decb5bbfda5122830d6f6984aaf7e66",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/AuthStorage/AuthStorage.swift": {
+    "mtime": 1772536646.3593225,
+    "ast_hash": "8a3aa72fa0084ff991973e6d4244d031",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/Bundle+Extensions.swift": {
+    "mtime": 1772536646.3594089,
+    "ast_hash": "42c3fa03a0d50ddbeb30264905443f90",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/Collections.swift": {
+    "mtime": 1772536646.3594835,
+    "ast_hash": "f654d014ed6a3faa72d659399e93b1cf",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/Date+Extensions.swift": {
+    "mtime": 1772536646.3595428,
+    "ast_hash": "9f2a163892f986f0ebe028e9da6fdee7",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/Error+Extensions.swift": {
+    "mtime": 1772536646.3596008,
+    "ast_hash": "88d86356a7b6a0d964fbfd1ed3c084d2",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/Observation+Ext.swift": {
+    "mtime": 1772536646.3596556,
+    "ast_hash": "c45cc00c90e7546c75b1e2e05f7c2001",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/ProcessInfo.swift": {
+    "mtime": 1772536646.3597097,
+    "ast_hash": "dc74f13bbec3fe6e6fdc09faad222874",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/ProgressObserver.swift": {
+    "mtime": 1772536646.3597703,
+    "ast_hash": "abcdaf69a5816c4d67436ba783754953",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/Random.swift": {
+    "mtime": 1772536646.3598316,
+    "ast_hash": "c68cfc0ed7cf8fbacce83b9d96e39804",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/String+Crypto.swift": {
+    "mtime": 1772536646.3598902,
+    "ast_hash": "abd0068aa4db0f9fc3224bf4a7f625e0",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/String+Utils.swift": {
+    "mtime": 1772536646.3599591,
+    "ast_hash": "3d4f58199f135ce06042d34f1a4925ef",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/Task.swift": {
+    "mtime": 1772536646.3600183,
+    "ast_hash": "457fe01426e0bcbfae62a0352df29a19",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/Throttler.swift": {
+    "mtime": 1772536646.3600874,
+    "ast_hash": "b2e697182a7b139b77a4c4445c9f4e6f",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/UIApplication+Tests.swift": {
+    "mtime": 1772536646.3601577,
+    "ast_hash": "ed2bf7191d977e3c0f7fc35b8478785d",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Extensions/With.swift": {
+    "mtime": 1772536646.3602238,
+    "ast_hash": "ca4ed75f8de86d61fd8d1a61df81edd8",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Location/LocationFetcher.swift": {
+    "mtime": 1772536646.36034,
+    "ast_hash": "b435c70d00dd2da01c1226d5bd7287b9",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/ModuleConstants.swift": {
+    "mtime": 1772536646.360412,
+    "ast_hash": "9363390bf55eccbe9f9227160faf1c96",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Parse/FailableCodableArray.swift": {
+    "mtime": 1772536646.3605025,
+    "ast_hash": "84066a574e024bea1f9d4d1a83719467",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/Parse/JSONParser.swift": {
+    "mtime": 1772536646.3605623,
+    "ast_hash": "929d047571bfc96598c81a55ee10c6a8",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/PropertyWrappers/KeychainBacked.swift": {
+    "mtime": 1772536646.3606613,
+    "ast_hash": "f2eb5e49d60c47f55edc342feeb96da6",
+    "semantic_hash": ""
+  },
+  "Sources/BSWFoundation/PropertyWrappers/UserDefaultsBacked.swift": {
+    "mtime": 1772536646.3607266,
+    "ast_hash": "4de513fa7804554e5d378d33a6652bcd",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/APIClient/APIClientErrorTests.swift": {
+    "mtime": 1772536646.3608775,
+    "ast_hash": "d5e8f3c0b722c26a9ea43c65c17efa4b",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/APIClient/APIClientTests.swift": {
+    "mtime": 1772536646.360987,
+    "ast_hash": "fb973fe98c006ce50259b2f4550c83a8",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/APIClient/EnvironmentTests.swift": {
+    "mtime": 1772536646.3610375,
+    "ast_hash": "72ca3ba05813a65a5d7361315fa1323a",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/APIClient/RouterTests.swift": {
+    "mtime": 1772536646.3610933,
+    "ast_hash": "c26f1d09c6079bba6995bf13d957c31b",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/APIClient/Stubs.swift": {
+    "mtime": 1772536646.361154,
+    "ast_hash": "9b0d485f285ac30cb1df78e66e616690",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/AsyncStream/AsyncStreamDispatcherTests.swift": {
+    "mtime": 1772536646.3612368,
+    "ast_hash": "122e9b0f0be235a6f911b69818cc0fc3",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/Extensions/Android.swift": {
+    "mtime": 1772536646.3613303,
+    "ast_hash": "270c4f245b640d7b37f08eaed442cb63",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/Extensions/BundleTests.swift": {
+    "mtime": 1772536646.3613963,
+    "ast_hash": "ccc5acb2d48e7464aab234789fe1418b",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/Extensions/CollectionsTests.swift": {
+    "mtime": 1772536646.361461,
+    "ast_hash": "403ed3e8fcc97faeba2e9244d66f6fd5",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/Extensions/ObservationTests.swift": {
+    "mtime": 1772536646.3615217,
+    "ast_hash": "6120b0fa864d9ef5490b7bc816f55452",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/Extensions/ProgressObserverTests.swift": {
+    "mtime": 1772536646.3615763,
+    "ast_hash": "0611f9aaf867f68779688f0c0815a2eb",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/Extensions/StringTests.swift": {
+    "mtime": 1772536646.3616338,
+    "ast_hash": "86672328b546e429747b176d665830eb",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/Extensions/TaskTests.swift": {
+    "mtime": 1772536646.3616889,
+    "ast_hash": "16fd699aedbd19896fe05fea5866d05f",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/Extensions/ThrottlerTests.swift": {
+    "mtime": 1772536646.3617442,
+    "ast_hash": "533783410dc5b37f137d0f2b82c07c70",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/Extensions/UIApplicationTests.swift": {
+    "mtime": 1772536646.361797,
+    "ast_hash": "3ff9227fe745e6147859f4341230948f",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/Extensions/UserDefaultsBackedTests.swift": {
+    "mtime": 1772536646.3618538,
+    "ast_hash": "f10d4638bea7953763b01157f50e03cb",
+    "semantic_hash": ""
+  },
+  "Tests/BSWFoundationTests/Parsing/JSONParserTests.swift": {
+    "mtime": 1772536646.3619401,
+    "ast_hash": "1c7f245ec36f7be2d3842445db26977b",
+    "semantic_hash": ""
+  },
+  "build.sh": {
+    "mtime": 1772536646.362003,
+    "ast_hash": "196361086be5e6846ab24253bf326d6e",
+    "semantic_hash": ""
+  },
+  ".github/workflows/buildEmerge.yml": {
+    "mtime": 1772536646.3575919,
+    "ast_hash": "425dc3aa0ff888e5c438e68b726ff8e8",
+    "semantic_hash": ""
+  },
+  ".github/workflows/swift.yml": {
+    "mtime": 1772543056.1462886,
+    "ast_hash": "6a5b53c7c0d38488200c0fcbdb70fa3c",
+    "semantic_hash": ""
+  },
+  ".spi.yml": {
+    "mtime": 1772536646.3577657,
+    "ast_hash": "dda507afc0364b3ba394dacb335f3e0a",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1782224413.0992126,
+    "ast_hash": "09caef430f9054c9d14b6c8677072bb6",
+    "semantic_hash": ""
+  },
+  "Docs/00-index.md": {
+    "mtime": 1782225392.1947777,
+    "ast_hash": "40d039c030a75355d8ef51383713eff0",
+    "semantic_hash": ""
+  },
+  "Docs/_templates/adr.md": {
+    "mtime": 1782224019.560615,
+    "ast_hash": "5228ae9a8aad05fd5f5a1b628a4f2139",
+    "semantic_hash": ""
+  },
+  "Docs/context/module-map.md": {
+    "mtime": 1782225452.919234,
+    "ast_hash": "b1256a53f68bc49d088e6af48db8e4de",
+    "semantic_hash": ""
+  },
+  "Docs/context/platform-support.md": {
+    "mtime": 1782225452.9197168,
+    "ast_hash": "6f95a49687245add687ce9735556cb68",
+    "semantic_hash": ""
+  },
+  "Docs/context/project-overview.md": {
+    "mtime": 1782225392.1950376,
+    "ast_hash": "21f3e7475d6bc75ff6387c7cc04c50cf",
+    "semantic_hash": ""
+  },
+  "Docs/decisions/001-shared-swiftpm-foundation-package.md": {
+    "mtime": 1782224019.5600858,
+    "ast_hash": "ea14d63f9d9a3f7987a9be2dd6c06913",
+    "semantic_hash": ""
+  },
+  "Docs/decisions/002-skip-android-supported-subset.md": {
+    "mtime": 1782224019.5601673,
+    "ast_hash": "0121fe27cb28f6513d0877d7d73c3038",
+    "semantic_hash": ""
+  },
+  "Docs/features/api-client.md": {
+    "mtime": 1782225427.5200183,
+    "ast_hash": "9303c2eee3c104d5a087fc047b6b0291",
+    "semantic_hash": ""
+  },
+  "Docs/features/async-observation.md": {
+    "mtime": 1782224019.5596037,
+    "ast_hash": "b7929a49d498a140b2602c6b75376972",
+    "semantic_hash": ""
+  },
+  "Docs/features/extensions.md": {
+    "mtime": 1782225427.520811,
+    "ast_hash": "f387bd69e302eb4addb496e3962847a7",
+    "semantic_hash": ""
+  },
+  "Docs/features/location-and-progress.md": {
+    "mtime": 1782224019.5599434,
+    "ast_hash": "b32dcfc10959bad4cdea5a0da4c1b5e2",
+    "semantic_hash": ""
+  },
+  "Docs/features/persistence.md": {
+    "mtime": 1782225452.920065,
+    "ast_hash": "5eba4446d2aa76c1914cd323ce041d80",
+    "semantic_hash": ""
+  },
+  "Docs/todo/pending-technical.md": {
+    "mtime": 1782225452.9203677,
+    "ast_hash": "2903cea67d466ec0d722a5f1968bccb8",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1772536646.3584208,
+    "ast_hash": "36598c8d02be1bed1db754638817c2a0",
+    "semantic_hash": ""
+  },
+  "Docs/features/parsing.md": {
+    "mtime": 1782225427.5205755,
+    "ast_hash": "a445630eb96db832045933575a7cb13a",
+    "semantic_hash": ""
+  }
+}
