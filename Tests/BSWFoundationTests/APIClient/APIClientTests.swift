@@ -5,6 +5,7 @@
 import Testing
 import BSWFoundation
 import Foundation
+import HTTPTypes
 #if os(Android)
 import FoundationNetworking
 #endif
@@ -28,15 +29,15 @@ actor APIClientTests {
 
     @Test
     func GETWithCustomValidation() async throws {
-        
+
         let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip,
             validator: { response in
-                if response.httpResponse.statusCode != 200 {
+                if response.httpResponse.status.code != 200 {
                     throw ValidationError()
                 }
         })
-        
+
         let _ = try await sut.perform(ipRequest)
     }
 
@@ -89,7 +90,7 @@ actor APIClientTests {
             Issue.record("This should fail here")
         } catch let error {
             if error is CancellationError {
-            
+
             } else {
                 let nsError = error as NSError
                 #expect(nsError.domain == NSURLErrorDomain)
@@ -98,13 +99,13 @@ actor APIClientTests {
         }
         try FileManager.default.removeItem(at: file)
     }
-        
+
     @Test
     func unauthorizedCallsRightMethod() async throws {
         let mockDelegate = await MockAPIClientDelegate()
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: Network401Fetcher())
         sut.delegate = mockDelegate
-        
+
         let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip
         )
@@ -116,41 +117,36 @@ actor APIClientTests {
 
     @Test
     func unauthorizedRetriesAfterGeneratingNewCredentials() async throws {
-        
+
         actor MockAPIClientDelegateThatGeneratesNewSignature: APIClientDelegate {
-            
+
             init(apiClient: APIClient) {
                 self.apiClient = apiClient
             }
             let apiClient: APIClient
-            
+
             func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClientID: APIClient.ID) async throws -> Bool {
-                apiClient.customizeRequest = { urlRequest in
-                    var mutableRequest = urlRequest
-                    mutableRequest.setValue("Daenerys Targaryen is the True Queen", forHTTPHeaderField: "JWT")
-                    return mutableRequest
+                apiClient.customizeRequest = { request in
+                    var request = request
+                    request.httpRequest.headerFields[.init("JWT")!] = "Daenerys Targaryen is the True Queen"
+                    return request
                 }
                 return true
             }
         }
-        
-        class SignatureCheckingNetworkFetcher: APIClientNetworkFetcher {
-            
-            public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
-                let isSigned: Bool = (urlRequest.allHTTPHeaderFields?["JWT"] ?? urlRequest.allHTTPHeaderFields?["Jwt"]) != nil
-                guard isSigned else {
-                    return APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!)
-                }
-                
-                return try await URLSession.shared.fetchData(with: urlRequest)
-            }
-            
-            public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
-                fatalError()
-            }
 
+        final class SignatureCheckingNetworkFetcher: APIClientNetworkFetcher {
+
+            public func perform(_ request: APIClient.OutboundRequest) async throws -> APIClient.Response {
+                let isSigned = request.httpRequest.headerFields[.init("JWT")!] != nil
+                guard isSigned else {
+                    return APIClient.Response(data: Data(), httpResponse: HTTPResponse(status: .init(code: 401)))
+                }
+
+                return try await URLSession.shared.perform(request)
+            }
         }
-        
+
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: SignatureCheckingNetworkFetcher())
         let mockDelegate = MockAPIClientDelegateThatGeneratesNewSignature(apiClient: sut)
         sut.delegate = mockDelegate
@@ -160,49 +156,49 @@ actor APIClientTests {
         )
         let _ = try await sut.perform(ipRequest)
     }
-    
+
     @Test
     func customizeRequests() async throws {
         let mockNetworkFetcher = MockNetworkFetcher()
         await mockNetworkFetcher.setMockedData(mockedData: Data())
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: mockNetworkFetcher)
         sut.customizeRequest = {
-            var mutableURLRequest = $0
-            mutableURLRequest.setValue("hello", forHTTPHeaderField: "Signature")
-            return mutableURLRequest
+            var request = $0
+            request.httpRequest.headerFields[.init("Signature")!] = "hello"
+            return request
         }
-        
+
         let ipRequest = BSWFoundation.APIClient.Request<VoidResponse>(
             endpoint: HTTPBin.API.ip
         )
 
         let _ = try await sut.perform(ipRequest)
-        
-        guard let capturedURLRequest = await mockNetworkFetcher.capturedURLRequest else {
+
+        guard let capturedRequest = await mockNetworkFetcher.capturedRequest else {
             throw ValidationError()
         }
-        #expect(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
+        #expect(capturedRequest.httpRequest.headerFields[.init("Signature")!] == "hello")
     }
-    
+
     @Test
     func customizeSimpleRequests() async throws {
         let mockNetworkFetcher = MockNetworkFetcher()
         await mockNetworkFetcher.setMockedData(mockedData: Data())
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: mockNetworkFetcher)
         sut.customizeRequest = {
-            var mutableURLRequest = $0
-            mutableURLRequest.setValue("hello", forHTTPHeaderField: "Signature")
-            return mutableURLRequest
+            var request = $0
+            request.httpRequest.headerFields[.init("Signature")!] = "hello"
+            return request
     }
-        
+
         let _ = try await sut.performSimpleRequest(forEndpoint: HTTPBin.API.ip)
-        
-        guard let capturedURLRequest = await mockNetworkFetcher.capturedURLRequest else {
+
+        guard let capturedRequest = await mockNetworkFetcher.capturedRequest else {
             throw ValidationError()
         }
-        #expect(capturedURLRequest.allHTTPHeaderFields?["Signature"] == "hello")
+        #expect(capturedRequest.httpRequest.headerFields[.init("Signature")!] == "hello")
     }
-    
+
     static func generateRandomFile() throws -> URL {
         let length = 2048
         let bytes = [UInt32](repeating: 0, count: length).map { _ in arc4random() }
@@ -211,7 +207,7 @@ actor APIClientTests {
         let url = URL.cachesDirectory
             .appending(path: "randomData-\(Int.random(in: 0...10000))")
         try data.write(to: url)
-        
+
         return url
     }
 }
@@ -226,14 +222,10 @@ private class MockAPIClientDelegate: NSObject, APIClientDelegate {
     var failedPath: String?
 }
 
-private class Network401Fetcher: APIClientNetworkFetcher {
-    
-    public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
-        return APIClient.Response(data: Data(), httpResponse: HTTPURLResponse(url: urlRequest.url!, statusCode: 401, httpVersion: nil, headerFields: nil)!)
-    }
-    
-    public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
-        fatalError()
+private final class Network401Fetcher: APIClientNetworkFetcher {
+
+    public func perform(_ request: APIClient.OutboundRequest) async throws -> APIClient.Response {
+        return APIClient.Response(data: Data(), httpResponse: HTTPResponse(status: .init(code: 401)))
     }
 }
 
