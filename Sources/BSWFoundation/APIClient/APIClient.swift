@@ -211,6 +211,38 @@ extension APIClient {
     }
 }
 
+// MARK: OutboundRequest header conveniences
+
+public extension APIClient.OutboundRequest {
+
+    /// Returns the value of the given HTTP header field, if present.
+    ///
+    /// Mirrors `URLRequest.value(forHTTPHeaderField:)` so existing `customizeRequest` closures
+    /// keep working without reaching for the `HTTPTypes` API directly.
+    func value(forHTTPHeaderField field: String) -> String? {
+        guard let name = HTTPField.Name(field) else { return nil }
+        return httpRequest.headerFields[name]
+    }
+
+    /// Sets — replacing any existing values — the value for the given HTTP header field.
+    /// Passing `nil` removes the field. No-op if `field` is not a valid header name.
+    ///
+    /// Mirrors `URLRequest.setValue(_:forHTTPHeaderField:)`.
+    mutating func setValue(_ value: String?, forHTTPHeaderField field: String) {
+        guard let name = HTTPField.Name(field) else { return }
+        httpRequest.headerFields[name] = value
+    }
+
+    /// Appends the value for the given HTTP header field, keeping any existing values.
+    /// No-op if `field` is not a valid header name.
+    ///
+    /// Mirrors `URLRequest.addValue(_:forHTTPHeaderField:)`.
+    mutating func addValue(_ value: String, forHTTPHeaderField field: String) {
+        guard let name = HTTPField.Name(field) else { return }
+        httpRequest.headerFields.append(HTTPField(name: name, value: value))
+    }
+}
+
 // MARK: Private
 
 private extension APIClient {

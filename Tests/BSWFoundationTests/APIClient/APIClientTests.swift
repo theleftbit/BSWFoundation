@@ -164,7 +164,8 @@ actor APIClientTests {
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: mockNetworkFetcher)
         sut.customizeRequest = {
             var request = $0
-            request.httpRequest.headerFields[.init("Signature")!] = "hello"
+            // Exercises the URLRequest-style compatibility shim on OutboundRequest.
+            request.setValue("hello", forHTTPHeaderField: "Signature")
             return request
         }
 
