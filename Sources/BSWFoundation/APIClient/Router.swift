@@ -62,22 +62,15 @@ extension APIClient {
                 }
             }
 
-            // 2. Split the URL into the components `HTTPRequest` needs.
-            guard let url = URL(string: urlString),
-                  let scheme = url.scheme,
-                  let host = url.host() else {
+            // 2. Turn the URL into an `HTTPRequest`. HTTPTypes' `HTTPRequest(method:url:)` lives in
+            //    the core module (behind the default-on `FoundationURL` trait), decomposes the URL
+            //    into the scheme / authority / path pseudo-header fields for us — handling edge
+            //    cases like IPv6 authorities — and is available on platforms without
+            //    FoundationNetworking, including WASM. We pre-check the scheme because that
+            //    initializer traps on a schemeless URL.
+            guard let url = URL(string: urlString), url.scheme != nil else {
                 throw APIClient.Error.malformedURL
             }
-            let authority = url.port.map { "\(host):\($0)" } ?? host
-            let path: String = {
-                var p = url.path(percentEncoded: true)
-                if p.isEmpty { p = "/" }
-                if let query = url.query(percentEncoded: true) {
-                    p += "?" + query
-                }
-                return p
-            }()
-
             guard let method = HTTPRequest.Method(endpoint.method.rawValue) else {
                 throw APIClient.Error.encodingRequestFailed
             }
@@ -96,13 +89,7 @@ extension APIClient {
                 headerFields[.contentType] = contentType
             }
 
-            let httpRequest = HTTPRequest(
-                method: method,
-                scheme: scheme,
-                authority: authority,
-                path: path,
-                headerFields: headerFields
-            )
+            let httpRequest = HTTPRequest(method: method, url: url, headerFields: headerFields)
 
             return APIClient.OutboundRequest(
                 httpRequest: httpRequest,
