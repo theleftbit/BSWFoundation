@@ -63,7 +63,7 @@ actor RouterTests {
 
         let outbound = try await sut.prepareRequest(forEndpoint: endpoint)
         let data = try #require(outbound.body)
-        #expect(outbound.httpRequest.authority == "httpbin.org")
+        #expect(outbound.httpRequest.authority == "httpbingo.org")
         #expect(outbound.httpRequest.path == "/forms/post")
 
         let jsonParam = try #require(JSONSerialization.jsonObject(with: data, options: []) as? PizzaRequestParams)
