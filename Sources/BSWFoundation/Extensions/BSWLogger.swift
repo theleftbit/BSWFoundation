@@ -1,0 +1,96 @@
+//
+//  A small, unified logging facade for BSWFoundation and its consumers.
+//
+
+#if canImport(OSLog)
+import OSLog
+#elseif os(Android)
+import AndroidLogging
+#elseif os(WASI)
+import Logging
+#endif
+
+/// A lightweight, cross-platform logging facade used throughout BSWFoundation.
+///
+/// It forwards to the platform's native logging backend, so output lands where you expect:
+/// - **Apple** platforms: `OSLog` (the unified logging system / Console.app)
+/// - **Android**: `AndroidLogging` (logcat)
+/// - **WebAssembly**: `swift-log` (its installed `LogHandler`, e.g. the browser console)
+/// - **Other** platforms: `print`
+///
+/// The API intentionally mirrors `OSLog.Logger` (`init(subsystem:category:)`), so it is a drop-in
+/// across the ecosystem and gives every app built on BSWFoundation a single, consistent logger.
+public struct BSWLogger: Sendable {
+
+    /// The severity of a log message.
+    public enum Level: Sendable {
+        case debug, info, warning, error
+    }
+
+    #if canImport(OSLog) || os(Android) || os(WASI)
+    private let backing: Logger
+    #else
+    private let label: String
+    #endif
+
+    /// Creates a logger for the given subsystem and category.
+    public init(subsystem: String, category: String) {
+        #if canImport(OSLog) || os(Android)
+        self.backing = Logger(subsystem: subsystem, category: category)
+        #elseif os(WASI)
+        self.backing = Logger(label: "\(subsystem).\(category)")
+        #else
+        self.label = "\(subsystem).\(category)"
+        #endif
+    }
+
+    public func debug(_ message: @autoclosure () -> String)   { log(level: .debug, message()) }
+    public func info(_ message: @autoclosure () -> String)    { log(level: .info, message()) }
+    public func warning(_ message: @autoclosure () -> String) { log(level: .warning, message()) }
+    public func error(_ message: @autoclosure () -> String)   { log(level: .error, message()) }
+
+    public func log(level: Level, _ message: @autoclosure () -> String) {
+        let text = message()
+        #if canImport(OSLog) || os(Android)
+        backing.log(level: level.osLogType, "\(text)")
+        #elseif os(WASI)
+        backing.log(level: level.loggingLevel, "\(text)")
+        #else
+        print("[\(label)] [\(level)] \(text)")
+        #endif
+    }
+}
+
+#if canImport(OSLog)
+private extension BSWLogger.Level {
+    var osLogType: OSLogType {
+        switch self {
+        case .debug: return .debug
+        case .info: return .info
+        case .warning: return .default
+        case .error: return .error
+        }
+    }
+}
+#elseif os(Android)
+private extension BSWLogger.Level {
+    // `AndroidLogging` mirrors `OSLog`; map onto the OSLogType cases the codebase already exercises.
+    var osLogType: OSLogType {
+        switch self {
+        case .debug, .info: return .debug
+        case .warning, .error: return .error
+        }
+    }
+}
+#elseif os(WASI)
+private extension BSWLogger.Level {
+    var loggingLevel: Logging.Logger.Level {
+        switch self {
+        case .debug: return .debug
+        case .info: return .info
+        case .warning: return .warning
+        case .error: return .error
+        }
+    }
+}
+#endif

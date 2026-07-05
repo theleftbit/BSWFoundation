@@ -4,11 +4,6 @@
 //
 
 import Foundation
-#if os(Android)
-import AndroidLogging
-#elseif !os(WASI)
-import OSLog
-#endif
 
 public enum JSONParser {
     
@@ -80,7 +75,7 @@ public enum JSONParser {
         do {
             return try jsonDecoder.decode(T.self, from: data)
         } catch let decodingError as DecodingError {
-            let logger = Logger(subsystem: submoduleName("JSONParser"), category: "parseData<\(T.self)>")
+            let logger = BSWLogger(subsystem: submoduleName("JSONParser"), category: "parseData<\(T.self)>")
             switch decodingError {
             case .keyNotFound(let missingKey, let context):
                 logger.warning("Decoding error: key \(String(describing: missingKey)) is missing, Context: \(context.debugDescription)")
