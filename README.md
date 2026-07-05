@@ -63,4 +63,29 @@ BSWFoundation compiles for WebAssembly and runs in the browser via [SwiftWasm](h
    npx serve WASMHarness   # then open the printed URL + /index.html and check the devtools console
    ```
 
-The whole package also has a wasm compile gate in CI, and builds are verified on Apple, Android, and WebAssembly.
+### Production builds & binary size
+
+A **debug** wasm build is very large (~76 MB) — never ship it. For deployment, build in
+**release** *and* make sure [Binaryen](https://github.com/WebAssembly/binaryen)'s `wasm-opt` is on
+`PATH` before building, so the PackageToJS plugin runs its size-optimization pass. What the browser
+actually downloads is the compressed (`Content-Encoding: br`/`gzip`) file, which is far smaller.
+
+Reference sizes for the `WASMHarness` bundle (which links all of BSWFoundation + Foundation):
+
+| Build | raw | gzip | brotli (served) |
+|---|---|---|---|
+| debug | ~76 MB | — | — |
+| release, no `wasm-opt` | ~71 MB | ~23 MB | — |
+| **release + `wasm-opt`** | **~45 MB** | ~18 MB | **~12 MB** |
+
+```sh
+brew install binaryen   # or your platform's package providing `wasm-opt`
+swift package --package-path WASMHarness --swift-sdk swift-6.3.3-RELEASE_wasm --disable-sandbox js -c release
+```
+
+Then serve the `.wasm` with brotli or gzip enabled (browsers stream-compile it). Most of the
+remaining size is the Swift runtime + Foundation — an inherent baseline for Swift-with-Foundation
+in the browser. To go further, a production build can also strip reflection metadata
+(`-Xswiftc -disable-reflection-metadata`), at the cost of `Mirror`/runtime reflection.
+
+The whole package also has a wasm compile gate in CI (plus the unit tests run on wasm in Node), and builds are verified on Apple, Android, and WebAssembly.
