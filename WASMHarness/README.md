@@ -6,6 +6,13 @@ A tiny executable that proves BSWFoundation's WebAssembly paths work at **runtim
 - a real `fetch` GET through `FetchNetworkFetcher`, decoded by `JSONParser`, and
 - a `localStorage` round-trip through `KeychainBacked` → `WASMKeyValueStore`.
 
+## Prerequisite
+
+Install the WebAssembly Swift SDK matching your Swift toolchain — see the
+top-level README's "WebAssembly / Browser Support" section, or
+[swift.org's WASM guide](https://www.swift.org/documentation/articles/wasm-getting-started.html).
+Confirm the installed SDK id with `swift sdk list`.
+
 ## Build
 
 ```sh
