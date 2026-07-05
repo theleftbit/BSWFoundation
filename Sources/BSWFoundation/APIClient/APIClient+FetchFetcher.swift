@@ -59,9 +59,10 @@ public struct FetchNetworkFetcher: APIClientNetworkFetcher {
         let bytes = JSObject.global.Uint8Array.function!.new(arrayBuffer)
         let data = Data.construct(from: bytes.jsValue) ?? Data()
 
-        // NOTE: response header fields are not yet surfaced (see follow-up); the status code is
-        // what `APIClient` validates and is sufficient for the request pipeline.
-        let httpResponse = HTTPResponse(status: .init(code: statusCode))
+        let httpResponse = HTTPResponse(
+            status: .init(code: statusCode),
+            headerFields: Self.headerFields(from: response)
+        )
         return APIClient.Response(data: data, httpResponse: httpResponse)
     }
 
@@ -71,6 +72,25 @@ public struct FetchNetworkFetcher: APIClientNetworkFetcher {
             throw APIClient.Error.malformedResponse
         }
         return try await JSPromise(unsafelyWrapping: object).value
+    }
+
+    /// Reads a JS `Response.headers` (`Headers` object) into `HTTPFields`.
+    /// `Array.from(headers)` yields `[[name, value], …]`, which we walk by index.
+    private static func headerFields(from response: JSObject) -> HTTPFields {
+        var fields = HTTPFields()
+        guard let arrayConstructor = JSObject.global.Array.object,
+              let entries = arrayConstructor.from!(response.headers).object else {
+            return fields
+        }
+        let count = Int(entries.length.number ?? 0)
+        for index in 0..<count {
+            guard let pair = entries[index].object,
+                  let name = pair[0].string,
+                  let value = pair[1].string,
+                  let fieldName = HTTPField.Name(name) else { continue }
+            fields[fieldName] = value
+        }
+        return fields
     }
 }
 #endif
