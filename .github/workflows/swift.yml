@@ -62,8 +62,8 @@ jobs:
 
   wasm-build:
     # GitHub-hosted: the self-hosted `mobile` runners don't have the WebAssembly Swift SDK.
-    # The official Swift image provides the toolchain; we then install the matching wasm SDK
-    # and compile the package for WebAssembly (browser / JavaScriptKit target).
+    # The official Swift image provides the toolchain; we then install the matching wasm SDK,
+    # compile the package for WebAssembly, and run the (wasm-eligible) unit tests in Node.
     runs-on: ubuntu-latest
     container: swift:6.3.3
     steps:
@@ -75,3 +75,11 @@ jobs:
             --checksum cabfa08b73bb8ac783927ecd15fa386e99d0c139c5f232445067bcf58379cae7
       - name: Build for WebAssembly
         run: swift build --swift-sdk swift-6.3.3-RELEASE_wasm
+      - name: Install Node.js (for the wasm test runner)
+        run: apt-get update && apt-get install -y nodejs npm
+      - name: Install the WASI shim
+        run: npm install @bjorn3/browser_wasi_shim@0.3.0
+      - name: Run unit tests on WebAssembly (Node)
+        run: |
+          swift package --swift-sdk swift-6.3.3-RELEASE_wasm --disable-sandbox \
+            js test --prelude .github/wasm-prelude.js

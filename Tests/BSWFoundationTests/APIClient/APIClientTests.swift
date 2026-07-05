@@ -10,6 +10,10 @@ import HTTPTypes
 import FoundationNetworking
 #endif
 
+// On WebAssembly the network / URLSession / file / Dispatch based tests are excluded (`#if
+// !os(WASI)`); the deterministic, mock-backed tests below run there. Real networking is covered
+// by the Apple/Android jobs and by the runtime harness in `WASMHarness/`.
+
 actor APIClientTests {
 
     var sut: APIClient
@@ -18,6 +22,7 @@ actor APIClientTests {
         sut = APIClient(environment: HTTPBin.Hosts.production)
     }
 
+    #if !os(WASI)
     @Test
     func GET() async throws {
         let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
@@ -99,6 +104,7 @@ actor APIClientTests {
         }
         try FileManager.default.removeItem(at: file)
     }
+    #endif
 
     @Test
     func unauthorizedCallsRightMethod() async throws {
@@ -115,6 +121,7 @@ actor APIClientTests {
         #expect(failedPath != nil)
     }
 
+    #if !os(WASI)
     @Test
     func unauthorizedRetriesAfterGeneratingNewCredentials() async throws {
 
@@ -156,6 +163,7 @@ actor APIClientTests {
         )
         let _ = try await sut.perform(ipRequest)
     }
+    #endif
 
     @Test
     func customizeRequests() async throws {
@@ -200,6 +208,7 @@ actor APIClientTests {
         #expect(capturedRequest.httpRequest.headerFields[.init("Signature")!] == "hello")
     }
 
+    #if !os(WASI)
     static func generateRandomFile() throws -> URL {
         let length = 2048
         let bytes = [UInt32](repeating: 0, count: length).map { _ in arc4random() }
@@ -211,13 +220,16 @@ actor APIClientTests {
 
         return url
     }
+    #endif
 }
 
 @MainActor
 private class MockAPIClientDelegate: NSObject, APIClientDelegate {
     func apiClientDidReceiveUnauthorized(forRequest atPath: String, apiClientID: APIClient.ID) async throws -> Bool {
         failedPath = atPath
+        #if !os(WASI)
         dispatchPrecondition(condition: .onQueue(.main))
+        #endif
         return false
     }
     var failedPath: String?

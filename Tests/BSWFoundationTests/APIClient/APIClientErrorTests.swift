@@ -7,7 +7,7 @@ struct APIClientErrorTests {
     @Test
     func errorPrinting_encodingRequestFailed() {
         let localizedDescription = APIClient.Error.encodingRequestFailed.localizedDescription
-        #if os(Android)
+        #if os(Android) || os(WASI)
         #expect(localizedDescription == "The operation could not be completed. (BSWFoundation.APIClient.Error.encodingRequestFailed)")
         #else
         #expect(localizedDescription == "The operation couldn’t be completed. (BSWFoundation.APIClient.Error.encodingRequestFailed)")
@@ -20,7 +20,7 @@ struct APIClientErrorTests {
         ["Please try again"]
         """.data(using: .utf8)
         let localizedDescription = APIClient.Error.failureStatusCode(400, errorMessageData).localizedDescription
-        #if os(Android)
+        #if os(Android) || os(WASI)
         #expect(localizedDescription == "The operation could not be completed. (BSWFoundation.APIClient.Error.FailureStatusCode: 400, Message: [\"Please try again\"])")
         #else
         #expect(localizedDescription == "The operation couldn’t be completed. (BSWFoundation.APIClient.Error.FailureStatusCode: 400, Message: [\"Please try again\"])")
@@ -33,7 +33,7 @@ struct APIClientErrorTests {
         "Please try again"
         """.data(using: .utf8)
         let localizedDescription = APIClient.Error.failureStatusCode(400, errorMessageData).localizedDescription
-        #if os(Android)
+        #if os(Android) || os(WASI)
         #expect(localizedDescription == "The operation could not be completed. (BSWFoundation.APIClient.Error.FailureStatusCode: 400, Message: \"Please try again\")")
         #else
         #expect(localizedDescription == "The operation couldn’t be completed. (BSWFoundation.APIClient.Error.FailureStatusCode: 400, Message: \"Please try again\")")

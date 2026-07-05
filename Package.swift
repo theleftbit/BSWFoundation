@@ -98,7 +98,13 @@ let package = Package(
         ),
         .testTarget(
             name: "BSWFoundationTests",
-            dependencies: ["BSWFoundation"]
+            dependencies: [
+                "BSWFoundation",
+                // On wasm, linking this activates the JavaScriptKit event-loop executor for the
+                // test bundle, so async tests (Task.sleep, etc.) run instead of hitting an
+                // unsupported WASI async-io syscall.
+                .product(name: "JavaScriptEventLoopTestSupport", package: "JavaScriptKit", condition: .when(platforms: [.wasi])),
+            ]
         ),
     ],
     swiftLanguageModes: [.v6],

@@ -8,3 +8,13 @@ var isAndroid: Bool {
     return false
     #endif
 }
+
+/// On WebAssembly, storage is localStorage-backed and `UserDefaults.standard` semantics differ,
+/// so some Apple-coupled tests are turned off there (their wasm paths are covered by `WASMHarness`).
+var isWASI: Bool {
+    #if os(WASI)
+    return true
+    #else
+    return false
+    #endif
+}
