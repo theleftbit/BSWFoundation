@@ -25,6 +25,77 @@ BSWFoundation compiles for WebAssembly and runs in the browser via [SwiftWasm](h
 
 > ⚠️ On WebAssembly, `KeychainBacked` is backed by `localStorage`, which is **not** secure storage — values are not encrypted at rest.
 
+### Building a browser app
+
+To build a browser app on top of BSWFoundation, add JavaScriptKit's event-loop products to your executable target — wasi-conditioned, so your Apple/Android builds are unaffected:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/theleftbit/BSWFoundation.git", from: "..."),
+    .package(url: "https://github.com/swiftwasm/JavaScriptKit.git", from: "0.56.1"),
+],
+targets: [
+    .executableTarget(
+        name: "MyWebApp",
+        dependencies: [
+            .product(name: "BSWFoundation", package: "BSWFoundation"),
+            .product(name: "JavaScriptKit", package: "JavaScriptKit", condition: .when(platforms: [.wasi])),
+            .product(name: "JavaScriptEventLoop", package: "JavaScriptKit", condition: .when(platforms: [.wasi])),
+        ]
+    )
+]
+```
+
+Install the JavaScriptKit global executor **once, before any async work** — without it, `Task` / `async`-`await` (and therefore `APIClient`) won't run:
+
+```swift
+import JavaScriptEventLoop
+
+@main
+struct MyWebApp {
+    static func main() {
+        JavaScriptEventLoop.installGlobalExecutor()
+        Task { /* your app — APIClient, storage, etc. all work from here */ }
+    }
+}
+```
+
+Bundle it with the [PackageToJS](https://github.com/swiftwasm/JavaScriptKit) plugin JavaScriptKit ships, then serve the output folder over HTTP:
+
+```sh
+swift package --swift-sdk swift-6.3.3-RELEASE_wasm --disable-sandbox \
+  js --use-cdn -c release --product MyWebApp --output Public
+npx serve Public
+```
+
+(`--use-cdn` resolves the `@bjorn3/browser_wasi_shim` runtime dependency from a CDN; drop it and `npm install` instead if you bundle with a package manager. See [Production builds & binary size](#production-builds--binary-size) below for shrinking the `.wasm`.)
+
+> ⚠️ `UserDefaultsBacked<T>` on wasm only supports `Bool` and `String`. For any other type — `Int`, `Date`, your own `Codable` — use **`CodableUserDefaultsBacked`**, which JSON-encodes the value and behaves identically on every platform.
+
+### Reusing a Swift `ViewModel` from React (or any JS framework)
+
+You don't have to render the DOM from Swift. A common pattern is to keep your `@Observable` model and business logic in Swift and let a JS framework own the view, via a thin "bridge" executable target that:
+
+1. builds the `ViewModel` (which uses `APIClient`, storage, etc.),
+2. pushes its state to JavaScript through `globalThis` callbacks whenever it changes (drive updates with `Observable.stream(for:)`),
+3. exposes its actions back on `globalThis` (e.g. a `bump()` method).
+
+The JS side registers the callbacks, renders from the pushed state, and calls the exposed actions — it never re-implements any logic:
+
+```swift
+// The front-end sets these on globalThis before the module boots:
+//   __swiftDemoUpdate(state)   — called with a plain JS object on every change
+//   __onSwiftDemoReady(api)    — called once when ready; `api.bump()` drives the model
+guard let update = JSObject.global.__swiftDemoUpdate.function else { return }
+let state = JSObject.global.Object.function!.new()
+state.counter = .number(Double(viewModel.counter))
+_ = update(state.jsValue)
+```
+
+**Bundler note (Vite):** the generated `.wasm` + loader are static assets. Put the bundle in `public/` and boot it from a tiny `<script type="module">`, rather than `import()`-ing it from your React source — Vite's dev server otherwise tries to transform the `/public` file and fails. A one-line `public/boot-swift.js` (`import { init } from "/swift/index.js"; init()`) referenced from `index.html` sidesteps this.
+
+A complete worked example — the same `ViewModel` powering a SwiftUI app *and* a React website — lives in the **BSWDemo** sample (its `DemoCore` / `DemoBridge` targets plus a Vite + React app).
+
 ### Running the test harness
 
 [`WASMHarness/`](WASMHarness) is a small executable that exercises the wasm paths at runtime — a real `fetch` GET decoded by `JSONParser`, plus a `localStorage` round-trip through `KeychainBacked`.
