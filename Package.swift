@@ -20,6 +20,7 @@ let applePlatforms = TargetDependencyCondition.when(
 var packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
     .package(url: "https://github.com/apple/swift-crypto.git", from: "3.12.3"),
+    .package(url: "https://github.com/apple/swift-http-types.git", from: "1.6.0"),
 ]
 
 if skipIsEnabled {
@@ -32,6 +33,11 @@ if skipIsEnabled {
 var targetDependencies: [Target.Dependency] = [
     .product(name: "Crypto", package: "swift-crypto"),
     .product(name: "KeychainAccess", package: "KeychainAccess", condition: applePlatforms),
+    // `HTTPTypes` is pure Swift (no Foundation) and links on every platform, including WASM.
+    .product(name: "HTTPTypes", package: "swift-http-types"),
+    // `HTTPTypesFoundation` bridges to URLSession/URLRequest. Its API compiles to nothing on
+    // WASI, so linking it everywhere is harmless; we only `import` it from the URLSession fetcher.
+    .product(name: "HTTPTypesFoundation", package: "swift-http-types"),
 ]
 
 if skipIsEnabled {

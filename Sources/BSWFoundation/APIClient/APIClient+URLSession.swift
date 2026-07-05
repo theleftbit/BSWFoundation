@@ -2,25 +2,74 @@
 //  Created by Pierluigi Cifani on 8/1/25.
 //
 
-import Foundation
+#if canImport(Darwin) || canImport(FoundationNetworking)
 
-#if os(Android)
+import Foundation
+#if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif
+import HTTPTypes
+import HTTPTypesFoundation
+
+//MARK: Default fetcher
+
+extension APIClient {
+
+    /// The `URLSession`-backed fetcher used when no explicit `APIClientNetworkFetcher` is provided.
+    static func makeDefaultNetworkFetcher(environment: Environment) -> APIClientNetworkFetcher {
+        let sessionDelegate = SessionDelegate(environment: environment)
+        return URLSession(configuration: .default, delegate: sessionDelegate, delegateQueue: .main)
+    }
+
+    /// Proxy object to do all our URLSessionDelegate work
+    final class SessionDelegate: NSObject, URLSessionDelegate {
+
+        let environment: Environment
+
+        init(environment: Environment) {
+            self.environment = environment
+            super.init()
+        }
+
+        public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) async -> (URLSession.AuthChallengeDisposition, URLCredential?) {
+            if environment.shouldAllowInsecureConnections {
+                let credential: URLCredential? = {
+                    #if os(Android)
+                    return (nil)
+                    #else
+                    return (URLCredential(trust: challenge.protectionSpace.serverTrust!))
+                    #endif
+                }()
+                return (.useCredential, credential)
+            } else {
+                return (.performDefaultHandling, nil)
+            }
+        }
+    }
+}
 
 //MARK: APIClientNetworkFetcher
 
 extension URLSession: APIClientNetworkFetcher {
 
-    public func fetchData(with urlRequest: URLRequest) async throws -> APIClient.Response {
-        let tuple = try await data(for: urlRequest)
-        guard let httpResponse = tuple.1 as? HTTPURLResponse else {
-            throw APIClient.Error.malformedResponse
+    public func perform(_ request: APIClient.OutboundRequest) async throws -> APIClient.Response {
+        guard var urlRequest = URLRequest(httpRequest: request.httpRequest) else {
+            throw APIClient.Error.malformedURL
         }
-        return .init(data: tuple.0, httpResponse: httpResponse)
+        if let timeoutInterval = request.timeoutInterval {
+            urlRequest.timeoutInterval = timeoutInterval
+        }
+
+        if let fileURL = request.fileToUpload {
+            return try await performUpload(urlRequest, fromFile: fileURL)
+        } else {
+            urlRequest.httpBody = request.body
+            let (data, response) = try await data(for: urlRequest)
+            return try APIClient.Response(data: data, response: response)
+        }
     }
-    
-    public func uploadFile(with urlRequest: URLRequest, fileURL: URL) async throws -> APIClient.Response {
+
+    private func performUpload(_ urlRequest: URLRequest, fromFile fileURL: URL) async throws -> APIClient.Response {
         let task = Task {
             try await upload(for: urlRequest, fromFile: fileURL)
         }
@@ -32,10 +81,7 @@ extension URLSession: APIClientNetworkFetcher {
         let result: Swift.Result<APIClient.Response, Swift.Error> = await {
             do {
                 let (data, response) = try await task.value
-                guard let httpResponse = response as? HTTPURLResponse else {
-                    throw APIClient.Error.malformedResponse
-                }
-                return .success(APIClient.Response(data: data, httpResponse: httpResponse))
+                return .success(try APIClient.Response(data: data, response: response))
             } catch {
                 return .failure(error)
             }
@@ -46,8 +92,16 @@ extension URLSession: APIClientNetworkFetcher {
     }
 }
 
-public typealias HTTPHeaders = [String: String]
-public struct VoidResponse: Decodable, Hashable, Sendable {}
+private extension APIClient.Response {
+    /// Bridges a Foundation `URLResponse` into the portable ``APIClient/Response``.
+    init(data: Data, response: URLResponse) throws {
+        guard let httpURLResponse = response as? HTTPURLResponse,
+              let httpResponse = httpURLResponse.httpResponse else {
+            throw APIClient.Error.malformedResponse
+        }
+        self.init(data: data, httpResponse: httpResponse)
+    }
+}
 
 // MARK: UIApplicationWrapper
 /// This is here just to make sure that on non-UIKit
@@ -59,7 +113,7 @@ private extension APIClient {
         func generateBackgroundTaskID(cancelTask: @escaping (@MainActor @Sendable () -> Void)) async -> UIBackgroundTaskIdentifier {
             return await UIApplication.shared.beginBackgroundTask(expirationHandler: cancelTask)
         }
-        
+
         func endBackgroundTask(id: UIBackgroundTaskIdentifier) async {
             await UIApplication.shared.endBackgroundTask(id)
         }
@@ -71,7 +125,7 @@ private extension APIClient {
         func generateBackgroundTaskID(cancelTask: @escaping (@MainActor @Sendable () -> Void)) async -> Int {
             return 0
         }
-        
+
         func endBackgroundTask(id: Int) async {
 
         }
@@ -79,3 +133,17 @@ private extension APIClient {
 }
 #endif
 
+#else
+
+// MARK: Platforms without URLSession (e.g. WASM)
+
+extension APIClient {
+
+    /// No `URLSession` is available on this platform, so an `APIClientNetworkFetcher` must be
+    /// supplied explicitly to `APIClient(environment:networkFetcher:)`.
+    static func makeDefaultNetworkFetcher(environment: Environment) -> APIClientNetworkFetcher {
+        fatalError("BSWFoundation: no default APIClientNetworkFetcher is available on this platform. Pass one explicitly to APIClient(environment:networkFetcher:).")
+    }
+}
+
+#endif

@@ -9,6 +9,9 @@ import FoundationEssentials
 
 import Foundation
 
+/// A collection of HTTP header fields to be sent with a request, keyed by field name.
+public typealias HTTPHeaders = [String: String]
+
 // MARK: - Endpoint
 
 /**

@@ -12,21 +12,15 @@ enum HTTPBin {
         case development
 
         var baseURL: URL {
-            #if os(Android)
+            // httpbingo.org is a maintained Go reimplementation of httpbin (mccutchen/go-httpbin)
+            // with identical endpoints and response shapes, and is far more reliable than
+            // httpbin.org, which frequently returns 503s under load and flaked our CI.
             switch self {
             case .production:
-                return URL(string: "http://httpbin.org")!
+                return URL(string: "https://httpbingo.org")!
             case .development:
-                return URL(string: "http://dev.httpbin.org")!
+                return URL(string: "https://dev.httpbingo.org")!
             }
-            #else
-            switch self {
-            case .production:
-                return URL(string: "https://httpbin.org")!
-            case .development:
-                return URL(string: "https://dev.httpbin.org")!
-            }
-            #endif
         }
     }
 

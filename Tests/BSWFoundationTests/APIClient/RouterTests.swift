@@ -5,13 +5,14 @@
 import Testing
 @testable import BSWFoundation
 import Foundation
+import HTTPTypes
 
 actor RouterTests {
 
     @Test
     func queryParams() async throws {
         let result = URLEncoding.query([
-            "hello": true, 
+            "hello": true,
             "cruel": 1,
             "world": "asda",
             "what": "https://www.theleftbit.com/",
@@ -19,39 +20,39 @@ actor RouterTests {
         ])
         #expect(result == "are=2025-07-08T13%3A00%3A55Z&cruel=1&hello=1&what=https%3A//www.theleftbit.com/&world=asda")
     }
-    
+
     @Test
     func defaultUserAgentGeneration() async throws {
         let sut = APIClient.Router(environment: Giphy.Hosts.production)
-        let urlRequest = try await sut.urlRequest(forEndpoint: Giphy.API.search("hola"))
-        let userAgent = try #require(urlRequest.allHTTPHeaderFields?["User-Agent"])
+        let outbound = try await sut.prepareRequest(forEndpoint: Giphy.API.search("hola"))
+        let userAgent = try #require(outbound.httpRequest.headerFields[.userAgent])
         #expect(userAgent.contains(Bundle.main.osName))
     }
-    
+
     @Test
     func customUserAgentGeneration() async throws {
         let sut = APIClient.Router(environment: Giphy.Hosts.production)
         await sut.setUserAgentValue("Foo")
-        let urlRequest = try await sut.urlRequest(forEndpoint: Giphy.API.search("hola"))
-        let userAgent = try #require(urlRequest.allHTTPHeaderFields?["User-Agent"])
+        let outbound = try await sut.prepareRequest(forEndpoint: Giphy.API.search("hola"))
+        let userAgent = try #require(outbound.httpRequest.headerFields[.userAgent])
         #expect(userAgent == "Foo")
     }
-    
+
     @Test
     func simpleURLEncoding() async throws {
         let sut = APIClient.Router(environment: Giphy.Hosts.production)
-        let urlRequest = try await sut.urlRequest(forEndpoint: Giphy.API.search("hola"))
-        let url = try #require(urlRequest.url)
-        #expect(url.absoluteString == "https://api.giphy.com/v1/gifs/search?q=hola")
-        #expect(urlRequest.allHTTPHeaderFields?["Content-Type"] == "application/x-www-form-urlencoded")
+        let outbound = try await sut.prepareRequest(forEndpoint: Giphy.API.search("hola"))
+        #expect(outbound.httpRequest.scheme == "https")
+        #expect(outbound.httpRequest.authority == "api.giphy.com")
+        #expect(outbound.httpRequest.path == "/v1/gifs/search?q=hola")
+        #expect(outbound.httpRequest.headerFields[.contentType] == "application/x-www-form-urlencoded")
     }
 
     @Test
     func complicatedURLEncoding() async throws {
         let sut = APIClient.Router(environment: Giphy.Hosts.production)
-        let urlRequest = try await sut.urlRequest(forEndpoint: Giphy.API.search("hola guapa"))
-        let url = try #require(urlRequest.url)
-        #expect(url.absoluteString == "https://api.giphy.com/v1/gifs/search?q=hola%20guapa")
+        let outbound = try await sut.prepareRequest(forEndpoint: Giphy.API.search("hola guapa"))
+        #expect(outbound.httpRequest.path == "/v1/gifs/search?q=hola%20guapa")
     }
 
     @Test
@@ -60,11 +61,10 @@ actor RouterTests {
         let endpoint = HTTPBin.API.orderPizza
         typealias PizzaRequestParams = [String: [String]]
 
-        let urlRequest = try await sut.urlRequest(forEndpoint: endpoint)
-        let url = try #require(urlRequest.url)
-        let data = try #require(urlRequest.httpBody)
-        #expect(url.host() == "httpbin.org")
-        #expect(url.path() == "/forms/post")
+        let outbound = try await sut.prepareRequest(forEndpoint: endpoint)
+        let data = try #require(outbound.body)
+        #expect(outbound.httpRequest.authority == "httpbingo.org")
+        #expect(outbound.httpRequest.path == "/forms/post")
 
         let jsonParam = try #require(JSONSerialization.jsonObject(with: data, options: []) as? PizzaRequestParams)
         let endpointParams = try #require(endpoint.parameters as? PizzaRequestParams)

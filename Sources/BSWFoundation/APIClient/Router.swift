@@ -4,16 +4,17 @@
 //
 
 #if os(Android)
-import FoundationEssentials; import FoundationInternationalization; import FoundationNetworking
+import FoundationEssentials; import FoundationInternationalization
 #endif
 import Foundation
+import HTTPTypes
 
 // MARK:- Router
 
 extension APIClient {
-    
+
     actor Router {
-        
+
         let environment: Environment
         var userAgentValue: String
 
@@ -26,47 +27,77 @@ extension APIClient {
             self.userAgentValue = "\(bundle.osName) - \(bundle.displayName) \(bundle.appVersion) (\(bundle.appBuild))"
             #endif
         }
-        
+
         func setUserAgentValue(_ userAgentValue: String) {
             self.userAgentValue = userAgentValue
         }
-        
-        func urlRequest(forEndpoint endpoint: Endpoint) throws -> URLRequest {
-            guard let URL = URL(string: environment.routeURL(endpoint.path)) else {
-                throw APIClient.Error.malformedURL
-            }
 
-            var urlRequest = URLRequest(url: URL)
+        /// Builds a transport-agnostic ``APIClient/OutboundRequest`` from the given `Endpoint`.
+        ///
+        /// The resulting `HTTPRequest` is assembled from URL components (scheme / authority / path)
+        /// rather than a Foundation `URL` bridge, so this stays available on platforms without
+        /// `FoundationNetworking` (e.g. WASM).
+        func prepareRequest(forEndpoint endpoint: Endpoint) throws -> APIClient.OutboundRequest {
 
-            urlRequest.httpMethod = endpoint.method.rawValue
-            urlRequest.allHTTPHeaderFields = endpoint.httpHeaderFields
-            urlRequest.setValue(userAgentValue.cleanForUserAgent, forHTTPHeaderField: "User-Agent")
-            if let timeout = endpoint.timeoutInterval {
-                urlRequest.timeoutInterval = timeout
-            }
+            // 1. Resolve the absolute URL string and encode the parameters into either the
+            //    query (for `.url`) or the body (for `.json`).
+            var urlString = environment.routeURL(endpoint.path)
+            var body: Data?
+            var contentType: String?
+
             switch endpoint.parameterEncoding {
             case .url:
-                guard let url = urlRequest.url else {
-                    throw APIClient.Error.encodingRequestFailed
+                if let parameters = endpoint.parameters, !parameters.isEmpty {
+                    let query = URLEncoding.query(parameters)
+                    urlString += (urlString.contains("?") ? "&" : "?") + query
+                    contentType = "application/x-www-form-urlencoded"
                 }
-                guard let parameters = endpoint.parameters, !parameters.isEmpty, var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else { break }
-                let percentEncodedQuery = (urlComponents.percentEncodedQuery.map { $0 + "&" } ?? "") + URLEncoding.query(parameters)
-                urlComponents.percentEncodedQuery = percentEncodedQuery
-                urlRequest.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-                urlRequest.url = urlComponents.url
             case .json:
-                guard let parameters = endpoint.parameters, !parameters.isEmpty else { break }
-                do {
-                    let data = try JSONSerialization.data(withJSONObject: parameters, options: [.sortedKeys])
-                    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                    urlRequest.httpBody = data
-                } catch {
-                    throw APIClient.Error.encodingRequestFailed
+                if let parameters = endpoint.parameters, !parameters.isEmpty {
+                    guard let data = try? JSONSerialization.data(withJSONObject: parameters, options: [.sortedKeys]) else {
+                        throw APIClient.Error.encodingRequestFailed
+                    }
+                    body = data
+                    contentType = "application/json"
                 }
             }
 
-            return urlRequest
-        }        
+            // 2. Turn the URL into an `HTTPRequest`. HTTPTypes' `HTTPRequest(method:url:)` lives in
+            //    the core module (behind the default-on `FoundationURL` trait), decomposes the URL
+            //    into the scheme / authority / path pseudo-header fields for us — handling edge
+            //    cases like IPv6 authorities — and is available on platforms without
+            //    FoundationNetworking, including WASM. We pre-check the scheme because that
+            //    initializer traps on a schemeless URL.
+            guard let url = URL(string: urlString), url.scheme != nil else {
+                throw APIClient.Error.malformedURL
+            }
+            guard let method = HTTPRequest.Method(endpoint.method.rawValue) else {
+                throw APIClient.Error.encodingRequestFailed
+            }
+
+            // 3. Assemble the header fields. Endpoint-provided headers go in first, then the
+            //    framework-managed User-Agent and Content-Type so they take precedence.
+            var headerFields = HTTPFields()
+            if let httpHeaderFields = endpoint.httpHeaderFields {
+                for (name, value) in httpHeaderFields {
+                    guard let fieldName = HTTPField.Name(name) else { continue }
+                    headerFields[fieldName] = value
+                }
+            }
+            headerFields[.userAgent] = userAgentValue.cleanForUserAgent
+            if let contentType {
+                headerFields[.contentType] = contentType
+            }
+
+            let httpRequest = HTTPRequest(method: method, url: url, headerFields: headerFields)
+
+            return APIClient.OutboundRequest(
+                httpRequest: httpRequest,
+                body: body,
+                timeoutInterval: endpoint.timeoutInterval,
+                fileToUpload: endpoint.fileToUpload
+            )
+        }
     }
 }
 
@@ -126,12 +157,12 @@ private extension String {
         var allowed = CharacterSet()
         allowed.formUnion(.urlPathAllowed)
         allowed.formUnion(.whitespaces)
-        
+
         // Step 1: Remove specific suffixes
         let cleanedSuffix = self
             .replacingOccurrences(of: "-β", with: "")
             .replacingOccurrences(of: "-test", with: "")
-        
+
         // Step 2: Filter remaining characters
         return String(cleanedSuffix.unicodeScalars.filter { allowed.contains($0) })
     }
