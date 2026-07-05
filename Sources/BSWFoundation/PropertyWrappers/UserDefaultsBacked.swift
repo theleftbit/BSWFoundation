@@ -9,7 +9,8 @@ import SkipFuse
 import SkipAndroidBridge
 #endif
 
-#if !os(Linux)
+// WASM support (localStorage-backed) is added in a follow-up; excluded here for now.
+#if !os(Linux) && !os(WASI)
 /// Stores the given `T` type on User Defaults.
 ///
 /// The value parameter can be only property list objects: `NSData`, `NSString`, `NSNumber`, `NSDate`, `NSArray`, or `NSDictionary`.

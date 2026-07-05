@@ -2,7 +2,7 @@ import Foundation
 import HTTPTypes
 #if os(Android)
 import AndroidLogging
-#else
+#elseif !os(WASI)
 import OSLog
 #endif
 

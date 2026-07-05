@@ -139,10 +139,14 @@ private extension APIClient {
 
 extension APIClient {
 
-    /// No `URLSession` is available on this platform, so an `APIClientNetworkFetcher` must be
-    /// supplied explicitly to `APIClient(environment:networkFetcher:)`.
     static func makeDefaultNetworkFetcher(environment: Environment) -> APIClientNetworkFetcher {
+        #if os(WASI)
+        // In the browser, network I/O goes through the JS `fetch` API.
+        return FetchNetworkFetcher()
+        #else
+        // No `URLSession` and no known browser: require an explicit fetcher.
         fatalError("BSWFoundation: no default APIClientNetworkFetcher is available on this platform. Pass one explicitly to APIClient(environment:networkFetcher:).")
+        #endif
     }
 }
 

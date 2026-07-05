@@ -5,12 +5,13 @@ import Foundation
 
 #if os(Android)
 import SkipKeychain
-#else
+#elseif !os(WASI)
 import KeychainAccess
 #endif
 
-/// This is supported anywhere but Linux
-#if !os(Linux)
+/// This is supported anywhere but Linux.
+/// WASM support (localStorage-backed) is added in a follow-up; excluded here for now.
+#if !os(Linux) && !os(WASI)
 
 /// Stores a String on the Keychain
 @propertyWrapper

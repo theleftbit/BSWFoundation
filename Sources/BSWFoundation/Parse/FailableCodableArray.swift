@@ -5,7 +5,7 @@ import Foundation
 
 #if os(Android)
 import AndroidLogging
-#else
+#elseif !os(WASI)
 import OSLog
 #endif
 

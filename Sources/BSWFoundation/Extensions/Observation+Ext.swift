@@ -1,14 +1,18 @@
 import Foundation
 import Observation
 
+#if !os(WASI)
+// `stream(for:)` re-arms observation tracking via `DispatchQueue.main.async`, which is
+// unavailable on wasm (single-threaded). A concurrency-correct wasm reschedule (via the
+// JavaScriptKit event loop) is a follow-up; the helper is excluded on wasm for now.
 extension Observable where Self: AnyObject & Sendable {
-    
+
     public func stream<Value: Sendable>(
         for keyPath: KeyPath<Self, Value>
     ) -> AsyncStream<Value> {
         let box = ObservationBox()
         nonisolated(unsafe) let keyPath = keyPath
-        
+
         return AsyncStream(Value.self) { continuation in
             @Sendable func track(object: Self) {
                 Observation.withObservationTracking { [weak object] in
@@ -22,15 +26,20 @@ extension Observable where Self: AnyObject & Sendable {
                     }
                 }
             }
-            
+
             continuation.onTermination = { _ in
                 box.isCancelled = true
             }
-            
+
             track(object: self)
         }
     }
 }
+
+private final class ObservationBox: @unchecked Sendable {
+    var isCancelled = false
+}
+#endif
 
 extension AsyncStream where Element: Equatable {
   public func until(_ e: Element) async {
@@ -41,8 +50,4 @@ extension AsyncStream where Element: Equatable {
       }
     }
   }
-}
-
-private final class ObservationBox: @unchecked Sendable {
-    var isCancelled = false
 }
