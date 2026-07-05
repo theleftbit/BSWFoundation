@@ -5,19 +5,23 @@ import Foundation
 
 #if os(Android)
 import SkipKeychain
-#elseif !os(WASI)
+#elseif canImport(Darwin)
 import KeychainAccess
 #endif
 
-/// This is supported anywhere but Linux.
-/// WASM support (localStorage-backed) is added in a follow-up; excluded here for now.
-#if !os(Linux) && !os(WASI)
+/// Supported everywhere except Linux. On WebAssembly it is backed by `localStorage`
+/// via `WASMKeyValueStore` — which is **not** secure storage.
+#if !os(Linux)
 
-/// Stores a String on the Keychain
+/// Stores a String on the Keychain (or `localStorage` on wasm).
 @propertyWrapper
 public class KeychainBacked {
     private let key: String
+    #if os(WASI)
+    private let store = WASMKeyValueStore.shared
+    #else
     private let keychain: Keychain
+    #endif
 
     public init(key: String, appGroupID: String? = nil) {
         self.key = key
@@ -29,17 +33,25 @@ public class KeychainBacked {
                 return Keychain(service: Bundle.main.bundleIdentifier!)
             }
         }()
-        #else
+        #elseif os(Android)
         self.keychain = Keychain.shared
         #endif
     }
-    
+
     #if canImport(Darwin)
     public var wrappedValue: String? {
         get {
             return keychain[key]
         } set {
             keychain[key] = newValue
+        }
+    }
+    #elseif os(WASI)
+    public var wrappedValue: String? {
+        get {
+            return store.string(forKey: key)
+        } set {
+            store.set(newValue, forKey: key)
         }
     }
     #else
@@ -63,27 +75,39 @@ public extension KeychainBacked {
     }
 }
 
-/// Stores the given `T` type on the Keychain (as long as it's `Codable`)
+/// Stores the given `T` type on the Keychain (or `localStorage` on wasm), as long as it's `Codable`.
 @propertyWrapper
 public class CodableKeychainBacked<T: Codable> {
     private let key: String
+    #if os(WASI)
+    private let store = WASMKeyValueStore.shared
+    #else
     private let keychain: Keychain
+    #endif
 
     public init(key: String) {
         self.key = key
         #if canImport(Darwin)
         self.keychain = Keychain(service: Bundle.main.bundleIdentifier!)
-        #else
+        #elseif os(Android)
         self.keychain = Keychain.shared
         #endif
     }
-    
+
     #if canImport(Darwin)
     public var wrappedValue: T? {
         get {
             return keychain[key]?.decoded()
         } set {
             keychain[key] = newValue.encodedAsString()
+        }
+    }
+    #elseif os(WASI)
+    public var wrappedValue: T? {
+        get {
+            return store.string(forKey: key)?.decoded()
+        } set {
+            store.set(newValue.encodedAsString(), forKey: key)
         }
     }
     #else
