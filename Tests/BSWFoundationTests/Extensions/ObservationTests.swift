@@ -19,7 +19,7 @@ struct ObservationTests {
     func itCompletesCorrectly() async throws {
         let viewModel = ViewModel()
         Task {
-            try await Task.sleep(for: .milliseconds(20))
+            try? await Task.sleep(for: .milliseconds(20))
             viewModel.setIsReady()
         }
         #expect(viewModel.isReady == false)
