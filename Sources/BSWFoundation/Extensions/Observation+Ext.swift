@@ -16,7 +16,7 @@ extension Observable where Self: AnyObject & Sendable {
                     let value = self[keyPath: keyPath]
                     continuation.yield(value)
                 } onChange: { [weak object] in
-                    DispatchQueue.main.async {
+                    Task { @MainActor in
                         guard let self = object, !box.isCancelled else { return }
                         track(object: self)
                     }
