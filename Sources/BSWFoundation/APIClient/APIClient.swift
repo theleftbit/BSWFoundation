@@ -179,6 +179,10 @@ extension APIClient {
         public let data: Data
         /// The status and header fields of the response, as a portable `HTTPResponse`.
         public let httpResponse: HTTPResponse
+        /// The HTTP response status code.
+        public var statusCode: Int {
+            httpResponse.status.code
+        }
 
         public init(data: Data, httpResponse: HTTPResponse) {
             self.data = data
@@ -260,11 +264,11 @@ private extension APIClient {
 
     func validateResponse(_ response: Response, forPath path: String) async throws -> Data {
         logResponse(response, forPath: path)
-        switch response.httpResponse.status.code {
+        switch response.statusCode {
         case (200..<300):
             return response.data
         default:
-            let apiError = APIClient.Error.failureStatusCode(response.httpResponse.status.code, response.data)
+            let apiError = APIClient.Error.failureStatusCode(response.statusCode, response.data)
             await self.delegate?.apiClientDidReceiveError(apiError, forRequest: path, apiClientID: id)
             throw apiError
         }
