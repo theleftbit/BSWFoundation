@@ -38,4 +38,10 @@ public actor MockNetworkFetcher: APIClientNetworkFetcher {
             httpResponse: HTTPResponse(status: .init(code: mockedStatusCode))
         )
     }
+
+    #if canImport(FoundationNetworking) || canImport(Darwin)
+    public var capturedURLRequest: URLRequest? {
+        return capturedRequest?.urlRequest
+    }
+    #endif
 }
