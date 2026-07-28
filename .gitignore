@@ -66,3 +66,6 @@ fastlane/screenshots
 BSWFoundation-*.xcarchive
 BSWFoundation.xcframework.zip
 BSWFoundation.xcframework
+
+# Graphify generated output
+graphify-out/
