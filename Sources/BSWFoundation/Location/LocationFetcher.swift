@@ -109,7 +109,8 @@ public final class LocationFetcher: NSObject, CLLocationManagerDelegate {
     }
     
     public nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Swift.Error) {
-        print("Error finding location: \(error.localizedDescription)")
+        let logger = BSWLogger(subsystem: submoduleName("LocationFetcher"), category: "CoreLocation")
+        logger.error("Error finding location: \(error.localizedDescription)")
         MainActor.assumeIsolated {
             completeCurrentRequest(.failure(.coreLocationError(error)))
         }

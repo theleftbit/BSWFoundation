@@ -8,6 +8,8 @@ import OSLog
 import AndroidLogging
 #elseif os(WASI)
 import Logging
+#else
+#error("BSWLogger is only available on Apple platforms, Android, and WASI")
 #endif
 
 /// A lightweight, cross-platform logging facade used throughout BSWFoundation.
@@ -16,7 +18,6 @@ import Logging
 /// - **Apple** platforms: `OSLog` (the unified logging system / Console.app)
 /// - **Android**: `AndroidLogging` (logcat)
 /// - **WebAssembly**: `swift-log` (its installed `LogHandler`, e.g. the browser console)
-/// - **Other** platforms: `print`
 ///
 /// The API intentionally mirrors `OSLog.Logger` (`init(subsystem:category:)`), so it is a drop-in
 /// across the ecosystem and gives every app built on BSWFoundation a single, consistent logger.
@@ -27,11 +28,7 @@ public struct BSWLogger: Sendable {
         case debug, info, warning, error
     }
 
-    #if canImport(OSLog) || os(Android) || os(WASI)
     private let backing: Logger
-    #else
-    private let label: String
-    #endif
 
     /// Creates a logger for the given subsystem and category.
     public init(subsystem: String, category: String) {
@@ -39,25 +36,68 @@ public struct BSWLogger: Sendable {
         self.backing = Logger(subsystem: subsystem, category: category)
         #elseif os(WASI)
         self.backing = Logger(label: "\(subsystem).\(category)")
-        #else
-        self.label = "\(subsystem).\(category)"
         #endif
     }
 
-    public func debug(_ message: @autoclosure () -> String)   { log(level: .debug, message()) }
-    public func info(_ message: @autoclosure () -> String)    { log(level: .info, message()) }
-    public func warning(_ message: @autoclosure () -> String) { log(level: .warning, message()) }
-    public func error(_ message: @autoclosure () -> String)   { log(level: .error, message()) }
+    public func debug(
+        _ message: @autoclosure () -> String,
+        file: String = #fileID,
+        function: String = #function,
+        line: UInt = #line
+    ) {
+        log(level: .debug, message(), file: file, function: function, line: line)
+    }
 
-    public func log(level: Level, _ message: @autoclosure () -> String) {
+    public func info(
+        _ message: @autoclosure () -> String,
+        file: String = #fileID,
+        function: String = #function,
+        line: UInt = #line
+    ) {
+        log(level: .info, message(), file: file, function: function, line: line)
+    }
+
+    public func warning(
+        _ message: @autoclosure () -> String,
+        file: String = #fileID,
+        function: String = #function,
+        line: UInt = #line
+    ) {
+        log(level: .warning, message(), file: file, function: function, line: line)
+    }
+
+    public func error(
+        _ message: @autoclosure () -> String,
+        file: String = #fileID,
+        function: String = #function,
+        line: UInt = #line
+    ) {
+        log(level: .error, message(), file: file, function: function, line: line)
+    }
+
+    public func log(
+        level: Level,
+        _ message: @autoclosure () -> String,
+        file: String = #fileID,
+        function: String = #function,
+        line: UInt = #line
+    ) {
         let text = message()
         #if canImport(OSLog) || os(Android)
-        backing.log(level: level.osLogType, "\(text)")
+        backing.log(level: level.osLogType, "\(formatMessage(text, file: file, function: function, line: line))")
         #elseif os(WASI)
-        backing.log(level: level.loggingLevel, "\(text)")
-        #else
-        print("[\(label)] [\(level)] \(text)")
+        backing.log(
+            level: level.loggingLevel,
+            "\(text)",
+            file: file,
+            function: function,
+            line: line
+        )
         #endif
+    }
+
+    private func formatMessage(_ message: String, file: String, function: String, line: UInt) -> String {
+        "[\(file):\(line) \(function)] \(message)"
     }
 }
 

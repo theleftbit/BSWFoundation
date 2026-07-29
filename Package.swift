@@ -51,20 +51,11 @@ if skipIsEnabled {
 var targetDependencies: [Target.Dependency] = [
     .product(name: "Crypto", package: "swift-crypto"),
     .product(name: "KeychainAccess", package: "KeychainAccess", condition: applePlatforms),
-    // `HTTPTypes` is pure Swift (no Foundation) and links on every platform, including WASM.
     .product(name: "HTTPTypes", package: "swift-http-types"),
-    // `HTTPTypesFoundation` bridges to URLSession/URLRequest. Its URLSession extensions do NOT
-    // compile for wasm, and we only `import` it from the (Darwin/FoundationNetworking-guarded)
-    // URLSession fetcher, so link it only on platforms where URLSession exists.
     .product(name: "HTTPTypesFoundation", package: "swift-http-types", condition: foundationNetworkingPlatforms),
-    // In the browser, network I/O goes through the JS `fetch` API via JavaScriptKit. These
-    // products only link on WASM (WASI); every other platform ignores them.
     .product(name: "JavaScriptKit", package: "JavaScriptKit", condition: .when(platforms: [.wasi])),
     .product(name: "JavaScriptEventLoop", package: "JavaScriptKit", condition: .when(platforms: [.wasi])),
-    // Data <-> Uint8Array bridging for the fetch fetcher's request/response bodies.
     .product(name: "JavaScriptFoundationCompat", package: "JavaScriptKit", condition: .when(platforms: [.wasi])),
-    // swift-log backs the wasm logging shim (OSLog is Apple-only, AndroidLogging is Android-only).
-    // WASM-scoped so Apple/Android logging is unchanged.
     .product(name: "Logging", package: "swift-log", condition: .when(platforms: [.wasi])),
 ]
 
