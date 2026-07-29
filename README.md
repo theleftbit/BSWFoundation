@@ -46,18 +46,20 @@ targets: [
 ]
 ```
 
-Install the JavaScriptKit global executor **once, before any async work** — without it, `Task` / `async`-`await` (and therefore `APIClient`) won't run:
+Install the JavaScriptKit global executor through BSWFoundation **once, before creating `APIClient` or spawning async work**. In a browser app hosted by JavaScript, do this from the Swift bootstrap function that your JS entrypoint calls before invoking any other Swift API:
 
 ```swift
-import JavaScriptEventLoop
+import BSWFoundation
 
-@main
-struct MyWebApp {
-    static func main() {
-        JavaScriptEventLoop.installGlobalExecutor()
-        Task { /* your app — APIClient, storage, etc. all work from here */ }
-    }
+@_cdecl("bsw_bootstrap")
+public func bsw_bootstrap() {
+    BSWBrowserRuntime.installJavaScriptEventLoop()
 }
+```
+
+```js
+wasm.instance.exports.bsw_bootstrap();
+// Now call exported Swift APIs that create APIClient, use storage, or spawn async work.
 ```
 
 Bundle it with the [PackageToJS](https://github.com/swiftwasm/JavaScriptKit) plugin JavaScriptKit ships, then serve the output folder over HTTP:

@@ -50,7 +50,6 @@ extension APIClient {
 
 //MARK: OutboundRequest bridging
 
-#if canImport(FoundationNetworking) || canImport(Darwin)
 extension APIClient.OutboundRequest {
     var urlRequest: URLRequest? {
         guard var urlRequest = URLRequest(httpRequest: self.httpRequest) else { return nil }
@@ -61,7 +60,6 @@ extension APIClient.OutboundRequest {
         return urlRequest
     }
 }
-#endif
 
 //MARK: APIClientNetworkFetcher
 
@@ -148,21 +146,5 @@ private extension APIClient {
 }
 #endif
 
-#else
-
-// MARK: Platforms without URLSession (e.g. WASM)
-
-extension APIClient {
-
-    static func makeDefaultNetworkFetcher(environment: Environment) -> APIClientNetworkFetcher {
-        #if os(WASI)
-        // In the browser, network I/O goes through the JS `fetch` API.
-        return FetchNetworkFetcher()
-        #else
-        // No `URLSession` and no known browser: require an explicit fetcher.
-        fatalError("BSWFoundation: no default APIClientNetworkFetcher is available on this platform. Pass one explicitly to APIClient(environment:networkFetcher:).")
-        #endif
-    }
-}
 
 #endif

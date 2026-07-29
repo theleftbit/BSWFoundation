@@ -19,6 +19,9 @@ actor APIClientTests {
     var sut: APIClient
 
     init() {
+        #if os(WASI)
+        BSWBrowserRuntime.installJavaScriptEventLoop()
+        #endif
         sut = APIClient(environment: HTTPBin.Hosts.production)
     }
 
