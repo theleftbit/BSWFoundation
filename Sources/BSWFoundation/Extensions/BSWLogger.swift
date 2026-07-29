@@ -101,18 +101,7 @@ public struct BSWLogger: Sendable {
     }
 }
 
-#if canImport(OSLog)
-private extension BSWLogger.Level {
-    var osLogType: OSLogType {
-        switch self {
-        case .debug: return .debug
-        case .info: return .info
-        case .warning: return .default
-        case .error: return .error
-        }
-    }
-}
-#elseif os(Android)
+#if canImport(OSLog) || os(Android)
 private extension BSWLogger.Level {
     var osLogType: OSLogType {
         switch self {
