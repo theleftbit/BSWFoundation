@@ -114,11 +114,12 @@ private extension BSWLogger.Level {
 }
 #elseif os(Android)
 private extension BSWLogger.Level {
-    // `AndroidLogging` mirrors `OSLog`; map onto the OSLogType cases the codebase already exercises.
     var osLogType: OSLogType {
         switch self {
-        case .debug, .info: return .debug
-        case .warning, .error: return .error
+        case .debug: return .debug
+        case .info: return .info
+        case .warning: return .default
+        case .error: return .error
         }
     }
 }
