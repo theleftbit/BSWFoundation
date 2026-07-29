@@ -1,12 +1,11 @@
 import Foundation
 import JavaScriptKit
-import JavaScriptEventLoop
 import BSWFoundation
 
 @main
 struct WASMHarness {
     static func main() {
-        JavaScriptEventLoop.installGlobalExecutor()
+        BSWBrowserRuntime.installJavaScriptEventLoop()
         Task {
             await runHarness()
             // Tell the node runner (main.mjs) the async work is finished.
@@ -47,14 +46,14 @@ private func runHarness() async {
         log("❌ fetch GET failed: \(error)")
     }
 
-    // 2. A localStorage round-trip through KeychainBacked (→ WASMKeyValueStore → localStorage).
-    let token = KeychainBacked(key: "harness.token")
-    token.wrappedValue = "hello-from-wasm"
-    let readBack = token.wrappedValue
+    // 2. A localStorage round-trip through UserDefaultsBacked.
+    let value = UserDefaultsBacked<String>(key: "harness.value")
+    value.wrappedValue = "hello-from-wasm"
+    let readBack = value.wrappedValue
     if readBack == "hello-from-wasm" {
-        log("✅ KeychainBacked localStorage round-trip → '\(readBack ?? "")'")
+        log("✅ UserDefaultsBacked localStorage round-trip → '\(readBack ?? "")'")
     } else {
-        log("❌ KeychainBacked round-trip failed → '\(readBack ?? "nil")'")
+        log("❌ UserDefaultsBacked round-trip failed → '\(readBack ?? "nil")'")
     }
 
     log("— harness complete —")

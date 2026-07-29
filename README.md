@@ -21,9 +21,9 @@ If you find any issue, please report it using GitHub.
 
 ## WebAssembly / Browser Support
 
-BSWFoundation compiles for WebAssembly and runs in the browser via [SwiftWasm](https://swiftwasm.org) and [JavaScriptKit](https://github.com/swiftwasm/JavaScriptKit). Networking goes through the browser's `fetch` API (`FetchNetworkFetcher`, used automatically as the default fetcher on wasm) and key-value storage (`KeychainBacked`, `UserDefaultsBacked`) through `localStorage`. As on Android, `AuthStorage` and `LocationFetcher` are excluded.
+BSWFoundation compiles for WebAssembly and runs in the browser via [SwiftWasm](https://swiftwasm.org) and [JavaScriptKit](https://github.com/swiftwasm/JavaScriptKit). Networking goes through the browser's `fetch` API (`FetchNetworkFetcher`, used automatically as the default fetcher on wasm), and `UserDefaultsBacked` uses browser `localStorage` for non-sensitive values. As on Android, `AuthStorage` and `LocationFetcher` are excluded.
 
-> ⚠️ On WebAssembly, `KeychainBacked` is backed by `localStorage`, which is **not** secure storage — values are not encrypted at rest.
+> ⚠️ `KeychainBacked` and `CodableKeychainBacked` are unavailable on WebAssembly. Browsers do not expose Keychain-equivalent secure storage to SwiftWasm; use host-managed auth instead.
 
 ### Building a browser app
 
@@ -100,7 +100,7 @@ A complete worked example — the same `ViewModel` powering a SwiftUI app *and* 
 
 ### Running the test harness
 
-[`WASMHarness/`](WASMHarness) is a small executable that exercises the wasm paths at runtime — a real `fetch` GET decoded by `JSONParser`, plus a `localStorage` round-trip through `KeychainBacked`.
+[`WASMHarness/`](WASMHarness) is a small executable that exercises the wasm paths at runtime — a real `fetch` GET decoded by `JSONParser`, plus a `localStorage` round-trip through `UserDefaultsBacked`.
 
 1. **Install the WebAssembly Swift SDK** (once). The version must match your Swift toolchain — check `swift --version` and see [swift.org's WebAssembly guide](https://www.swift.org/documentation/articles/wasm-getting-started.html) for the current URL/checksum:
 
@@ -127,7 +127,7 @@ A complete worked example — the same `ViewModel` powering a SwiftUI app *and* 
 
    ```
    ✅ fetch GET https://httpbingo.org/ip → origin = …
-   ✅ KeychainBacked localStorage round-trip → 'hello-from-wasm'
+   ✅ UserDefaultsBacked localStorage round-trip → 'hello-from-wasm'
    ```
 
 4. **Run in a browser** — `fetch` and `localStorage` are both native there. Serve the folder over HTTP (wasm can't load from `file://`) and open `index.html`:

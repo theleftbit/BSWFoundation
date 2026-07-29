@@ -29,9 +29,9 @@ The same source file includes JWT decoding helpers derived from Auth0's JWT deco
 
 ## KeychainBacked
 
-`KeychainBacked` stores optional strings in Keychain. It supports Darwin through `KeychainAccess` and Android through `SkipKeychain`; Linux is excluded.
+`KeychainBacked` stores optional strings in Keychain. It supports Darwin through `KeychainAccess` and Android through `SkipKeychain`; Linux and WebAssembly are excluded.
 
-`CodableKeychainBacked` stores optional `Codable` values by encoding them before persistence and decoding them on read.
+`CodableKeychainBacked` stores optional `Codable` values by encoding them before persistence and decoding them on read. It is also unavailable on WebAssembly because browsers do not expose Keychain-equivalent secure storage to SwiftWasm.
 
 ## UserDefaultsBacked
 

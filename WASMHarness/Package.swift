@@ -3,7 +3,7 @@ import PackageDescription
 
 // A small executable that exercises BSWFoundation's WebAssembly paths at runtime:
 // a real `fetch` GET through FetchNetworkFetcher and a localStorage round-trip through
-// KeychainBacked. Build + run with:
+// UserDefaultsBacked. Build + run with:
 //
 //   swift package --swift-sdk swift-6.3.x-RELEASE_wasm js
 //   node main.mjs

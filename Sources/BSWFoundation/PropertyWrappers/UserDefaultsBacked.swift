@@ -7,10 +7,12 @@ import Foundation
 #if os(Android)
 import SkipFuse
 import SkipAndroidBridge
+#elseif os(WASI)
+import JavaScriptKit
 #endif
 
 /// Supported everywhere except Linux. On WebAssembly it is backed by `localStorage`
-/// via `WASMKeyValueStore`.
+/// through an internal browser storage adapter.
 #if !os(Linux)
 /// Stores the given `T` type on User Defaults.
 ///
@@ -152,4 +154,44 @@ public extension CodableUserDefaultsBacked {
         self.store.removeObject(forKey: key)
     }
 }
+
+#if os(WASI)
+private final class WASMKeyValueStore: @unchecked Sendable {
+
+    static let shared = WASMKeyValueStore()
+
+    /// `nil` when `localStorage` is unavailable (e.g. a Worker context); the store then no-ops.
+    private let localStorage: JSObject?
+
+    private init() {
+        localStorage = JSObject.global.localStorage.object
+    }
+
+    func string(forKey key: String) -> String? {
+        guard let localStorage else { return nil }
+        return localStorage.getItem!(key).string
+    }
+
+    func data(forKey key: String) -> Data? {
+        string(forKey: key)?.data(using: .utf8)
+    }
+
+    func set(_ value: String?, forKey key: String) {
+        guard let localStorage else { return }
+        if let value {
+            _ = localStorage.setItem!(key, value)
+        } else {
+            _ = localStorage.removeItem!(key)
+        }
+    }
+
+    func set(_ value: Data?, forKey key: String) {
+        set(value.flatMap { String(data: $0, encoding: .utf8) }, forKey: key)
+    }
+
+    func removeObject(forKey key: String) {
+        set(String?.none, forKey: key)
+    }
+}
+#endif
 #endif

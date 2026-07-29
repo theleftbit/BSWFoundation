@@ -9,19 +9,39 @@ import SkipKeychain
 import KeychainAccess
 #endif
 
-/// Supported everywhere except Linux. On WebAssembly it is backed by `localStorage`
-/// via `WASMKeyValueStore` — which is **not** secure storage.
-#if !os(Linux)
+#if os(WASI)
 
-/// Stores a String on the Keychain (or `localStorage` on wasm).
+/// Unavailable on WebAssembly because browsers do not provide Keychain-equivalent secure storage
+/// to SwiftWasm. Use host-managed auth or `UserDefaultsBacked` only for non-sensitive values.
+@available(*, unavailable, message: "KeychainBacked is unavailable on WebAssembly. Use host-managed auth, or UserDefaultsBacked only for non-sensitive values.")
+@propertyWrapper
+public final class KeychainBacked {
+    public init(key: String, appGroupID: String? = nil) {}
+    public var wrappedValue: String? {
+        get { nil }
+        set {}
+    }
+}
+
+/// Unavailable on WebAssembly because browsers do not provide Keychain-equivalent secure storage
+/// to SwiftWasm. Use host-managed auth or `CodableUserDefaultsBacked` only for non-sensitive values.
+@available(*, unavailable, message: "CodableKeychainBacked is unavailable on WebAssembly. Use host-managed auth, or CodableUserDefaultsBacked only for non-sensitive values.")
+@propertyWrapper
+public final class CodableKeychainBacked<T: Codable> {
+    public init(key: String) {}
+    public var wrappedValue: T? {
+        get { nil }
+        set {}
+    }
+}
+
+#elseif !os(Linux)
+
+/// Stores a String on the Keychain.
 @propertyWrapper
 public class KeychainBacked {
     private let key: String
-    #if os(WASI)
-    private let store = WASMKeyValueStore.shared
-    #else
     private let keychain: Keychain
-    #endif
 
     public init(key: String, appGroupID: String? = nil) {
         self.key = key
@@ -46,14 +66,6 @@ public class KeychainBacked {
             keychain[key] = newValue
         }
     }
-    #elseif os(WASI)
-    public var wrappedValue: String? {
-        get {
-            return store.string(forKey: key)
-        } set {
-            store.set(newValue, forKey: key)
-        }
-    }
     #else
     public var wrappedValue: String? {
         get {
@@ -75,15 +87,11 @@ public extension KeychainBacked {
     }
 }
 
-/// Stores the given `T` type on the Keychain (or `localStorage` on wasm), as long as it's `Codable`.
+/// Stores the given `T` type on the Keychain, as long as it's `Codable`.
 @propertyWrapper
 public class CodableKeychainBacked<T: Codable> {
     private let key: String
-    #if os(WASI)
-    private let store = WASMKeyValueStore.shared
-    #else
     private let keychain: Keychain
-    #endif
 
     public init(key: String) {
         self.key = key
@@ -100,14 +108,6 @@ public class CodableKeychainBacked<T: Codable> {
             return keychain[key]?.decoded()
         } set {
             keychain[key] = newValue.encodedAsString()
-        }
-    }
-    #elseif os(WASI)
-    public var wrappedValue: T? {
-        get {
-            return store.string(forKey: key)?.decoded()
-        } set {
-            store.set(newValue.encodedAsString(), forKey: key)
         }
     }
     #else

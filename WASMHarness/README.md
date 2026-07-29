@@ -4,7 +4,7 @@ A tiny executable that proves BSWFoundation's WebAssembly paths work at **runtim
 (not just at compile time) in a real JavaScript host:
 
 - a real `fetch` GET through `FetchNetworkFetcher`, decoded by `JSONParser`, and
-- a `localStorage` round-trip through `KeychainBacked` → `WASMKeyValueStore`.
+- a `localStorage` round-trip through `UserDefaultsBacked`.
 
 ## Prerequisite
 
@@ -38,7 +38,7 @@ Expected output:
 ```
 — BSWFoundation WebAssembly runtime harness —
 ✅ fetch GET https://httpbingo.org/ip → origin = …
-✅ KeychainBacked localStorage round-trip → 'hello-from-wasm'
+✅ UserDefaultsBacked localStorage round-trip → 'hello-from-wasm'
 — harness complete —
 ```
 

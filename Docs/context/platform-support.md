@@ -43,12 +43,12 @@ WASM consumers must install the JavaScriptKit event-loop executor once during ho
 
 Persistence support on WASM is intentionally narrow:
 
-- `KeychainBacked` stores optional strings through `WASMKeyValueStore`, backed by browser `localStorage`. This is not secure storage.
-- `UserDefaultsBacked` uses `WASMKeyValueStore` and supports only the value types documented in README. Use `CodableUserDefaultsBacked` for codable values.
+- `UserDefaultsBacked` uses an internal browser `localStorage` adapter and supports only the value types documented in README. Use `CodableUserDefaultsBacked` for codable values.
 
 Current WASM exclusions and limitations:
 
 - `AuthStorage` and `LocationFetcher` are unavailable.
+- `KeychainBacked` and `CodableKeychainBacked` are unavailable because browsers do not expose Keychain-equivalent secure storage to SwiftWasm.
 - URL file uploads are unavailable; browser upload support must use the WASM browser upload body API.
 - APIs that require Apple-only frameworks or URLSession delegates remain guarded out of WASI.
 
