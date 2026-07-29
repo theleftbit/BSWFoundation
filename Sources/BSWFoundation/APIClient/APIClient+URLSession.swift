@@ -48,6 +48,21 @@ extension APIClient {
     }
 }
 
+//MARK: OutboundRequest bridging
+
+#if canImport(FoundationNetworking) || canImport(Darwin)
+extension APIClient.OutboundRequest {
+    var urlRequest: URLRequest? {
+        guard var urlRequest = URLRequest(httpRequest: self.httpRequest) else { return nil }
+        urlRequest.httpBody = self.body
+        if let timeoutInterval = self.timeoutInterval {
+            urlRequest.timeoutInterval = timeoutInterval
+        }
+        return urlRequest
+    }
+}
+#endif
+
 //MARK: APIClientNetworkFetcher
 
 extension URLSession: APIClientNetworkFetcher {

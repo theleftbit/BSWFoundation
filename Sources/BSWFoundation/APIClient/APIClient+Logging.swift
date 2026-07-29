@@ -20,7 +20,7 @@ extension APIClient {
 
     func logResponse(_ response: Response, forPath path: String) {
         let logger = BSWLogger(subsystem: submoduleName("APIClient"), category: "APIClient.Response")
-        let statusCode = response.httpResponse.status.code
+        let statusCode = response.statusCode
         let isError = !(200..<300).contains(statusCode)
         let shouldLogThis: Bool = {
             switch loggingConfiguration.responseBehaviour {

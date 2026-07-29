@@ -4,6 +4,7 @@
 
 #if os(Android)
 import FoundationEssentials
+import FoundationNetworking
 #else
 import Foundation
 #endif
@@ -38,4 +39,10 @@ public actor MockNetworkFetcher: APIClientNetworkFetcher {
             httpResponse: HTTPResponse(status: .init(code: mockedStatusCode))
         )
     }
+
+    #if canImport(FoundationNetworking) || canImport(Darwin)
+    public var capturedURLRequest: URLRequest? {
+        return capturedRequest?.urlRequest
+    }
+    #endif
 }

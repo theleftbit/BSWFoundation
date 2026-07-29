@@ -38,7 +38,7 @@ actor APIClientTests {
         let ipRequest = BSWFoundation.APIClient.Request<HTTPBin.Responses.IP>(
             endpoint: HTTPBin.API.ip,
             validator: { response in
-                if response.httpResponse.status.code != 200 {
+                if response.statusCode != 200 {
                     throw ValidationError()
                 }
         })
