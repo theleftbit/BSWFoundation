@@ -29,13 +29,13 @@ The same source file includes JWT decoding helpers derived from Auth0's JWT deco
 
 ## KeychainBacked
 
-`KeychainBacked` stores optional strings in Keychain. It supports Darwin through `KeychainAccess` and Android through `SkipKeychain`; Linux and WebAssembly are excluded.
+`KeychainBacked` stores optional strings in Keychain. It supports Darwin through `KeychainAccess` and Android through `SkipKeychain`; Linux and WebAssembly are excluded. Android consumers must build with `SKIP_ENABLED=1` so SwiftPM includes `SkipKeychain`.
 
 `CodableKeychainBacked` stores optional `Codable` values by encoding them before persistence and decoding them on read. It is also unavailable on WebAssembly because browsers do not expose Keychain-equivalent secure storage to SwiftWasm.
 
 ## UserDefaultsBacked
 
-`UserDefaultsBacked` stores optional primitive values in user defaults. Darwin can use standard defaults or an app group suite. The Android path currently supports a narrower set of value types.
+`UserDefaultsBacked` stores optional primitive values in user defaults. Darwin can use standard defaults or an app group suite. The Android path requires Skip's user defaults bridge, which is included when building with `SKIP_ENABLED=1`, and currently supports a narrower set of value types.
 
 `CodableUserDefaultsBacked` stores optional `Codable` values by encoding them into user defaults.
 

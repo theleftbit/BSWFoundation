@@ -17,6 +17,8 @@ Please checkout [the documentation](https://swiftpackageindex.com/theleftbit/BSW
 
 Android support is in an ongoing effort, and it's' built on top of the [Skip Native toolchain](https://skip.tools/docs/native/). All features of this package except for `AuthStorage` and `LocationFetcher` are available and ready to use. 
 
+Some Android storage APIs require Skip-only dependencies. Build with `SKIP_ENABLED=1` so SwiftPM includes those packages before using `KeychainBacked`, `CodableKeychainBacked`, `UserDefaultsBacked`, or `CodableUserDefaultsBacked` on Android.
+
 If you find any issue, please report it using GitHub.
 
 ## WebAssembly / Browser Support

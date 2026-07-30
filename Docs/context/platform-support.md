@@ -26,7 +26,9 @@ When `SKIP_ENABLED` is present, the package adds Skip dependencies and Android-s
 - `FoundationInternationalization`
 - Android logging and platform APIs where needed.
 
-The README states that all features except `AuthStorage` and `LocationFetcher` are intended to be available on Android. `KeychainBacked` uses `SkipKeychain` on Android when Skip dependencies are enabled. The JWT helpers currently live under the `AuthStorage.swift` Darwin guard, so their intended Android availability should be clarified before relying on them from Skip code.
+The README states that all features except `AuthStorage` and `LocationFetcher` are intended to be available on Android. Some Android storage APIs require Skip-only modules: `KeychainBacked` and `CodableKeychainBacked` require `SkipKeychain`; `UserDefaultsBacked` and `CodableUserDefaultsBacked` require the Skip user defaults bridge. Build with `SKIP_ENABLED=1` so SwiftPM includes these dependencies. Without those modules, the wrappers remain present but unavailable with a targeted compiler diagnostic.
+
+The JWT helpers currently live under the `AuthStorage.swift` Darwin guard, so their intended Android availability should be clarified before relying on them from Skip code.
 
 ## Browser WebAssembly Via SwiftWasm
 

@@ -17,6 +17,8 @@ let applePlatforms = TargetDependencyCondition.when(
     ]
 )
 
+let androidPlatforms = TargetDependencyCondition.when(platforms: [.android])
+
 // Platforms where URLSession / FoundationNetworking exist. Excludes WASM (WASI), where
 // HTTPTypesFoundation's URLSession bridge does not compile.
 let foundationNetworkingPlatforms = TargetDependencyCondition.when(
@@ -39,6 +41,7 @@ var packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/apple/swift-http-types.git", from: "1.6.0"),
     .package(url: "https://github.com/swiftwasm/JavaScriptKit.git", from: "0.56.1"),
     .package(url: "https://github.com/apple/swift-log.git", from: "1.5.0"),
+    .package(url: "https://source.skip.tools/swift-android-native.git", from: "1.4.1"),
 ]
 
 if skipIsEnabled {
@@ -57,6 +60,7 @@ var targetDependencies: [Target.Dependency] = [
     .product(name: "JavaScriptEventLoop", package: "JavaScriptKit", condition: .when(platforms: [.wasi])),
     .product(name: "JavaScriptFoundationCompat", package: "JavaScriptKit", condition: .when(platforms: [.wasi])),
     .product(name: "Logging", package: "swift-log", condition: .when(platforms: [.wasi])),
+    .product(name: "AndroidLogging", package: "swift-android-native", condition: androidPlatforms),
 ]
 
 if skipIsEnabled {

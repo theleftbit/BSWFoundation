@@ -4,8 +4,11 @@
 
 import Foundation
 
-#if os(Android)
+#if canImport(SkipFuse)
 import SkipFuse
+#endif
+
+#if canImport(SkipAndroidBridge)
 import SkipAndroidBridge
 #elseif os(WASI)
 import JavaScriptKit
@@ -13,7 +16,35 @@ import JavaScriptKit
 
 /// Supported everywhere except Linux. On WebAssembly it is backed by `localStorage`
 /// through an internal browser storage adapter.
-#if !os(Linux)
+#if os(Android) && !canImport(SkipAndroidBridge)
+/// Unavailable on plain Swift Android SDK builds because Android user defaults integration is
+/// supplied by SkipAndroidBridge, which is only present when building with Skip enabled.
+@available(*, unavailable, message: "UserDefaultsBacked is unavailable on Android unless building with SkipAndroidBridge enabled. Pass SKIP_ENABLED=1 so SwiftPM includes the required Skip dependencies.")
+@propertyWrapper
+public final class UserDefaultsBacked<T: Sendable>: Sendable {
+    public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {}
+    public var wrappedValue: T? {
+        get { nil }
+        set {}
+    }
+
+    public func reset() {}
+}
+
+/// Unavailable on plain Swift Android SDK builds because Android user defaults integration is
+/// supplied by SkipAndroidBridge, which is only present when building with Skip enabled.
+@available(*, unavailable, message: "CodableUserDefaultsBacked is unavailable on Android unless building with SkipAndroidBridge enabled. Pass SKIP_ENABLED=1 so SwiftPM includes the required Skip dependencies.")
+@propertyWrapper
+public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
+    public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {}
+    public var wrappedValue: T? {
+        get { nil }
+        set {}
+    }
+
+    public func reset() {}
+}
+#elseif !os(Linux)
 /// Stores the given `T` type on User Defaults.
 ///
 /// The value parameter can be only property list objects: `NSData`, `NSString`, `NSNumber`, `NSDate`, `NSArray`, or `NSDictionary`.
@@ -38,7 +69,7 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
                 return UserDefaults.standard
             }
         }()
-        #elseif os(Android)
+        #elseif canImport(SkipAndroidBridge)
         self.store = SkipAndroidBridge.AndroidUserDefaults.standard
         #endif
     }
@@ -121,7 +152,7 @@ public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
                 return UserDefaults.standard
             }
         }()
-        #elseif os(Android)
+        #elseif canImport(SkipAndroidBridge)
         self.store = SkipAndroidBridge.AndroidUserDefaults.standard
         #endif
     }

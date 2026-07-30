@@ -3,7 +3,7 @@
 //
 import Foundation
 
-#if os(Android)
+#if canImport(SkipKeychain)
 import SkipKeychain
 #elseif canImport(Darwin)
 import KeychainAccess
@@ -35,6 +35,32 @@ public final class CodableKeychainBacked<T: Codable> {
     }
 }
 
+#elseif os(Android) && !canImport(SkipKeychain)
+
+/// Unavailable on plain Swift Android SDK builds because Android secure storage integration is
+/// supplied by SkipKeychain, which is only present when building with Skip enabled.
+@available(*, unavailable, message: "KeychainBacked is unavailable on Android unless building with SkipKeychain enabled. Pass SKIP_ENABLED=1 so SwiftPM includes the SkipKeychain dependency.")
+@propertyWrapper
+public final class KeychainBacked {
+    public init(key: String, appGroupID: String? = nil) {}
+    public var wrappedValue: String? {
+        get { nil }
+        set {}
+    }
+}
+
+/// Unavailable on plain Swift Android SDK builds because Android secure storage integration is
+/// supplied by SkipKeychain, which is only present when building with Skip enabled.
+@available(*, unavailable, message: "CodableKeychainBacked is unavailable on Android unless building with SkipKeychain enabled. Pass SKIP_ENABLED=1 so SwiftPM includes the SkipKeychain dependency.")
+@propertyWrapper
+public final class CodableKeychainBacked<T: Codable> {
+    public init(key: String) {}
+    public var wrappedValue: T? {
+        get { nil }
+        set {}
+    }
+}
+
 #elseif !os(Linux)
 
 /// Stores a String on the Keychain.
@@ -53,7 +79,7 @@ public class KeychainBacked {
                 return Keychain(service: Bundle.main.bundleIdentifier!)
             }
         }()
-        #elseif os(Android)
+        #elseif canImport(SkipKeychain)
         self.keychain = Keychain.shared
         #endif
     }
@@ -97,7 +123,7 @@ public class CodableKeychainBacked<T: Codable> {
         self.key = key
         #if canImport(Darwin)
         self.keychain = Keychain(service: Bundle.main.bundleIdentifier!)
-        #elseif os(Android)
+        #elseif canImport(SkipKeychain)
         self.keychain = Keychain.shared
         #endif
     }
