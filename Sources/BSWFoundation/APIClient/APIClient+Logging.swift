@@ -1,10 +1,5 @@
 import Foundation
 import HTTPTypes
-#if os(Android)
-import AndroidLogging
-#else
-import OSLog
-#endif
 
 //MARK: Logging
 
@@ -14,7 +9,7 @@ extension APIClient {
         guard loggingConfiguration.requestBehaviour == .all else {
             return
         }
-        let logger = Logger(subsystem: submoduleName("APIClient"), category: "APIClient.Request")
+        let logger = BSWLogger(subsystem: submoduleName("APIClient"), category: "APIClient.Request")
         let httpMethod = request.httpRequest.method.rawValue
         let path = request.httpRequest.path ?? ""
         logger.debug("Sending Request → \(httpMethod) \(path)")
@@ -24,7 +19,7 @@ extension APIClient {
     }
 
     func logResponse(_ response: Response, forPath path: String) {
-        let logger = Logger(subsystem: submoduleName("APIClient"), category: "APIClient.Response")
+        let logger = BSWLogger(subsystem: submoduleName("APIClient"), category: "APIClient.Response")
         let statusCode = response.statusCode
         let isError = !(200..<300).contains(statusCode)
         let shouldLogThis: Bool = {
@@ -38,7 +33,7 @@ extension APIClient {
             }
         }()
         guard shouldLogThis else { return }
-        let logType: OSLogType = isError ? .error : .debug
+        let logType: BSWLogger.Level = isError ? .error : .debug
         logger.log(level: logType, "Receiving Response → Path: \(path) HTTPStatusCode: \(statusCode) ")
         if isError, let errorString = String(data: response.data, encoding: .utf8), !errorString.isEmpty {
             logger.log(level: logType, "Error Message: \(errorString)")
@@ -49,7 +44,7 @@ extension APIClient {
         guard loggingConfiguration.responseBehaviour != .none else {
             return
         }
-        let logger = Logger(subsystem: submoduleName("APIClient"), category: "APIClient.Network")
+        let logger = BSWLogger(subsystem: submoduleName("APIClient"), category: "APIClient.Network")
         let httpMethod = request.httpRequest.method.rawValue
         let path = request.httpRequest.path ?? ""
         logger.error("Error Received for Request → \(httpMethod) \(path). Error: \(networkError)")

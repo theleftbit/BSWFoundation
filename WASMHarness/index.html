@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>BSWFoundation WebAssembly harness</title>
+</head>
+<body>
+    <p>Running the BSWFoundation wasm harness — open the developer console to see results.</p>
+    <script type="module">
+        // In a real browser, `fetch` and `localStorage` are native — no shims needed.
+        globalThis.__harnessDone = () => console.log("[harness] complete");
+        import("./.build/plugins/PackageToJS/outputs/Package/index.js")
+            .then(({ init }) => init())
+            .catch((error) => console.error(error));
+    </script>
+</body>
+</html>

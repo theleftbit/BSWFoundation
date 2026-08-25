@@ -3,7 +3,7 @@ import Foundation
 import BSWFoundation
 import Testing
 
-@Suite(.serialized, .disabled(if: isAndroid))
+@Suite(.serialized, .disabled(if: isAndroid || isWASI))
 actor UserDefaultsBackedTests {
     
     @Test

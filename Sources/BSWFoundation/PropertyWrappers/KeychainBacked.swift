@@ -3,16 +3,67 @@
 //
 import Foundation
 
-#if os(Android)
+#if canImport(SkipKeychain)
 import SkipKeychain
-#else
+#elseif canImport(Darwin)
 import KeychainAccess
 #endif
 
-/// This is supported anywhere but Linux
-#if !os(Linux)
+#if os(WASI)
 
-/// Stores a String on the Keychain
+/// Unavailable on WebAssembly because browsers do not provide Keychain-equivalent secure storage
+/// to SwiftWasm. Use host-managed auth or `UserDefaultsBacked` only for non-sensitive values.
+@available(*, unavailable, message: "KeychainBacked is unavailable on WebAssembly. Use host-managed auth, or UserDefaultsBacked only for non-sensitive values.")
+@propertyWrapper
+public final class KeychainBacked {
+    public init(key: String, appGroupID: String? = nil) {}
+    public var wrappedValue: String? {
+        get { nil }
+        set {}
+    }
+}
+
+/// Unavailable on WebAssembly because browsers do not provide Keychain-equivalent secure storage
+/// to SwiftWasm. Use host-managed auth or `CodableUserDefaultsBacked` only for non-sensitive values.
+@available(*, unavailable, message: "CodableKeychainBacked is unavailable on WebAssembly. Use host-managed auth, or CodableUserDefaultsBacked only for non-sensitive values.")
+@propertyWrapper
+public final class CodableKeychainBacked<T: Codable> {
+    public init(key: String) {}
+    public var wrappedValue: T? {
+        get { nil }
+        set {}
+    }
+}
+
+#elseif os(Android) && !canImport(SkipKeychain)
+
+/// Unavailable on plain Swift Android SDK builds because Android secure storage integration is
+/// supplied by SkipKeychain, which is only present when building with Skip enabled.
+@available(*, unavailable, message: "KeychainBacked is unavailable on Android unless building with SkipKeychain enabled. Pass SKIP_ENABLED=1 so SwiftPM includes the SkipKeychain dependency.")
+@propertyWrapper
+public final class KeychainBacked {
+    public init(key: String, appGroupID: String? = nil) {}
+    public var wrappedValue: String? {
+        get { nil }
+        set {}
+    }
+}
+
+/// Unavailable on plain Swift Android SDK builds because Android secure storage integration is
+/// supplied by SkipKeychain, which is only present when building with Skip enabled.
+@available(*, unavailable, message: "CodableKeychainBacked is unavailable on Android unless building with SkipKeychain enabled. Pass SKIP_ENABLED=1 so SwiftPM includes the SkipKeychain dependency.")
+@propertyWrapper
+public final class CodableKeychainBacked<T: Codable> {
+    public init(key: String) {}
+    public var wrappedValue: T? {
+        get { nil }
+        set {}
+    }
+}
+
+#elseif !os(Linux)
+
+/// Stores a String on the Keychain.
 @propertyWrapper
 public class KeychainBacked {
     private let key: String
@@ -28,11 +79,11 @@ public class KeychainBacked {
                 return Keychain(service: Bundle.main.bundleIdentifier!)
             }
         }()
-        #else
+        #elseif canImport(SkipKeychain)
         self.keychain = Keychain.shared
         #endif
     }
-    
+
     #if canImport(Darwin)
     public var wrappedValue: String? {
         get {
@@ -62,7 +113,7 @@ public extension KeychainBacked {
     }
 }
 
-/// Stores the given `T` type on the Keychain (as long as it's `Codable`)
+/// Stores the given `T` type on the Keychain, as long as it's `Codable`.
 @propertyWrapper
 public class CodableKeychainBacked<T: Codable> {
     private let key: String
@@ -72,11 +123,11 @@ public class CodableKeychainBacked<T: Codable> {
         self.key = key
         #if canImport(Darwin)
         self.keychain = Keychain(service: Bundle.main.bundleIdentifier!)
-        #else
+        #elseif canImport(SkipKeychain)
         self.keychain = Keychain.shared
         #endif
     }
-    
+
     #if canImport(Darwin)
     public var wrappedValue: T? {
         get {

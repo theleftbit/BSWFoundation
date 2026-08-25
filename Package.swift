@@ -17,10 +17,31 @@ let applePlatforms = TargetDependencyCondition.when(
     ]
 )
 
+let androidPlatforms = TargetDependencyCondition.when(platforms: [.android])
+
+// Platforms where URLSession / FoundationNetworking exist. Excludes WASM (WASI), where
+// HTTPTypesFoundation's URLSession bridge does not compile.
+let foundationNetworkingPlatforms = TargetDependencyCondition.when(
+    platforms: [
+        .iOS,
+        .macOS,
+        .macCatalyst,
+        .tvOS,
+        .watchOS,
+        .visionOS,
+        .linux,
+        .android,
+        .windows
+    ]
+)
+
 var packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
     .package(url: "https://github.com/apple/swift-crypto.git", from: "3.12.3"),
     .package(url: "https://github.com/apple/swift-http-types.git", from: "1.6.0"),
+    .package(url: "https://github.com/swiftwasm/JavaScriptKit.git", from: "0.56.1"),
+    .package(url: "https://github.com/apple/swift-log.git", from: "1.5.0"),
+    .package(url: "https://source.skip.tools/swift-android-native.git", from: "1.4.1"),
 ]
 
 if skipIsEnabled {
@@ -33,11 +54,13 @@ if skipIsEnabled {
 var targetDependencies: [Target.Dependency] = [
     .product(name: "Crypto", package: "swift-crypto"),
     .product(name: "KeychainAccess", package: "KeychainAccess", condition: applePlatforms),
-    // `HTTPTypes` is pure Swift (no Foundation) and links on every platform, including WASM.
     .product(name: "HTTPTypes", package: "swift-http-types"),
-    // `HTTPTypesFoundation` bridges to URLSession/URLRequest. Its API compiles to nothing on
-    // WASI, so linking it everywhere is harmless; we only `import` it from the URLSession fetcher.
-    .product(name: "HTTPTypesFoundation", package: "swift-http-types"),
+    .product(name: "HTTPTypesFoundation", package: "swift-http-types", condition: foundationNetworkingPlatforms),
+    .product(name: "JavaScriptKit", package: "JavaScriptKit", condition: .when(platforms: [.wasi])),
+    .product(name: "JavaScriptEventLoop", package: "JavaScriptKit", condition: .when(platforms: [.wasi])),
+    .product(name: "JavaScriptFoundationCompat", package: "JavaScriptKit", condition: .when(platforms: [.wasi])),
+    .product(name: "Logging", package: "swift-log", condition: .when(platforms: [.wasi])),
+    .product(name: "AndroidLogging", package: "swift-android-native", condition: androidPlatforms),
 ]
 
 if skipIsEnabled {
@@ -70,7 +93,13 @@ let package = Package(
         ),
         .testTarget(
             name: "BSWFoundationTests",
-            dependencies: ["BSWFoundation"]
+            dependencies: [
+                "BSWFoundation",
+                // On wasm, linking this activates the JavaScriptKit event-loop executor for the
+                // test bundle, so async tests (Task.sleep, etc.) run instead of hitting an
+                // unsupported WASI async-io syscall.
+                .product(name: "JavaScriptEventLoopTestSupport", package: "JavaScriptKit", condition: .when(platforms: [.wasi])),
+            ]
         ),
     ],
     swiftLanguageModes: [.v6],
