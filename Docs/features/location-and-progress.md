@@ -1,6 +1,6 @@
 # Location And Progress
 
-This note covers utility APIs that are intentionally Darwin-only.
+This note covers utility APIs that are intentionally AppleOS-only.
 
 ## LocationFetcher
 
@@ -24,4 +24,4 @@ Important behavior:
 
 ## Platform Boundary
 
-These utilities should remain guarded unless equivalent behavior is deliberately implemented for non-Darwin platforms.
+These utilities should remain guarded unless equivalent behavior is deliberately implemented for non-AppleOS platforms.

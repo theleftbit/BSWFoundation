@@ -1,4 +1,4 @@
-#if canImport(Darwin)
+#if os(anyAppleOS)
 import Foundation
 import BSWFoundation
 import Testing

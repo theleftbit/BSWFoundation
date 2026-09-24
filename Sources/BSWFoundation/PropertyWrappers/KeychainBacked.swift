@@ -20,7 +20,7 @@ public class KeychainBacked {
 
     public init(key: String, appGroupID: String? = nil) {
         self.key = key
-        #if canImport(Darwin)
+        #if os(anyAppleOS)
         self.keychain = {
             if let appGroupID = appGroupID {
                 return Keychain(service: Bundle.main.bundleIdentifier!, accessGroup: appGroupID)
@@ -33,7 +33,7 @@ public class KeychainBacked {
         #endif
     }
     
-    #if canImport(Darwin)
+    #if os(anyAppleOS)
     public var wrappedValue: String? {
         get {
             return keychain[key]
@@ -70,14 +70,14 @@ public class CodableKeychainBacked<T: Codable> {
 
     public init(key: String) {
         self.key = key
-        #if canImport(Darwin)
+        #if os(anyAppleOS)
         self.keychain = Keychain(service: Bundle.main.bundleIdentifier!)
         #else
         self.keychain = Keychain.shared
         #endif
     }
     
-    #if canImport(Darwin)
+    #if os(anyAppleOS)
     public var wrappedValue: T? {
         get {
             return keychain[key]?.decoded()

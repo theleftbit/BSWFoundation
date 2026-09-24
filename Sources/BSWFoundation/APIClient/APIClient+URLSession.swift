@@ -2,7 +2,7 @@
 //  Created by Pierluigi Cifani on 8/1/25.
 //
 
-#if canImport(Darwin) || canImport(FoundationNetworking)
+#if os(anyAppleOS) || canImport(FoundationNetworking)
 
 import Foundation
 #if canImport(FoundationNetworking)
@@ -50,7 +50,7 @@ extension APIClient {
 
 //MARK: OutboundRequest bridging
 
-#if canImport(FoundationNetworking) || canImport(Darwin)
+#if canImport(FoundationNetworking) || os(anyAppleOS)
 extension APIClient.OutboundRequest {
     var urlRequest: URLRequest? {
         guard var urlRequest = URLRequest(httpRequest: self.httpRequest) else { return nil }

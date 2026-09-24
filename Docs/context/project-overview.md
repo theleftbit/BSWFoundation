@@ -14,7 +14,7 @@
 ## Dependencies
 
 - `swift-crypto` provides HMAC support in `String+Crypto`.
-- `KeychainAccess` backs Darwin keychain storage.
+- `KeychainAccess` backs AppleOS keychain storage.
 - `skip-fuse` and `skip-keychain` are included only when `SKIP_ENABLED` is present in the environment.
 
 ## Documentation Responsibilities

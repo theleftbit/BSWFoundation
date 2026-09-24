@@ -3,7 +3,7 @@
 //  Created by Pierluigi Cifani on 29/01/2020.
 //
 
-#if canImport(Darwin)
+#if os(anyAppleOS)
 import Foundation
 
 /// Makes sure that the given job is not executed more than once every `seconds`
