@@ -22,7 +22,7 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
     public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
         self.defaultValue = defaultValue
-        #if canImport(Darwin)
+        #if os(anyAppleOS)
         self.store = {
             if let appGroupID = appGroupID {
                 return UserDefaults(suiteName: appGroupID)!
@@ -37,7 +37,7 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
     
     public var wrappedValue: T? {
         get {
-            #if canImport(Darwin)
+            #if os(anyAppleOS)
             guard let value = self.store.object(forKey: key) as? T else {
                 return defaultValue
             }
@@ -48,7 +48,7 @@ public final class UserDefaultsBacked<T: Sendable>: Sendable {
             } else if T.self == String.self {
                 return (self.store.string(forKey: key) as? T) ?? defaultValue
             } else {
-                fatalError("Type not yet supported on non-Darwin platforms")
+                fatalError("Type not yet supported on non-Apple platforms")
             }
             #endif
         } set {
@@ -79,7 +79,7 @@ public final class CodableUserDefaultsBacked<T: Codable & Sendable>: Sendable {
     public init(key: String, defaultValue: T? = nil, appGroupID: String? = nil) {
         self.key = key
         self.defaultValue = defaultValue
-        #if canImport(Darwin)
+        #if os(anyAppleOS)
         self.store = {
             if let appGroupID = appGroupID {
                 return UserDefaults(suiteName: appGroupID)!

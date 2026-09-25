@@ -1,4 +1,4 @@
-// swift-tools-version: 6.2
+// swift-tools-version: 6.4
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -19,8 +19,8 @@ let applePlatforms = TargetDependencyCondition.when(
 
 var packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
-    .package(url: "https://github.com/apple/swift-crypto.git", from: "3.12.3"),
-    .package(url: "https://github.com/apple/swift-http-types.git", from: "1.6.0"),
+    .package(url: "https://github.com/apple/swift-crypto.git", from: "5.0.0"),
+    .package(url: "https://github.com/apple/swift-http-types.git", from: "1.8.0"),
 ]
 
 if skipIsEnabled {

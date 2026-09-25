@@ -3,7 +3,7 @@
 //  Copyright (c) 2016 TheLeftBit SL. All rights reserved.
 //
 
-#if canImport(Darwin)
+#if canImport(CoreLocation)
 import Foundation
 import CoreLocation
 

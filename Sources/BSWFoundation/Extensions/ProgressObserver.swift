@@ -3,7 +3,7 @@
 //  Copyright © 2018 TheLeftBit SL SL. All rights reserved.
 //
 
-#if canImport(Darwin)
+#if os(anyAppleOS)
 import Foundation
 
 /// A simple wrapper on top of `Foundation.Progress` that makes it easier to observe it's progress.

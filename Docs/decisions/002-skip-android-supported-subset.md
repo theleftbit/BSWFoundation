@@ -19,5 +19,5 @@ Current Android exclusions documented in the README are `AuthStorage` and `Locat
 ## Consequences
 
 - New dependencies needed only for Skip should be added conditionally.
-- Darwin-only features should use explicit compile-time guards.
+- AppleOS-only features should use explicit compile-time guards.
 - Documentation must call out support differences when behavior diverges between Apple platforms and Android.

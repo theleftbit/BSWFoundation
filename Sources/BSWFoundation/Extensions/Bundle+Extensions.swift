@@ -37,11 +37,15 @@ extension Bundle {
     public var osName: String {
         #if os(Android)
         return "Android API \(operatingSystemVersion)"
-        #elseif os(watchOS)
-        let osName = "watchOS"
         #else
-        let osName = ProcessInfo.processInfo.isCatalystOriIOSAppOnMac ? "macOS" : "iOS"
+        let name: String = {
+            #if os(watchOS)
+            return "watchOS"
+            #else
+            return ProcessInfo.processInfo.isCatalystOriIOSAppOnMac ? "macOS" : "iOS"
+            #endif
+        }()
+        return "\(name) \(operatingSystemVersion)"
         #endif
-        return "\(osName) \(operatingSystemVersion)"
     }
 }

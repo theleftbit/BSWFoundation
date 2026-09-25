@@ -4,7 +4,7 @@ Persistence helpers provide small wrappers around Keychain and UserDefaults beha
 
 ## AuthStorage
 
-`AuthStorage` is a Darwin-only keychain-backed token store. It supports a default simple style and an app-group style for shared containers.
+`AuthStorage` is a AppleOS-only keychain-backed token store. It supports a default simple style and an app-group style for shared containers.
 
 Stored values include:
 
@@ -19,7 +19,7 @@ The simple style clears the keychain on first execution after install so deletin
 
 ## JWT Helpers
 
-The same source file includes JWT decoding helpers derived from Auth0's JWT decoder. Because they are co-located in `AuthStorage.swift`, they currently compile with the file's Darwin guard.
+The same source file includes JWT decoding helpers derived from Auth0's JWT decoder. Because they are co-located in `AuthStorage.swift`, they currently compile with the file's AppleOS guard.
 
 - `decode(jwt:)` decodes a token into a `JWT`.
 - `JWT` exposes header, body, signature and standard claims.
@@ -29,13 +29,13 @@ The same source file includes JWT decoding helpers derived from Auth0's JWT deco
 
 ## KeychainBacked
 
-`KeychainBacked` stores optional strings in Keychain. It supports Darwin through `KeychainAccess` and Android through `SkipKeychain`; Linux is excluded.
+`KeychainBacked` stores optional strings in Keychain. It supports AppleOS through `KeychainAccess` and Android through `SkipKeychain`; Linux is excluded.
 
 `CodableKeychainBacked` stores optional `Codable` values by encoding them before persistence and decoding them on read.
 
 ## UserDefaultsBacked
 
-`UserDefaultsBacked` stores optional primitive values in user defaults. Darwin can use standard defaults or an app group suite. The Android path currently supports a narrower set of value types.
+`UserDefaultsBacked` stores optional primitive values in user defaults. AppleOS can use standard defaults or an app group suite. The Android path currently supports a narrower set of value types.
 
 `CodableUserDefaultsBacked` stores optional `Codable` values by encoding them into user defaults.
 

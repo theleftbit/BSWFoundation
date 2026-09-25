@@ -40,7 +40,7 @@ public actor MockNetworkFetcher: APIClientNetworkFetcher {
         )
     }
 
-    #if canImport(FoundationNetworking) || canImport(Darwin)
+    #if canImport(FoundationNetworking) || os(anyAppleOS)
     public var capturedURLRequest: URLRequest? {
         return capturedRequest?.urlRequest
     }

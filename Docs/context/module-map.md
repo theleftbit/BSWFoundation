@@ -15,11 +15,11 @@
 
 `Sources/BSWFoundation/AuthStorage/` and `Sources/BSWFoundation/PropertyWrappers/` contain storage helpers:
 
-- `AuthStorage` stores auth identifiers and tokens in Keychain on Darwin.
+- `AuthStorage` stores auth identifiers and tokens in Keychain on Apple OSs.
 - `KeychainBacked` wraps string keychain values.
 - `CodableKeychainBacked` wraps codable keychain values.
 - `UserDefaultsBacked` and `CodableUserDefaultsBacked` wrap user defaults values.
-- JWT helpers decode token claims and expose expiration checks. They currently live in `AuthStorage.swift` and compile with the same Darwin guard.
+- JWT helpers decode token claims and expose expiration checks. They currently live in `AuthStorage.swift` and compile with the same AppleOS guard.
 
 ## Async And Observation
 
@@ -29,7 +29,7 @@
 
 `Sources/BSWFoundation/Extensions/` includes small additions for bundle metadata, process checks, collection helpers, string utilities, HMAC generation, throttling, progress observation and test detection.
 
-`Sources/BSWFoundation/Location/` contains `LocationFetcher`, a CoreLocation wrapper available only on Darwin.
+`Sources/BSWFoundation/Location/` contains `LocationFetcher`, a CoreLocation wrapper available only on Apple OSs.
 
 ## Parsing
 
