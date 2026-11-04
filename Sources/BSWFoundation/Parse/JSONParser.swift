@@ -14,6 +14,15 @@ public enum JSONParser {
     
     public static let Options: JSONSerialization.ReadingOptions = [.allowFragments]
 
+    /// Built once: creating a `Locale` per parse is slow and, on 32-bit Android,
+    /// has been seen to trap inside Foundation's locale cache lock.
+    private static let iso8601DateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+        return formatter
+    }()
+
     public static func dataIsNull(_ data: Data) -> Bool {
         guard let j = try? JSONSerialization.jsonObject(with: data, options: JSONParser.Options) else {
             return false
@@ -117,13 +126,6 @@ public enum JSONParser {
 
 public protocol DateDecodingStrategyProvider {
     static var dateDecodingStrategy: DateFormatter { get }
-}
-
-private var iso8601DateFormatter: DateFormatter {
-    let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "en_US_POSIX")
-    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-    return formatter
 }
 
 extension Array: DateDecodingStrategyProvider where Element: DateDecodingStrategyProvider {
