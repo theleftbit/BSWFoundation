@@ -46,6 +46,37 @@ actor JSONParserTests {
         #expect(Calendar.current.component(.day, from: model.date) == 20)
     }
     
+    struct SampleModelWithDefaultDate: Codable {
+        let date: Date
+    }
+
+    /// Formats the old `yyyy-MM-dd'T'HH:mm:ssZZZZZ` formatter accepted must keep parsing to the same instant.
+    @Test(arguments: [
+        ("2026-11-04T12:42:16Z", 1793796136.0),
+        ("2026-11-04T12:42:16+00:00", 1793796136.0),
+        ("2026-11-04T12:42:16+0000", 1793796136.0),
+        ("2026-11-04T12:42:16+01:00", 1793792536.0),
+        ("2026-11-04T12:42:16+0100", 1793792536.0),
+        ("2026-11-04T12:42:16-05:30", 1793815936.0),
+    ])
+    func defaultDateParsing(input: String, expected: TimeInterval) throws {
+        let model: SampleModelWithDefaultDate = try JSONParser.parseData(Data(#"{"date":"\#(input)"}"#.utf8))
+        #expect(model.date.timeIntervalSince1970 == expected)
+    }
+
+    /// Formats the old formatter rejected must keep failing.
+    @Test(arguments: [
+        "2026-11-04T12:42:16",
+        "2026-11-04 12:42:16Z",
+        "2026-11-04",
+        "not a date",
+    ])
+    func defaultDateParsingRejects(input: String) {
+        #expect(throws: JSONParser.Error.self) {
+            let _: SampleModelWithDefaultDate = try JSONParser.parseData(Data(#"{"date":"\#(input)"}"#.utf8))
+        }
+    }
+
     @Test
     func arrayParsing() throws {
         let model1 = SampleModel(identity: "123456", name: "Hola", amount: 5678)
