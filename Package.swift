@@ -19,7 +19,7 @@ let applePlatforms = TargetDependencyCondition.when(
 
 var packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
-    .package(url: "https://github.com/apple/swift-crypto.git", from: "5.0.0"),
+    .package(url: "https://github.com/apple/swift-crypto.git", from: "5.1.1"),
     .package(url: "https://github.com/apple/swift-http-types.git", from: "1.8.0"),
 ]
 
