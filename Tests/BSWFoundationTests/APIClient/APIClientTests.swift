@@ -201,32 +201,25 @@ actor APIClientTests {
     }
 
     @Test
-    func asynchronousPreparationRunsAfterCustomization() async throws {
+    func customizesRequestsAsynchronously() async throws {
         let fetcher = MockNetworkFetcher()
         await fetcher.setMockedData(mockedData: Data())
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: fetcher)
         sut.customizeRequest = {
+            await Task.yield()
             var request = $0
-            request.setValue("customized", forHTTPHeaderField: "X-First")
-            return request
-        }
-        sut.requestInterceptor = {
-            var request = $0
-            request.setValue(
-                request.value(forHTTPHeaderField: "X-First"),
-                forHTTPHeaderField: "X-Prepared"
-            )
+            request.setValue("prepared", forHTTPHeaderField: "X-Prepared")
             return request
         }
 
         let request = APIClient.Request<VoidResponse>(endpoint: HTTPBin.API.ip)
         let _ = try await sut.perform(request)
         let captured = try #require(await fetcher.capturedRequest)
-        #expect(captured.value(forHTTPHeaderField: "X-Prepared") == "customized")
+        #expect(captured.value(forHTTPHeaderField: "X-Prepared") == "prepared")
     }
 
     @Test
-    func defaultPreparationPreservesCustomizedRequest() async throws {
+    func synchronousCustomizationRemainsSupported() async throws {
         let fetcher = MockNetworkFetcher()
         await fetcher.setMockedData(mockedData: Data())
         sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: fetcher)

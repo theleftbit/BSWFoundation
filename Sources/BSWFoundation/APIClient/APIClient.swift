@@ -52,18 +52,12 @@ open class APIClient: Identifiable, @unchecked Sendable {
     /// An optional closure that allows you to map an error before it's thrown
     open var mapError: @Sendable (Swift.Error) -> (Swift.Error) = { $0 }
 
-    /// Synchronously customizes an ``OutboundRequest`` before interception.
+    /// Asynchronously customizes an ``OutboundRequest`` before it reaches the network fetcher.
     ///
-    /// Use this for values that are already available, such as an authentication header.
-    open var customizeRequest: @Sendable (OutboundRequest) -> (OutboundRequest) = { $0 }
-
-    /// Asynchronously intercepts a customized request before it reaches the network fetcher.
-    ///
-    /// Use this when interception requires `await`, such as obtaining an integrity proof.
-    /// The closure receives the request returned by ``customizeRequest``. If it throws,
-    /// the request is not sent. The default implementation returns the request unchanged.
-    /// Both closures run again if the client retries after authentication.
-    open var requestInterceptor: @Sendable (OutboundRequest) async throws -> OutboundRequest = { $0 }
+    /// Use this to add authentication headers or await an integrity proof.
+    /// If the closure throws, the request is not sent. The default implementation
+    /// returns the request unchanged. Customization runs again if the client retries.
+    open var customizeRequest: @Sendable (OutboundRequest) async throws -> OutboundRequest = { $0 }
 
     private let router: Router
     private let networkFetcher: APIClientNetworkFetcher
@@ -83,7 +77,7 @@ open class APIClient: Identifiable, @unchecked Sendable {
     public func perform<T: Decodable>(_ request: Request<T>) async throws -> T {
         do {
             let outboundRequest = try await router.prepareRequest(forEndpoint: request.endpoint)
-            let customizedRequest = customizeRequest(outboundRequest)
+            let customizedRequest = try await customizeRequest(outboundRequest)
             let response = try await sendNetworkRequest(customizedRequest)
             try request.validator(response)
             let validatedResponse = try await validateResponse(response, forPath: request.endpoint.path)
@@ -102,7 +96,7 @@ open class APIClient: Identifiable, @unchecked Sendable {
     /// - Returns: The `APIClient.Response` from this request.
     public func performSimpleRequest(forEndpoint endpoint: Endpoint) async throws -> APIClient.Response {
         let outboundRequest     = try await router.prepareRequest(forEndpoint: endpoint)
-        let customizedRequest   = self.customizeRequest(outboundRequest)
+        let customizedRequest   = try await self.customizeRequest(outboundRequest)
         return try await sendNetworkRequest(customizedRequest)
     }
 
@@ -263,8 +257,7 @@ private extension APIClient {
         try Task.checkCancellation()
         logRequest(request)
         do {
-            let preparedRequest = try await requestInterceptor(request)
-            return try await networkFetcher.perform(preparedRequest)
+            return try await networkFetcher.perform(request)
         } catch {
             logNetworkError(error, forRequest: request)
             throw error
