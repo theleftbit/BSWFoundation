@@ -13,12 +13,14 @@
 
 ## Request Flow
 
-1. `Router` builds a `URLRequest` from `Environment` and `Endpoint`.
-2. `APIClient.customizeRequest` can mutate the request, commonly for auth headers.
+1. `Router` builds an `OutboundRequest` from `Environment` and `Endpoint`.
+2. `APIClient.customizeRequest` optionally customizes the request asynchronously, for example
+   to add auth headers or obtain an integrity proof. It returns the request unchanged by default.
+   If it throws, the fetcher does not send the request.
 3. The configured fetcher sends the request or file upload.
 4. The response is validated.
 5. Data is decoded into the requested `Decodable` type.
-6. A `401` can give the delegate one opportunity to refresh auth and retry when the request allows unauthorized retry.
+6. A `401` can give the delegate one opportunity to refresh auth and retry when the request allows unauthorized retry. Customization runs again for the retry.
 
 ## Request Variants
 

@@ -200,6 +200,40 @@ actor APIClientTests {
         #expect(capturedRequest.httpRequest.headerFields[.init("Signature")!] == "hello")
     }
 
+    @Test
+    func customizesRequestsAsynchronously() async throws {
+        let fetcher = MockNetworkFetcher()
+        await fetcher.setMockedData(mockedData: Data())
+        sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: fetcher)
+        sut.customizeRequest = {
+            await Task.yield()
+            var request = $0
+            request.setValue("prepared", forHTTPHeaderField: "X-Prepared")
+            return request
+        }
+
+        let request = APIClient.Request<VoidResponse>(endpoint: HTTPBin.API.ip)
+        let _ = try await sut.perform(request)
+        let captured = try #require(await fetcher.capturedRequest)
+        #expect(captured.value(forHTTPHeaderField: "X-Prepared") == "prepared")
+    }
+
+    @Test
+    func synchronousCustomizationRemainsSupported() async throws {
+        let fetcher = MockNetworkFetcher()
+        await fetcher.setMockedData(mockedData: Data())
+        sut = APIClient(environment: HTTPBin.Hosts.production, networkFetcher: fetcher)
+        sut.customizeRequest = {
+            var request = $0
+            request.setValue("unchanged", forHTTPHeaderField: "X-Existing")
+            return request
+        }
+
+        let _ = try await sut.performSimpleRequest(forEndpoint: HTTPBin.API.ip)
+        let captured = try #require(await fetcher.capturedRequest)
+        #expect(captured.value(forHTTPHeaderField: "X-Existing") == "unchanged")
+    }
+
     static func generateRandomFile() throws -> URL {
         let length = 2048
         let bytes = [UInt32](repeating: 0, count: length).map { _ in arc4random() }
