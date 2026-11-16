@@ -52,10 +52,18 @@ open class APIClient: Identifiable, @unchecked Sendable {
     /// An optional closure that allows you to map an error before it's thrown
     open var mapError: @Sendable (Swift.Error) -> (Swift.Error) = { $0 }
 
-    /// An optional closure that allows you customize an ``OutboundRequest`` before it's sent over the network.
+    /// Synchronously customizes an ``OutboundRequest`` before interception.
     ///
-    /// This is useful for example to add an HTTP Header to authenticate with the Server.
+    /// Use this for values that are already available, such as an authentication header.
     open var customizeRequest: @Sendable (OutboundRequest) -> (OutboundRequest) = { $0 }
+
+    /// Asynchronously intercepts a customized request before it reaches the network fetcher.
+    ///
+    /// Use this when interception requires `await`, such as obtaining an integrity proof.
+    /// The closure receives the request returned by ``customizeRequest``. If it throws,
+    /// the request is not sent. The default implementation returns the request unchanged.
+    /// Both closures run again if the client retries after authentication.
+    open var requestInterceptor: @Sendable (OutboundRequest) async throws -> OutboundRequest = { $0 }
 
     private let router: Router
     private let networkFetcher: APIClientNetworkFetcher
@@ -255,7 +263,8 @@ private extension APIClient {
         try Task.checkCancellation()
         logRequest(request)
         do {
-            return try await networkFetcher.perform(request)
+            let preparedRequest = try await requestInterceptor(request)
+            return try await networkFetcher.perform(preparedRequest)
         } catch {
             logNetworkError(error, forRequest: request)
             throw error
