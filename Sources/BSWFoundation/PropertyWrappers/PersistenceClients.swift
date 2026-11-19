@@ -26,6 +26,8 @@ public struct UserDefaultsClient: Sendable {
     public struct Store: Sendable {
         /// Reads a value of the requested type. The type lets Android select its typed getter.
         public var read: @Sendable (_ key: String, _ type: Any.Type) -> Any?
+        /// Reads a defaults flag using `UserDefaults.bool(forKey:)` coercion semantics.
+        public var readBool: @Sendable (_ key: String) -> Bool
         public var set: @Sendable (_ value: Any?, _ key: String) -> Void
         public var remove: @Sendable (_ key: String) -> Void
         public var synchronize: @Sendable () -> Void
@@ -34,9 +36,17 @@ public struct UserDefaultsClient: Sendable {
             read: @escaping @Sendable (String, Any.Type) -> Any?,
             set: @escaping @Sendable (Any?, String) -> Void,
             remove: @escaping @Sendable (String) -> Void,
+            readBool: (@Sendable (String) -> Bool)? = nil,
             synchronize: @escaping @Sendable () -> Void = {}
         ) {
             self.read = read
+            self.readBool = readBool ?? { key in
+                let value = read(key, Bool.self)
+                if let value = value as? Bool { return value }
+                if let value = value as? NSNumber { return value.boolValue }
+                if let value = value as? NSString { return value.boolValue }
+                return false
+            }
             self.set = set
             self.remove = remove
             self.synchronize = synchronize
@@ -53,6 +63,7 @@ public struct UserDefaultsClient: Sendable {
             read: { key, _ in storage.value.object(forKey: key) },
             set: { value, key in storage.value.set(value, forKey: key) },
             remove: { key in storage.value.removeObject(forKey: key) },
+            readBool: { key in storage.value.bool(forKey: key) },
             synchronize: { _ = storage.value.synchronize() }
         )
         #else

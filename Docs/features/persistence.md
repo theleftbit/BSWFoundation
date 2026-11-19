@@ -15,6 +15,25 @@ Stored values include:
 
 The simple style clears the keychain on first execution after install so deleting and reinstalling an app does not silently preserve auth state.
 
+`AuthStorage` captures stores from `bswUserDefaults` and `bswKeychain` at initialization, so the test overrides below also cover auth storage. The first-launch flag still lives in standard defaults. Simple storage uses the default bundle-ID service; app-group storage uses the supplied app name as its service and app group ID as its access group. App-group initialization never clears tokens or sets the first-launch flag. Clearing storage removes only its four auth keys in its own namespace.
+
+The flag uses `UserDefaultsClient.Store.readBool` to preserve the Boolean getter's numeric/string coercion, including existing values such as `"YES"`. This is separate from primitive wrapper reads, which retain their existing type-cast behavior.
+
+Create a fresh `AuthStorage()` inside the override scope for each test. `AuthStorage.defaultStorage` remains a process-wide singleton and retains the stores from its first access; later overrides cannot redirect it. No new auth-specific dependency key is needed.
+
+```swift
+@Test func authSurvivesAnotherInstance() {
+    withDependencies {
+        $0.bswUserDefaults = .inMemory()
+        $0.bswKeychain = .inMemory()
+    } operation: {
+        let storage = AuthStorage()
+        storage.authToken = "test-token"
+        #expect(AuthStorage().authToken == "test-token")
+    }
+}
+```
+
 `tokenIsExpired` decodes the stored JWT and checks the `exp` claim. If there is no stored or decodable JWT, it returns `false`.
 
 ## JWT Helpers
@@ -97,7 +116,7 @@ Previews use in-memory storage. In debug tests, an omitted override reports a de
 
 Both clients expose store factories and public closure-based `Store` types for custom fakes, call recording, and preloaded data. `UserDefaultsClient.Store.read` receives the requested Swift type so the Android implementation can select its typed getter. Custom stores must support synchronous, thread-safe access.
 
-`AuthStorage` still directly accesses its live stores and is tracked as a follow-up to this wrapper integration.
+`AuthStorage` uses the same captured clients and remains AppleOS-only. JWT decoding and expiration behavior are unchanged.
 
 ## Maintenance Rule
 

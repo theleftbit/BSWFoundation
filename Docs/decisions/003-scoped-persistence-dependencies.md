@@ -20,4 +20,4 @@ Use Point-Free's `swift-dependencies` to expose `bswUserDefaults` and `bswKeycha
 - Tests explicitly create fresh in-memory clients. Shared mutable clients are not automatically isolated by task-local scoping.
 - Missing overrides report an issue in debug tests and use an in-memory fallback, never live persistence.
 - Live Android namespace/type limitations remain unchanged; in-memory clients distinguish namespaces on both platforms.
-- `AuthStorage` requires a follow-up because it directly accesses defaults/keychain and clears auth state on first launch.
+- `AuthStorage` captures the same storage clients while preserving first-launch clearing. Its existing `defaultStorage` singleton retains the dependencies from first access; isolated tests construct fresh instances.

@@ -15,7 +15,7 @@
 
 `Sources/BSWFoundation/AuthStorage/` and `Sources/BSWFoundation/PropertyWrappers/` contain storage helpers:
 
-- `AuthStorage` stores auth identifiers and tokens in Keychain on Apple OSs.
+- `AuthStorage` stores auth identifiers and tokens in Keychain on Apple OSs, using the same scoped storage clients as the property wrappers.
 - `KeychainBacked` wraps string keychain values.
 - `CodableKeychainBacked` wraps codable keychain values.
 - `UserDefaultsBacked` and `CodableUserDefaultsBacked` wrap user defaults values.

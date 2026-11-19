@@ -96,6 +96,22 @@ struct PersistenceClientTests {
         #expect(KeychainClient.inMemory().store(nil, nil).read("key") == nil)
     }
 
+    @Test
+    func defaultsFlagsCoerceValuesWithoutChangingPrimitiveReads() {
+        @Dependency(\.bswUserDefaults) var client
+        let store = client.store(nil)
+        #expect(store.readBool("flag") == false)
+        store.set("YES", "flag")
+        #expect(store.readBool("flag") == true)
+        #expect(store.read("flag", Bool.self) as? Bool == nil)
+        store.set(2, "flag")
+        #expect(store.readBool("flag") == true)
+        store.set("NO", "flag")
+        #expect(store.readBool("flag") == false)
+        store.set(false, "flag")
+        #expect(store.readBool("flag") == false)
+    }
+
     #if DEBUG
     @Test
     func missingOverrideReportsIssueWithoutAccessingLiveStorage() {

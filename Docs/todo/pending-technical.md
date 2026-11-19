@@ -4,8 +4,6 @@ Last updated: 2026-06-23.
 
 ## Open Items
 
-- Extend the scoped `UserDefaultsClient` / `KeychainClient` integration to `AuthStorage`, preserving its first-launch clearing semantics and shared-storage style.
-
 - Clarify the Android-supported value types for `UserDefaultsBacked` and decide whether additional primitive or `Codable` support is required.
 - Keep README Android support notes aligned with compile-time guards in source files.
 - Consider adding focused DocC examples for `APIClient`, persistence wrappers, JWT helpers, parsing helpers and `AsyncStreamDispatcher`.
