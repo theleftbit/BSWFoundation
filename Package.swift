@@ -21,6 +21,7 @@ var packageDependencies: [Package.Dependency] = [
     .package(url: "https://github.com/kishikawakatsumi/KeychainAccess.git", from: "4.2.2"),
     .package(url: "https://github.com/apple/swift-crypto.git", from: "5.1.1"),
     .package(url: "https://github.com/apple/swift-http-types.git", from: "1.8.0"),
+    .package(url: "https://github.com/pointfreeco/swift-dependencies.git", from: "1.17.2", traits: ["Foundation"]),
 ]
 
 if skipIsEnabled {
@@ -31,6 +32,7 @@ if skipIsEnabled {
 }
 
 var targetDependencies: [Target.Dependency] = [
+    .product(name: "Dependencies", package: "swift-dependencies"),
     .product(name: "Crypto", package: "swift-crypto"),
     .product(name: "KeychainAccess", package: "KeychainAccess", condition: applePlatforms),
     // `HTTPTypes` is pure Swift (no Foundation) and links on every platform, including WASM.
@@ -70,7 +72,10 @@ let package = Package(
         ),
         .testTarget(
             name: "BSWFoundationTests",
-            dependencies: ["BSWFoundation"]
+            dependencies: [
+                "BSWFoundation",
+                .product(name: "DependenciesTestSupport", package: "swift-dependencies"),
+            ]
         ),
     ],
     swiftLanguageModes: [.v6],
