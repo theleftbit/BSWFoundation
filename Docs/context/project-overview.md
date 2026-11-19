@@ -7,7 +7,7 @@
 - Product: `BSWFoundation`
 - Main target: `Sources/BSWFoundation`
 - Test target: `Tests/BSWFoundationTests`
-- Swift tools version: `6.2`
+- Swift tools version: `6.4`
 - Swift language mode: `6`
 - Minimum declared platforms: iOS 17, tvOS 17, macOS 15, Mac Catalyst 17 and watchOS 11
 
@@ -15,6 +15,7 @@
 
 - `swift-crypto` provides HMAC support in `String+Crypto`.
 - `KeychainAccess` backs AppleOS keychain storage.
+- `swift-dependencies` supplies scoped persistence overrides; only its Foundation trait is requested. The integration uses `Dependencies` without the macros product, and tests use `DependenciesTestSupport`.
 - `skip-fuse` and `skip-keychain` are included only when `SKIP_ENABLED` is present in the environment.
 
 ## Documentation Responsibilities

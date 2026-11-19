@@ -2,58 +2,31 @@
 //  Created by Pierluigi Cifani on 20/06/2019.
 //
 import Foundation
-
-#if os(Android)
-import SkipKeychain
-#else
-import KeychainAccess
-#endif
+import Dependencies
 
 /// This is supported anywhere but Linux
 #if !os(Linux)
 
 /// Stores a String on the Keychain
+/// Captures `DependencyValues.bswKeychain` during initialization.
 @propertyWrapper
 public class KeychainBacked {
     private let key: String
-    private let keychain: Keychain
+    private let keychain: KeychainClient.Store
 
     public init(key: String, appGroupID: String? = nil) {
         self.key = key
-        #if os(anyAppleOS)
-        self.keychain = {
-            if let appGroupID = appGroupID {
-                return Keychain(service: Bundle.main.bundleIdentifier!, accessGroup: appGroupID)
-            } else {
-                return Keychain(service: Bundle.main.bundleIdentifier!)
-            }
-        }()
-        #else
-        self.keychain = Keychain.shared
-        #endif
+        @Dependency(\.bswKeychain) var client
+        self.keychain = client.store(nil, appGroupID)
     }
     
-    #if os(anyAppleOS)
     public var wrappedValue: String? {
         get {
-            return keychain[key]
+            keychain.read(key)
         } set {
-            keychain[key] = newValue
+            keychain.set(newValue, key)
         }
     }
-    #else
-    public var wrappedValue: String? {
-        get {
-            return try? keychain.string(forKey: key)
-        } set {
-            if let newValue {
-                try? keychain.set(newValue, forKey: key)
-            } else {
-                try? keychain.removeValue(forKey: key)
-            }
-        }
-    }
-    #endif
 }
 
 public extension KeychainBacked {
@@ -63,41 +36,29 @@ public extension KeychainBacked {
 }
 
 /// Stores the given `T` type on the Keychain (as long as it's `Codable`)
+/// Captures `DependencyValues.bswKeychain` during initialization.
 @propertyWrapper
 public class CodableKeychainBacked<T: Codable> {
     private let key: String
-    private let keychain: Keychain
+    private let keychain: KeychainClient.Store
 
     public init(key: String) {
         self.key = key
-        #if os(anyAppleOS)
-        self.keychain = Keychain(service: Bundle.main.bundleIdentifier!)
-        #else
-        self.keychain = Keychain.shared
-        #endif
+        @Dependency(\.bswKeychain) var client
+        self.keychain = client.store(nil, nil)
     }
     
-    #if os(anyAppleOS)
     public var wrappedValue: T? {
         get {
-            return keychain[key]?.decoded()
+            keychain.read(key)?.decoded()
         } set {
-            keychain[key] = newValue.encodedAsString()
+            #if os(anyAppleOS)
+            keychain.set(newValue.encodedAsString(), key)
+            #else
+            keychain.set(newValue?.encodedAsString(), key)
+            #endif
         }
     }
-    #else
-    public var wrappedValue: T? {
-        get {
-            return try? keychain.string(forKey: key)?.decoded()
-        } set {
-            if let newValue, let stringValue = newValue.encodedAsString() {
-                try? keychain.set(stringValue, forKey: key)
-            } else {
-                try? keychain.removeValue(forKey: key)
-            }
-        }
-    }
-    #endif
 }
 
 public extension CodableKeychainBacked {

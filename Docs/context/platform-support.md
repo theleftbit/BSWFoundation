@@ -2,6 +2,8 @@
 
 `BSWFoundation` is Apple-first and has an explicit Skip/Android path for the subset that can run without Apple-only frameworks.
 
+Persistence dependency overrides use native Swift `swift-dependencies` on Apple and Skip/Android. Both platforms have in-memory test clients; live storage continues to use the platform-specific defaults and keychain implementations. See [persistence](../features/persistence.md) for namespace and type-support differences.
+
 ## Apple Platforms
 
 The package declares iOS, tvOS, macOS, Mac Catalyst and watchOS support in `Package.swift`. The dependency condition also includes visionOS for Apple-only dependencies, but `visionOS` is not currently listed as a minimum package platform. Apple OS-only functionality is guarded with `#if os(anyAppleOS)` or framework availability checks.

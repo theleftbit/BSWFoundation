@@ -15,10 +15,11 @@
 
 `Sources/BSWFoundation/AuthStorage/` and `Sources/BSWFoundation/PropertyWrappers/` contain storage helpers:
 
-- `AuthStorage` stores auth identifiers and tokens in Keychain on Apple OSs.
+- `AuthStorage` stores auth identifiers and tokens in Keychain on Apple OSs, using the same scoped storage clients as the property wrappers.
 - `KeychainBacked` wraps string keychain values.
 - `CodableKeychainBacked` wraps codable keychain values.
 - `UserDefaultsBacked` and `CodableUserDefaultsBacked` wrap user defaults values.
+- `UserDefaultsClient` and `KeychainClient` provide live and isolated in-memory stores, selected through `DependencyValues.bswUserDefaults` and `.bswKeychain` when wrappers are initialized.
 - JWT helpers decode token claims and expose expiration checks. They currently live in `AuthStorage.swift` and compile with the same AppleOS guard.
 
 ## Async And Observation

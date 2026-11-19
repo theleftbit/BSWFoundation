@@ -4,24 +4,27 @@
 //
 #if os(anyAppleOS)
 import Foundation
-
-@preconcurrency import KeychainAccess
+import Dependencies
 
 /// A class that's useful to store sensitive information using the device's Keychain.
+/// Captures `DependencyValues.bswUserDefaults` and `.bswKeychain` at initialization.
 public final class AuthStorage: Sendable {
     
     /// A standard `AuthStorage` with a `.simple` style.
+    /// This singleton retains the dependencies from its first access. Tests should
+    /// create a fresh `AuthStorage()` inside their dependency override scope.
     public static let defaultStorage = AuthStorage()
 
     private var appBeenExecuted: Bool {
         get {
-            UserDefaults.standard.bool(forKey: Keys.HasAppBeenExecuted)
+            defaults.readBool(Keys.HasAppBeenExecuted)
         }
         set {
-            UserDefaults.standard.setValue(newValue, forKey: Keys.HasAppBeenExecuted)
+            defaults.set(newValue, Keys.HasAppBeenExecuted)
         }
     }
-    private let keychain: Keychain
+    private let defaults: UserDefaultsClient.Store
+    private let keychain: KeychainClient.Store
 
     /// Where should `AppStorage` put it's values.
     public enum Style: Equatable {
@@ -32,14 +35,15 @@ public final class AuthStorage: Sendable {
     }
     
     public init(style: Style = .simple) {
-        self.keychain = {
-            switch style {
-            case .simple:
-                return Keychain(service: Bundle.main.bundleIdentifier!)
-            case .appGroup(let id, let appName):
-                return Keychain(service: appName, accessGroup: id)
-            }
-        }()
+        @Dependency(\.bswUserDefaults) var defaultsClient
+        @Dependency(\.bswKeychain) var keychainClient
+        self.defaults = defaultsClient.store(nil)
+        switch style {
+        case .simple:
+            self.keychain = keychainClient.store(nil, nil)
+        case .appGroup(let id, let appName):
+            self.keychain = keychainClient.store(appName, id)
+        }
         
         if appBeenExecuted == false, style == .simple {
             // Clear the keychain on app's first launch, so the user
@@ -51,33 +55,33 @@ public final class AuthStorage: Sendable {
 
     public var jwtToken: String? {
         get {
-            keychain[Keys.JWT]
+            keychain.read(Keys.JWT)
         } set {
-            keychain[Keys.JWT] = newValue
+            keychain.set(newValue, Keys.JWT)
         }
     }
     
     public var userID: String? {
         get {
-            keychain[Keys.UserID]
+            keychain.read(Keys.UserID)
         } set {
-            keychain[Keys.UserID] = newValue
+            keychain.set(newValue, Keys.UserID)
         }
     }
     
     public var authToken: String? {
         get {
-            keychain[Keys.AuthToken]
+            keychain.read(Keys.AuthToken)
         } set {
-            keychain[Keys.AuthToken] = newValue
+            keychain.set(newValue, Keys.AuthToken)
         }
     }
     
     public var refreshToken: String? {
         get {
-            keychain[Keys.RefreshToken]
+            keychain.read(Keys.RefreshToken)
         } set {
-            keychain[Keys.RefreshToken] = newValue
+            keychain.set(newValue, Keys.RefreshToken)
         }
     }
     
