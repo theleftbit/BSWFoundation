@@ -64,6 +64,8 @@ Nil and reset remove defaults entries. Missing or incorrectly typed primitive va
 
 ## Dependency Overrides For App Tests
 
+Scoped injection lets consuming apps test models without touching shared defaults or the real keychain, and without passing storage through every model initializer. The integration uses `swift-dependencies` without its macros product.
+
 All four wrappers retain their existing initializers and property syntax. They capture a store from `swift-dependencies` during initialization:
 
 - `DependencyValues.bswUserDefaults` is a `UserDefaultsClient`, shared by both defaults wrappers.
